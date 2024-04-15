@@ -81,8 +81,6 @@ $chapters=$Chapter->get($series_id);
         <div class="loader"></div>
     </div>
 
-    
-
     <!-- Breadcrumb Begin -->
     <div class="breadcrumb-option">
         <div class="container">
@@ -119,7 +117,7 @@ $chapters=$Chapter->get($series_id);
                             <div class="anime__details__rating">
                                 <div class="rating">
                                     <a href="#"><i class="fa fa-star"></i></a>
-                                    <a href="#"><i class="fa fa-star"></i></a>
+                                    <a href="#"><i class="fa fa-star-o"></i></a>
                                     <a href="#"><i class="fa fa-star"></i></a>
                                     <a href="#"><i class="fa fa-star"></i></a>
                                     <a href="#"><i class="fa fa-star-half-o"></i></a>
