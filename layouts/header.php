@@ -8,43 +8,53 @@
                     <a href="./index.php">
                         <img src="img/logo.png" alt="">
                     </a>
+                    
                 </div>
             </div>
             <div class="col-lg-7">
                 <div class="header__nav">
                     <nav class="header__menu mobile-menu">
+                        
                         <ul>
                             <li class="<?php if($page_name=='Home') echo'active' ?>"><a href="./index.php">Home</a></li>
+                            <li class="<?php if($page_name=='My Series') echo'active' ?>"><a href="my_series.php?page=1">My Series</a></li>
+                            <li class="<?php if($page_name=='Blog') echo'active' ?>"><a href="./blog.php?page=1">Our Blog</a></li>
+                            <?php if(isset($categories)){ ?>
                             <li><a href="./categories.html">Categories <span class="arrow_carrot-down"></span></a>
                                 <ul class="dropdown">
-                                    <li><a href="./categories.html">Categories</a></li>
-                                    <li><a href="./anime-details.html">Anime Details</a></li>
-                                    <li><a href="./anime-watching.html">Anime Watching</a></li>
-                                    <li><a href="./blog-details.html">Blog Details</a></li>
-                                    <li><a href="./signup.html">Sign Up</a></li>
-                                    <li><a href="./login.html">Login</a></li>
+                                    <?php foreach($categories as $category){
+                                        $category_id=$category['id'];
+                                        $title=$category['title'];
+                                        ?>
+                                        <li><a href='<?php echo "series.php?category_id=$category_id&category=$title&page=1" ?>'> <?php echo $title ?></a></li>
+                                    <?php }?>
                                 </ul>
                             </li>
-
-                            <li><a href="./blog.php">Our Blog</a></li>
-                            <li class="<?php if($page_name=='My Series') echo'active' ?>"><a href="my_series.php?page=1">My Series</a></li>
+                            <?php }?>
                         </ul>
                     </nav>
                 </div>
             </div>
             <div class="col-lg-3">
                 <div class="header__right">
-                    <a href="#" class="search-switch"><span class="icon_search"></span></a>
+                    
+                    <!-- <a href="#" class="search-switch"><span class="icon_search"></span></a> -->
+                   
                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                              <a href="profile.php">
                                 <img src="<?php echo $user['image_url'] ?>" style="width:30px; height:30px; border-radius:50px;">
                                
                             </a>
-                             <a href="logout.php">Log out</a>
+                             <a href="logout.php" style="font-size:16px;">Logout</a>
+                             <a href="vip_register.php">
+                                <span style="background:yellow;border-radius:20px;padding:7px;width:70px;text-align:center;font-size:13px;font-weight:bold;color:black">
+                                    <?php echo $Util->formatCount( $user['point']) ?>
+                                </span>
+                             </a>
 
                     <?php } else { ?>
                             <a href="./login.php"><span class="icon_profile"></span></a>
-                            <a href="login.php">Log In</a>
+                            <a href="login.php" style="font-size:16px;">Login</a>
                     <?php }?>
                     
                 </div>

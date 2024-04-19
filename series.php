@@ -5,6 +5,7 @@ include('classes/connect.php');
 include('classes/series.php');
 include('classes/category.php');
 include('classes/util.php');
+include('classes/view_history.php');
 
 include('classes/user.php');
 $User=new User();
@@ -19,22 +20,34 @@ $page=$_GET['page'];
 
 $Util=new Util();
 $Series=new Series();
-$Category=new Category();
 
+$Category=new Category();
+$categories=$Category->get();
 
 if($page_name=="Popular Shows"){
     $series=$Series->getPopularSeries($_GET);
 }else if($page_name=="Trending Now"){
     $series=$Series->getTendingSeries($_GET);
-}else{
+}else if($page_name=="Recently Added Shows"){
     $series=$Series->getNewSeries($_GET);
+}else{
+     $series=$Series->getSeriesByCategory($_GET);
 }
 
-$categories=$Category->get();
+
 
 $total_series=$series['total_series'];
 $filtered_series=$series['series'];
- 
+
+$ViewHistory = new ViewHistory();
+
+$dayViews = $ViewHistory->topViewDay();
+$weekViews = $ViewHistory->topViewWeek();
+$monthViews = $ViewHistory->topViewMonth();
+$yearViews = $ViewHistory->topViewYear();
+
+$newCommentSeries = $Series->newCommentSeries();
+
  
 ?>
 
@@ -43,6 +56,22 @@ $filtered_series=$series['series'];
 
 <head>
     <?php include('layouts/head.php'); ?>
+    <style>
+        .category{
+            color:#aaa;
+            
+            padding:7px;
+            border-radius:5px;
+            background-color:#30505050;
+            margin-bottom:10px;
+        }
+
+        .category:hover{
+            color:white;
+            cursor: pointer;
+            background-color:#444;
+        }
+    </style>
 </head>
 
 <body>
@@ -86,26 +115,15 @@ $filtered_series=$series['series'];
                                         <h4> <?php echo $page_name ?></h4>
                                     </div>
                                 </div>
-                                <div class="col-lg-4 col-md-4 col-sm-6">
-                                    <div class="product__page__filter">
-                                        <p>Order by:</p>
-                                        <select>
-                                            <option value="">A-Z</option>
-                                            <option value="">1-10</option>
-                                            <option value="">10-50</option>
-                                        </select>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                         <div class="row">
-
-                           <?php foreach($filtered_series as $ser){?>
+                            <?php if($filtered_series) { foreach($filtered_series as $ser){?>
                                 <div class="col-lg-4 col-md-6 col-sm-6" >
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                         <div class="product__item">
                                             <div class="product__item__pic set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
-                                                <div class="ep"> <?php echo $ser['uploaded_chapter']." / ".$ser['total_chapter'] ?></div>
+                                                <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
                                                 <div class="comment"><i class="fa fa-comments"></i> <?php echo $Util->formatCount($ser['comment'])?> </div>
                                                 <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?></div>
                                             </div>
@@ -120,10 +138,17 @@ $filtered_series=$series['series'];
                                     </a>
                                 </div>
 
+                            <?php }}else{?>
+                                <div class="anime__review__item" style="width:100%;text-align:center">     
+                                    <div class="anime__review__item__text">
+                                        <p>No Series</p>
+                                    </div>
+                                </div>
                             <?php }?>
                             
                         </div>
                     </div>
+
                     <div class="product__pagination">
                         <?php if($page>1) { ?>
                             <a href='<?php echo "?category=$page_name&page=".($page-1) ?>'><i class="fa fa-angle-double-left"></i></a>
@@ -140,108 +165,127 @@ $filtered_series=$series['series'];
                             <a href='<?php echo "?category=$page_name&page=".($page+1) ?>'><i class="fa fa-angle-double-right"></i></a>
                         <?php } ?>
                     </div>
+                    
                 </div>
                 <div class="col-lg-4 col-md-6 col-sm-8">
                     <div class="product__sidebar">
+
+                        <div class="product__sidebar">
+                            <div class="product__sidebar__view">
+                                <div class="section-title">
+                                    <h5>Categories</h5>
+                                </div>
+                                <?php  foreach($categories as $category){
+                                    $category_id=$category['id'];
+                                    $title=$category['title'];
+                                    ?>
+                                    <a href='<?php echo "series.php?category_id=$category_id&category=$title&page=1" ?>'>
+                                        <div class="category" >
+                                            <?php echo $title?>
+                                        </div>
+                                    </a>
+                                <?php }?>
+                            </div>
+                        </div>
+
+
                         <div class="product__sidebar__view">
                             <div class="section-title">
                                 <h5>Top Views</h5>
                             </div>
                             <ul class="filter__controls">
-                                <li class="active" data-filter="*">Day</li>
-                                <li data-filter=".week">Week</li>
-                                <li data-filter=".month">Month</li>
-                                <li data-filter=".years">Years</li>
+                                <li id="day" class="active" data-filter=".day">Day</li>
+                                <li id="week" data-filter=".week">Week</li>
+                                <li id="month" data-filter=".month">Month</li>
+                                <li id="year" data-filter=".years">Years</li>
                             </ul>
                             <div class="filter__gallery">
-                                <div class="product__sidebar__view__item set-bg mix day years"
-                                data-setbg="img/sidebar/tv-1.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Boruto: Naruto next generations</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg mix month week"
-                            data-setbg="img/sidebar/tv-2.jpg">
-                            <div class="ep">18 / ?</div>
-                            <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                            <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
+                                <div id="top_view_container" style="display:none">
+                                    
+                                        <?php foreach($yearViews as $view){
+                                            $id=$view['series_id'];
+                                            $ser = $Series->topViewDetail($id);
+                                        ?>
+                                            <a href="details.php?id=<?php echo $ser['id']?>">
+                                            <div class="product__sidebar__view__item set-bg mix years"
+                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                            <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
+                                            <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                        </div>
+                                        </a>
+                                    <?php }?>
+                            
+                                    <?php foreach($monthViews as $view){
+                                            $id=$view['series_id'];
+                                            $ser = $Series->topViewDetail($id);
+                                        ?>
+                                            <a href="details.php?id=<?php echo $ser['id']?>">
+                                            <div class="product__sidebar__view__item set-bg mix month"
+                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                           <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                            <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
+                                            <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                        </div>
+                                        </a>
+                                    <?php }?>
+
+                                    <?php foreach($weekViews as $view){
+                                            $id=$view['series_id'];
+                                            $ser = $Series->topViewDetail($id);
+                                        ?>
+                                            <a href="details.php?id=<?php echo $ser['id']?>">
+                                            <div class="product__sidebar__view__item set-bg mix week"
+                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                            <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
+                                            <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                        </div>
+                                        </a>
+                                    <?php }?>
+                                </div>
+                            
+                            <?php foreach($dayViews as $view){
+                                    $id=$view['series_id'];
+                                    $ser = $Series->topViewDetail($id);
+                                ?>
+                                    <a href="details.php?id=<?php echo $ser['id']?>">
+                                    <div class="product__sidebar__view__item set-bg mix day"
+                                      data-setbg="<?php echo $ser['image_url'] ?>">
+                                    <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                    <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
+                                    <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                </div>
+                                </a>
+                            <?php }?>
+
                         </div>
-                        <div class="product__sidebar__view__item set-bg mix week years"
-                        data-setbg="img/sidebar/tv-3.jpg">
-                        <div class="ep">18 / ?</div>
-                        <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                        <h5><a href="#">Sword art online alicization war of underworld</a></h5>
                     </div>
-                    <div class="product__sidebar__view__item set-bg mix years month"
-                    data-setbg="img/sidebar/tv-4.jpg">
-                    <div class="ep">18 / ?</div>
-                    <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                    <h5><a href="#">Fate/stay night: Heaven's Feel I. presage flower</a></h5>
-                </div>
-                <div class="product__sidebar__view__item set-bg mix day"
-                data-setbg="img/sidebar/tv-5.jpg">
-                <div class="ep">18 / ?</div>
-                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                <h5><a href="#">Fate stay night unlimited blade works</a></h5>
-            </div>
-        </div>
-    </div>
     <div class="product__sidebar__comment">
+
         <div class="section-title">
             <h5>New Comment</h5>
         </div>
-        <div class="product__sidebar__comment__item">
-            <div class="product__sidebar__comment__item__pic">
-                <img src="img/sidebar/comment-1.jpg" alt="">
+        
+        <?php foreach($newCommentSeries as $ser){ ?>
+            <div class="product__sidebar__comment__item">
+                <div class="product__sidebar__comment__item__pic">
+                    <img style="width:100px;" src="<?php echo $ser['image_url'] ?>" alt="">
+                </div>
+                <div class="product__sidebar__comment__item__text">
+                    <ul>
+                        <li>Active</li>
+                        <?php if($ser['point']==0){?>
+                            <li>Free</li>
+                        <?php }?>
+                        <li><?php echo $Category->filterCategory($ser['category_id'],$categories) ?></li>
+                    </ul>
+                    <h5><a href="details.php?id=<?php echo $ser['series_id']?>"><?php echo $ser['title']; ?></a></h5>
+                    <span><i class="fa fa-eye"></i> <?php echo $ser['view']; if($ser['view']>1) echo " Views"; else echo " View"; ?> </span>
+                </div>
             </div>
-            <div class="product__sidebar__comment__item__text">
-                <ul>
-                    <li>Active</li>
-                    <li>Movie</li>
-                </ul>
-                <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-            </div>
-        </div>
-        <div class="product__sidebar__comment__item">
-            <div class="product__sidebar__comment__item__pic">
-                <img src="img/sidebar/comment-2.jpg" alt="">
-            </div>
-            <div class="product__sidebar__comment__item__text">
-                <ul>
-                    <li>Active</li>
-                    <li>Movie</li>
-                </ul>
-                <h5><a href="#">Shirogane Tamashii hen Kouhan sen</a></h5>
-                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-            </div>
-        </div>
-        <div class="product__sidebar__comment__item">
-            <div class="product__sidebar__comment__item__pic">
-                <img src="img/sidebar/comment-3.jpg" alt="">
-            </div>
-            <div class="product__sidebar__comment__item__text">
-                <ul>
-                    <li>Active</li>
-                    <li>Movie</li>
-                </ul>
-                <h5><a href="#">Kizumonogatari III: Reiket su-hen</a></h5>
-                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-            </div>
-        </div>
-        <div class="product__sidebar__comment__item">
-            <div class="product__sidebar__comment__item__pic">
-                <img src="img/sidebar/comment-4.jpg" alt="">
-            </div>
-            <div class="product__sidebar__comment__item__text">
-                <ul>
-                    <li>Active</li>
-                    <li>Movie</li>
-                </ul>
-                <h5><a href="#">Monogatari Series: Second Season</a></h5>
-                <span><i class="fa fa-eye"></i> 19.141 Viewes</span>
-            </div>
-        </div>
+        <?php }?>
+
     </div>
 </div>
 </div>
@@ -266,6 +310,22 @@ $filtered_series=$series['series'];
     </div>
 </div>
 <!-- Search model end -->
+
+<script>
+    document.getElementById('day').addEventListener('click',()=>{
+        document.getElementById('top_view_container').setAttribute('style',"");
+    })
+    document.getElementById('week').addEventListener('click',()=>{
+        document.getElementById('top_view_container').setAttribute('style',"");
+    })
+    document.getElementById('month').addEventListener('click',()=>{
+        document.getElementById('top_view_container').setAttribute('style',"");
+    })
+    document.getElementById('year').addEventListener('click',()=>{
+        document.getElementById('top_view_container').setAttribute('style',"");
+    })
+    
+</script>
 
 <!-- Js Plugins -->
 <script src="js/jquery-3.3.1.min.js"></script>

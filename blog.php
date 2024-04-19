@@ -1,9 +1,26 @@
 <?php 
-$page_name="Home";
+$page_name="Blog";
 session_start();
 include('classes/connect.php');
+include('classes/blog.php');
+include('classes/util.php');
 
 
+include('classes/user.php');
+$User=new User();
+if(isset($_SESSION['webtoon_userid'])){
+    $user=$User->details($_SESSION['webtoon_userid']);
+}
+
+$page=$_GET['page'];
+
+$Blog=new Blog();
+$result=$Blog->get($_GET);
+
+$blogs=$result['blogs'];
+$total_blog=$result['total_blog'];
+
+$Util=new Util();
 
 ?>
 
@@ -16,9 +33,9 @@ include('classes/connect.php');
 
 <body>
     <!-- Page Preloder -->
-    <div id="preloder">
+    <!-- <div id="preloder">
         <div class="loader"></div>
-    </div>
+    </div> -->
 
     <!-- Header Section Begin -->
      <?php 
@@ -47,108 +64,76 @@ include('classes/connect.php');
             <div class="row">
                 <div class="col-lg-6">
                     <div class="row">
-                        <div class="col-lg-12">
-                            <div class="blog__item set-bg" data-setbg="img/blog/blog-1.jpg">
+                        <?php 
+                        $index=1;
+                        if($blogs){
+                        for($i=0;$i<count($blogs);$i+=2){
+                            $blog=$blogs[$i]; 
+                            $col_check = $index%3==0;
+                            $mydate=strtotime($blog['date']);
+                            $mydate=date( 'Y M,d', $mydate);
+                            $index++;
+                            ?>
+
+                        <div class="<?php if($col_check) echo "col-lg-12";else echo 'col-lg-6 col-md-6 col-sm-6' ?>">
+                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $blog['image_url']; ?>">
                                 <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Yuri Kuma Arashi Viverra Tortor Pharetra</a></h4>
+                                    <p><span class="icon_calendar"></span> <?php echo $mydate ?></p>
+                                    <h4><a href="blog_details.php?id=<?php echo $blog['id'];?>"><?php echo $blog['title']; ?></a></h4>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-4.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Bok no Hero Academia Season 4 – 18</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-5.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Fate/Stay Night: Untimated Blade World</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="blog__item set-bg" data-setbg="img/blog/blog-7.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Housekishou Richard shi no Nazo Kantei Season 08 - 20</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-10.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Fate/Stay Night: Untimated Blade World</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-11.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Building a Better LiA Drilling Down</a></h4>
-                                </div>
-                            </div>
-                        </div>
+
+                        <?php } } ?>
                     </div>
                 </div>
+
+
                 <div class="col-lg-6">
+                   
                     <div class="row">
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-2.jpg">
+                        <?php 
+                        $index=0;
+                        if($blogs){
+                        for($i=1;$i<count($blogs);$i+=2){
+                            $blog=$blogs[$i]; 
+                            $col_check = $index%3==0;
+                            $mydate=strtotime($blog['date']);
+                            $mydate=date( 'Y M,d', $mydate);
+                            $index++;
+                            ?>
+
+                        <div class="<?php if($col_check) echo "col-lg-12";else echo 'col-lg-6 col-md-6 col-sm-6' ?>">
+                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $blog['image_url']; ?>">
                                 <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Fate/Stay Night: Untimated Blade World</a></h4>
+                                    <p><span class="icon_calendar"></span> <?php echo $mydate ?></p>
+                                    <h4><a href="blog_details.php?id=<?php echo $blog['id'];?>"><?php echo $blog['title']; ?></a></h4>
                                 </div>
                             </div>
                         </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-3.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Building a Better LiA Drilling Down</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="blog__item set-bg" data-setbg="img/blog/blog-6.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Yuri Kuma Arashi Viverra Tortor Pharetra</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-8.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Bok no Hero Academia Season 4 – 18</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-6 col-md-6 col-sm-6">
-                            <div class="blog__item small__item set-bg" data-setbg="img/blog/blog-9.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Fate/Stay Night: Untimated Blade World</a></h4>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-lg-12">
-                            <div class="blog__item set-bg" data-setbg="img/blog/blog-12.jpg">
-                                <div class="blog__item__text">
-                                    <p><span class="icon_calendar"></span> 01 March 2020</p>
-                                    <h4><a href="#">Yuri Kuma Arashi Viverra Tortor Pharetra</a></h4>
-                                </div>
-                            </div>
-                        </div>
+
+                        <?php } }?>
                     </div>
                 </div>
+
+
+            </div>
+
+            <div class="product__pagination">
+                <?php if($page>1) { ?>
+                    <a href='<?php echo "?page=".($page-1) ?>'><i class="fa fa-angle-double-left"></i></a>
+                
+                <?php } ?>
+
+                <?php for($i=0;$i<$total_blog/18;$i++){ 
+                        $index=$i+1;
+                    ?>
+                    <a href='<?php echo "?page=$index" ?>' class="<?php if($index==$page) echo 'current-page' ?>"><?php echo $index ?></a>
+
+                <?php } ?>
+                <?php if($page<$total_blog/18) { ?>
+                    <a href='<?php echo "?page=".($page+1) ?>'><i class="fa fa-angle-double-right"></i></a>
+                <?php } ?>
             </div>
         </div>
     </section>

@@ -14,10 +14,14 @@ $Series=new Series();
 
 $isSaved=false;
 $series_id=$_GET['id'];
+$myRating=0;
+
 if(isset($_SESSION['webtoon_userid'])){
     $user_id=$_SESSION['webtoon_userid'];
     $user=$User->details($user_id);
     $isSaved=$Series->isSaved($user_id,$series_id);
+
+    $myRating=$Series->getMyRating($user_id,$series_id);
 }
 
 
@@ -30,7 +34,9 @@ $Util=new Util();
 $Comment=new Comment();
 
 $series=$Series->details($_GET);
+$series_you_like=$Series->getSeriesYouMayLike($series['category_id']);
 
+ 
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
     if(isset($_SESSION['webtoon_userid'])){
@@ -42,13 +48,18 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             die;
         }else if($action_type=="save"){
             $Series->saveSeriesByUser($_POST);
-        }        
+        }else if($action_type=="rating"){
+            $Series->rate($_POST);
+            header("Location:details.php?id=$series_id");
+            die;
+        }    
     }else{
         header('Location:login.php');
         die;
     }
 }
 
+$seriesRating=$Series->getRating($series_id);
 
 $total_comment=$series['comment'];
 if(isset($_GET['cmt'])){
@@ -115,14 +126,33 @@ $chapters=$Chapter->get($series_id);
                                 <span>フェイト／ステイナイト, Feito／sutei naito</span>
                             </div>
                             <div class="anime__details__rating">
+                               
                                 <div class="rating">
-                                    <a href="#"><i class="fa fa-star"></i></a>
-                                    <a href="#"><i class="fa fa-star-o"></i></a>
-                                    <a href="#"><i class="fa fa-star"></i></a>
-                                    <a href="#"><i class="fa fa-star"></i></a>
-                                    <a href="#"><i class="fa fa-star-half-o"></i></a>
+                                    <form action="" method="POST">
+                                        <input type="hidden" name="series_id" value="<?php echo $series_id ?>">
+                                        <input type="hidden" name="user_id" value="<?php echo $user['id'] ?>">
+                                        <input id="input_value" type="hidden" name="star" value="0">
+                                        <input type="hidden" name="action_type" value="rating">
+
+                                        <?php for($i=1;$i<=5;$i++){ ?>
+                                            <?php if($i<=$myRating){ ?>
+                                                <a style="cursor:pointer;color:white;" onclick="this.parentNode.submit()"><i id="star<?php echo $i ?>" class="fa fa-star"></i></a>
+                                            <?php } else{?>
+                                                <a style="cursor:pointer;color:white;" onclick="this.parentNode.submit()"><i id="star<?php echo $i ?>" class="fa fa-star-o"></i></a>
+                                            <?php }?>
+                                        <?php } ?>    
+                                    </form>
                                 </div>
-                                <span>1.029 Votes</span>
+                               
+                                <span>
+                                    <?php 
+                                        if($myRating>0){
+                                            echo "My rating - ". $myRating;
+                                        }else{
+                                            echo "Define rating";
+                                        }
+                                    ?>
+                                </span>
                             </div>
                             <p> <?php echo $series['description'] ?></p>
                             <div class="anime__details__widget">
@@ -139,25 +169,26 @@ $chapters=$Chapter->get($series_id);
                                     <div class="col-lg-6 col-md-6">
                                         <ul>
                                             <li><span>Scores:</span> 7.31 / 1,515</li>
-                                            <li><span>Rating:</span> 8.5 / 161 times</li>
+                                            <li><span>Rating:</span> <?php echo $seriesRating ?></li>
                                             <li><span>Views:</span> <?php echo $Util->formatCount($series['view']) ?></li>
+                                             <li><span>Point:</span> <?php echo $Util->formatCount($series['point']) ?></li>
                                         </ul>
                                     </div>
                                 </div>
                             </div>
 
                             <div class="anime__details__btn">
-                                <form action="" method="POST">
-                                    <input type="hidden" name="series_id" value="<?php echo $series_id ?>">
-                                    <input type="hidden" name="user_id" value="<?php echo $user['id'] ?>">
-                                    <input type="hidden" name="action_type" value="save">
-                                        <?php if($isSaved){ ?>
-                                            <a style="cursor:pointer;color:white;" onclick="this.parentNode.submit()" class="follow-btn"><i class="fa fa-heart"></i></a>
-                                            <a href="cursor:pointer;color:white;" onclick="this.parentNode.submit()" class="follow-btn">Remove</a>
-                                        <?php }else { ?>
-                                            <a style="cursor:pointer;color:white;" onclick="this.parentNode.submit()" class="follow-btn"><i class="fa fa-heart-o"></i> Save</a>
+                               
+                                    <?php if($isSaved){ ?>
+                                        <a style="cursor:pointer;color:white;" class="follow-btn"><i class="fa fa-heart"></i></a>
+                                        <a style="cursor:pointer;color:white;" class="follow-btn">Saved</a>
+                                    <?php }else { ?>
+                                        <?php if($series['point']>0){ ?>
+                                            <a href="get_now.php?id=<?php echo $series_id?>" class="follow-btn">Get Now</a>
                                         <?php }?>
-                                </form>
+                                        
+                                    <?php }?>
+                              
                                 </div>
                             </div>
                         </div>
@@ -166,6 +197,7 @@ $chapters=$Chapter->get($series_id);
 
                 <div class="row">
                     <div class="col-lg-8 col-md-8">
+
                         <div class="anime__details__review">
                             <div class="section-title">
                                 <h5>Chapters</h5>
@@ -173,8 +205,12 @@ $chapters=$Chapter->get($series_id);
 
                             <?php if($chapters) {foreach($chapters as $chapter){ 
                                 if(isset($user)){ 
-                                    if($user['is_vip']==1)$download_url=$chapter['download_url'];
-                                    else $download_url="vip_register.php";
+                                    if($series['point']>0){
+                                        if($isSaved)$download_url=$chapter['download_url'];
+                                        else $download_url="get_now.php?id=".$series_id;
+                                    }else{
+                                        $download_url=$chapter['download_url'];
+                                    }
                                 }else{
                                     $download_url="login.php";
                                 }
@@ -276,26 +312,20 @@ $chapters=$Chapter->get($series_id);
                             <div class="section-title">
                                 <h5>you might like...</h5>
                             </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-1.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Boruto: Naruto next generations</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-2.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">The Seven Deadly Sins: Wrath of the Gods</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-3.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Sword art online alicization war of underworld</a></h5>
-                            </div>
-                            <div class="product__sidebar__view__item set-bg" data-setbg="img/sidebar/tv-4.jpg">
-                                <div class="ep">18 / ?</div>
-                                <div class="view"><i class="fa fa-eye"></i> 9141</div>
-                                <h5><a href="#">Fate/stay night: Heaven's Feel I. presage flower</a></h5>
-                            </div>
+                            
+                            <?php foreach($series_you_like as $ser){ ?>
+                                <?php if($ser['id']!=$series_id){ ?>
+                                    <a href="details.php?id=<?php echo $ser['id']?>">
+                                        <div class="product__sidebar__view__item set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
+                                            <div class="ep">  <?php echo $ser['uploaded_chapter']." / ".$ser['total_chapter'] ?> </div>
+                                            <div class="view"><i class="fa fa-eye"></i> <?php echo $ser['view'] ?></div>
+                                            <h5> <a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                        </div>
+                                    </a>
+                                <?php }?>
+                            <?php }?>
+
+                        
                         </div>
                     </div>
                 </div>
@@ -329,6 +359,105 @@ $chapters=$Chapter->get($series_id);
         <script src="js/jquery.slicknav.js"></script>
         <script src="js/owl.carousel.min.js"></script>
         <script src="js/main.js"></script>
+
+        <script>
+
+            var star1 = document.getElementById('star1');
+            var star2 = document.getElementById('star2');
+            var star3 = document.getElementById('star3');
+            var star4 = document.getElementById('star4');
+            var star5 = document.getElementById('star5');
+            var input_value= document.getElementById('input_value');
+
+            document.getElementById('star1').addEventListener("mouseenter",()=>{
+                
+                star1.setAttribute("class", "fa fa-star");
+                input_value.setAttribute("value","1");
+            });
+            document.getElementById('star2').addEventListener("mouseenter",()=>{
+                
+                star1.setAttribute("class", "fa fa-star");
+                star2.setAttribute("class", "fa fa-star");
+                input_value.setAttribute("value","2");
+            });
+             document.getElementById('star3').addEventListener("mouseenter",()=>{
+                
+                star1.setAttribute("class", "fa fa-star");
+                star2.setAttribute("class", "fa fa-star");
+                star3.setAttribute("class", "fa fa-star");
+                input_value.setAttribute("value","3");
+            });
+             document.getElementById('star4').addEventListener("mouseenter",()=>{
+                
+                star1.setAttribute("class", "fa fa-star");
+                star2.setAttribute("class", "fa fa-star");
+                star3.setAttribute("class", "fa fa-star");
+                star4.setAttribute("class", "fa fa-star");
+                input_value.setAttribute("value","4");
+            });
+
+            document.getElementById('star5').addEventListener("mouseenter",()=>{
+                
+                star1.setAttribute("class", "fa fa-star");
+                star2.setAttribute("class", "fa fa-star");
+                star3.setAttribute("class", "fa fa-star");
+                star4.setAttribute("class", "fa fa-star");
+                star5.setAttribute("class", "fa fa-star");
+                input_value.setAttribute("value","5");
+            });
+
+            document.getElementById('star5').addEventListener("mouseleave",()=>{
+                
+                star1.setAttribute("class", "fa fa-star-o");
+                star2.setAttribute("class", "fa fa-star-o");
+                star3.setAttribute("class", "fa fa-star-o");
+                star4.setAttribute("class", "fa fa-star-o");
+                star5.setAttribute("class", "fa fa-star-o");
+                input_value.setAttribute("value","0");
+            });
+
+            document.getElementById('star4').addEventListener("mouseleave",()=>{
+                
+                star1.setAttribute("class", "fa fa-star-o");
+                star2.setAttribute("class", "fa fa-star-o");
+                star3.setAttribute("class", "fa fa-star-o");
+                star4.setAttribute("class", "fa fa-star-o");
+                star5.setAttribute("class", "fa fa-star-o");
+                input_value.setAttribute("value","0");
+            });
+            document.getElementById('star3').addEventListener("mouseleave",()=>{
+                
+                star1.setAttribute("class", "fa fa-star-o");
+                star2.setAttribute("class", "fa fa-star-o");
+                star3.setAttribute("class", "fa fa-star-o");
+                star4.setAttribute("class", "fa fa-star-o");
+                star5.setAttribute("class", "fa fa-star-o");
+                input_value.setAttribute("value","0");
+            });
+            document.getElementById('star2').addEventListener("mouseleave",()=>{
+                
+                star1.setAttribute("class", "fa fa-star-o");
+                star2.setAttribute("class", "fa fa-star-o");
+                star3.setAttribute("class", "fa fa-star-o");
+                star4.setAttribute("class", "fa fa-star-o");
+                star5.setAttribute("class", "fa fa-star-o");
+                input_value.setAttribute("value","0");
+            });
+            document.getElementById('star1').addEventListener("mouseleave",()=>{
+                
+                star1.setAttribute("class", "fa fa-star-o");
+                star2.setAttribute("class", "fa fa-star-o");
+                star3.setAttribute("class", "fa fa-star-o");
+                star4.setAttribute("class", "fa fa-star-o");
+                star5.setAttribute("class", "fa fa-star-o");
+                input_value.setAttribute("value","0");
+                
+            });
+
+
+
+        </script>
+
 
     </body>
 

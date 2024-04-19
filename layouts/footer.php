@@ -13,8 +13,8 @@
                 <div class="footer__nav">
                     <ul>
                         <li class="active"><a href="./index.php">Home</a></li>
-                        <li><a href="./blog.php">Our Blog</a></li>
-                         <li><a href="my_series.php?page=1">My Series</a></li>
+                        <li><a href="my_series.php?page=1">My Series</a></li>
+                        <li><a href="./blog.php?page=1">Our Blog</a></li>
                         <li><a href="#">Contacts</a></li>
                     </ul>
                 </div>
@@ -28,3 +28,4 @@
           </div>
       </div>
   </footer>
+
