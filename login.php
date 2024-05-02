@@ -3,17 +3,28 @@ session_start();
 
 include('classes/connect.php');
 include('classes/auth.php');
+include('classes/util.php');
+include('classes/user.php');
 
 $page_name="Login";
- 
 $Auth=new Auth();
 $error="";
+
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
     $error=$Auth->login($_POST);
     if($error=="") header('Location:index.php');
 }
 
+
+$User=new User();
+if(isset($_SESSION['webtoon_userid'])){
+    $user=$User->details($_SESSION['webtoon_userid']);
+    header('Location:index.php');
+}
+
+
+$Util=new Util();
 
 ?>
 
@@ -27,9 +38,9 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 
 <body>
     <!-- Page Preloder -->
-    <div id="preloder">
+    <!-- <div id="preloder">
         <div class="loader"></div>
-    </div>
+    </div> -->
 
     <!-- Header Section Begin -->
      <?php 
@@ -75,7 +86,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                             <?php }?>
                             <button type="submit" class="site-btn">Login Now</button>
                         </form>
-                        <a href="#" class="forget_pass">Forgot Your Password?</a>
+                        <a href="password_forget.php" class="forget_pass">Forgot Your Password?</a>
                     </div>
                 </div>
                 <div class="col-lg-6">

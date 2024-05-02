@@ -24,6 +24,8 @@ $Series=new Series();
 $Category=new Category();
 $categories=$Category->get();
 
+$category_main_id = $_GET['category_id'];
+
 if($page_name=="Popular Shows"){
     $series=$Series->getPopularSeries($_GET);
 }else if($page_name=="Trending Now"){
@@ -34,8 +36,6 @@ if($page_name=="Popular Shows"){
      $series=$Series->getSeriesByCategory($_GET);
 }
 
-
-
 $total_series=$series['total_series'];
 $filtered_series=$series['series'];
 
@@ -45,9 +45,7 @@ $dayViews = $ViewHistory->topViewDay();
 $weekViews = $ViewHistory->topViewWeek();
 $monthViews = $ViewHistory->topViewMonth();
 $yearViews = $ViewHistory->topViewYear();
-
 $newCommentSeries = $Series->newCommentSeries();
-
  
 ?>
 
@@ -58,18 +56,21 @@ $newCommentSeries = $Series->newCommentSeries();
     <?php include('layouts/head.php'); ?>
     <style>
         .category{
+
             color:#aaa;
-            
             padding:7px;
             border-radius:5px;
             background-color:#30505050;
             margin-bottom:10px;
+
         }
 
         .category:hover{
+
             color:white;
             cursor: pointer;
             background-color:#444;
+
         }
     </style>
 </head>
@@ -151,18 +152,18 @@ $newCommentSeries = $Series->newCommentSeries();
 
                     <div class="product__pagination">
                         <?php if($page>1) { ?>
-                            <a href='<?php echo "?category=$page_name&page=".($page-1) ?>'><i class="fa fa-angle-double-left"></i></a>
+                            <a href='<?php echo "?category_id=$category_main_id&category=$page_name&page=".($page-1) ?>'><i class="fa fa-angle-double-left"></i></a>
                         
                         <?php } ?>
 
                         <?php for($i=0;$i<$total_series/30;$i++){ 
                                 $index=$i+1;
                             ?>
-                            <a href='<?php echo "?category=$page_name&page=$index" ?>' class="<?php if($index==$page) echo 'current-page' ?>"><?php echo $index ?></a>
+                            <a href='<?php echo "?category_id=$category_main_id&category=$page_name&page=$index" ?>' class="<?php if($index==$page) echo 'current-page' ?>"><?php echo $index ?></a>
 
                         <?php } ?>
                         <?php if($page<$total_series/30) { ?>
-                            <a href='<?php echo "?category=$page_name&page=".($page+1) ?>'><i class="fa fa-angle-double-right"></i></a>
+                            <a href='<?php echo "?category_id=$category_main_id&category=$page_name&page=".($page+1) ?>'><i class="fa fa-angle-double-right"></i></a>
                         <?php } ?>
                     </div>
                     

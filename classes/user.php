@@ -52,6 +52,32 @@ Class User{
         $user=$DB->read($query);
         return $user[0];
     }
+
+
+    public function update($data,$FILE){
+        $user_id = $data['user_id'];
+        $first_name = $data['first_name'];
+        $last_name = $data['last_name'];
+        
+        $phone = $data['phone'];
+
+        $query = "UPDATE users SET first_name='$first_name', last_name='$last_name', phone = '$phone' WHERE id = $user_id";
+        $DB = new Database();
+        $DB->save($query);
+
+        if($FILE['myfile']['name']!=""){
+            $file=$FILE['myfile']['name'];
+            $file_loc=$FILE['myfile']['tmp_name'];
+            $folder="uploads/images/profiles/";
+            if(move_uploaded_file($file_loc,$folder.$file)){
+                $image_url = $folder.$file;
+                $query = "UPDATE users SET image_url='$image_url' WHERE id = $user_id";
+                $DB->save($query);
+
+            }
+        }
+
+    }
 }
 
 ?>

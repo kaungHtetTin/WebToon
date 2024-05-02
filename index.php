@@ -321,7 +321,7 @@ $newCommentSeries = $Series->newCommentSeries();
 
                             </div>
                             
-                            <?php foreach($dayViews as $view){
+                            <?php if($dayViews){ foreach($dayViews as $view){
                                     $id=$view['series_id'];
                                     $ser = $Series->topViewDetail($id);
                                     ?>
@@ -333,7 +333,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                     <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                 </div>
                                 </a>
-                            <?php }?>
+                            <?php }}?>
 
                         </div>
                     </div>
