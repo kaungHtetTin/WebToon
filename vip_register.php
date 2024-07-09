@@ -8,8 +8,14 @@ include('classes/user.php');
 include('classes/payment.php');
 
 $User=new User();
+$Payment = new Payment();
+
+$payments=false;
 if(isset($_SESSION['webtoon_userid'])){
     $user=$User->details($_SESSION['webtoon_userid']);
+    $payments = $Payment->getPaymentHistory($user['id']);
+    
+   
 }
 
 
@@ -18,9 +24,9 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
     if(!isset($_FILES['myfile'])){
         $error = "Please select a screenshot";
     }else{
-        $Payment = new Payment();
+        
         $result = $Payment->add($_POST,$_FILES);
-        print_r($result);
+       
     }
 }
 
@@ -99,9 +105,9 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
 
 
                 <ul>
-                    <li>Kpay - 0951645454 (Kaung Htet Tin)</li>
-                    <li>Wave pay - xxxxxxx</li>
-                    <li>Mytel Pay - xxxxxxx</li>
+                    <li>Kpay - 09675526045 (Zon Phoo Paing)</li>
+                    <li>Wave pay - 09675526045 (Zon Phoo Paing)</li>
+                    <li>AYA Pay - 09675526045(Zon Phoo Paing)</li>
                 </ul>
 
                 <br><br>
@@ -125,6 +131,33 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                         <button type="submit" class="site-btn">Send Now</button>
                     </form>
                 </div>
+                
+                <br><br>
+                
+                 <h4 class="fcolor">Payment Histories</h4>
+                 <br>
+                    <?php if($payments){ ?>
+                        <table class="table">
+                            <thead>
+                                <th class="fcolor">Date</th>
+                                <th class="fcolor">Amount</th>
+                                <th class="fcolor">Point Received</th>
+                                <th class="fcolor">Status</th>
+                            </thead>
+                            <?php foreach($payments as $payment){ ?>
+                                <tr>
+                                    <td class="fcolor"><?= date('d M , Y',  strtotime( $payment['date'])) ; ?></td>
+                                    <td class="fcolor"><?= $payment['amount']==0? '':$payment['amount']  ?> </td>
+                                    <td class="fcolor"><?= $payment['point']==0? '':$payment['point']  ?> </td>
+                                    <td class="fcolor"><?= $payment['verified']==1? '':'Requesting'  ?> </td>
+                                </tr>
+                            <?php }?>
+                             
+                        </table>
+                    <?php }else {?>
+                        <div>No payment history</div>
+                    <?php }?>
+                
                 <?php }else {?>
 
                     <div> Webtoon point များဝယ်ယူရန် သင်၏ Account ကို Login ဝင်ထားရန် လိုအပ်ပါသည်။ </div>

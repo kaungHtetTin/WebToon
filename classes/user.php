@@ -6,7 +6,7 @@ Class User{
         $first_name=$data['first_name'];
         $last_name=$data['last_name'];
         $password=$data['password'];
-        $image_url="img/placeholder.jpg";
+        $image_url="../uploads/placeholder.jpg";
 
         $error="";
         if($email=="")$error="Please enter email or phone";
@@ -68,7 +68,7 @@ Class User{
         if($FILE['myfile']['name']!=""){
             $file=$FILE['myfile']['name'];
             $file_loc=$FILE['myfile']['tmp_name'];
-            $folder="uploads/images/profiles/";
+            $folder="../uploads/images/profiles/";
             if(move_uploaded_file($file_loc,$folder.$file)){
                 $image_url = $folder.$file;
                 $query = "UPDATE users SET image_url='$image_url' WHERE id = $user_id";

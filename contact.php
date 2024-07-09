@@ -6,7 +6,7 @@ include('classes/auth.php');
 include('classes/util.php');
 include('classes/user.php');
 
-$page_name="Login";
+$page_name="Contact";
 $Auth=new Auth();
 $error="";
 
@@ -72,8 +72,10 @@ $Util=new Util();
                         <div class="login__social__links">
                             
                             <ul>
-                                <li><a href="#" class="facebook"><i class="fa fa-facebook"></i>Facebook</a></li>
-                                <li><a href="#" class="twitter"><i class="fa fa-twitter"></i>Twitter</a>
+                                <li><a href="https://www.facebook.com/profile.php?id=61556031550376" class="facebook"><i class="fa fa-facebook"></i>Facebook</a></li>
+                                <li><a href="https://t.me/aplaceforromancemyanmartrans" class="twitter"><i class="fa fa-telegram"></i>Telegram</a>
+                                <li><a href="https://www.youtube.com/@WorldOfWebtoonMMSub-9918" class="facebook" style="background:red"><i class="fa fa-youtube"></i>Youtube</a>
+                                <li><a href="https://www.tiktok.com/@worldofwebtoonmyanmarsub?_t=8hNhHGmoCRO&_r=1" class="facebook" style="background:#333"><i class="fa fa-tik-tok"></i>Tik Tok</a>
                                 </li>
                             </ul>
                         </div>

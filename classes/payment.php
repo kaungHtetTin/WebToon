@@ -10,10 +10,11 @@ Class payment {
 
         $file=$FILE['myfile']['name'];
         $file_loc=$FILE['myfile']['tmp_name'];
-        $folder="uploads/images/screenshots/";
+        $folder="../uploads/images/screenshots/";
         if(move_uploaded_file($file_loc,$folder.$file)){
-
-            $query = "INSERT INTO payment_histories (user_id,screenshot_url) VALUE ($user_id,'$file')";
+            
+            $screenshot_url = $folder.$file;
+            $query = "INSERT INTO payment_histories (user_id,screenshot_url) VALUE ($user_id,'$screenshot_url')";
 
             $DB=new Database();
             $res=$DB->save($query);
@@ -31,9 +32,13 @@ Class payment {
             $response['error']="902";
             return $response;
         }
-
-
-
+    }
+    
+    public function getPaymentHistory($user_id){
+        $DB=new Database();
+        $query = "SELECT * FROM payment_histories WHERE user_id=$user_id";
+        $result = $DB->read($query);
+        return $result;
     }
 }
 
