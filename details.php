@@ -7,6 +7,7 @@ include('classes/category.php');
 include('classes/util.php');
 include('classes/comment.php');
 include('classes/chapter.php');
+include('classes/visit.php');
 
 include('classes/user.php');
 $User=new User();
@@ -22,6 +23,9 @@ if(isset($_SESSION['webtoon_userid'])){
     $isSaved=$Series->isSaved($user_id,$series_id);
 
     $myRating=$Series->getMyRating($user_id,$series_id);
+    
+    $Visit = new Visit();
+    $Visit->add($user_id,$series_id);
 }
 
 
@@ -114,7 +118,7 @@ $chapters=$Chapter->get($series_id);
             <div class="anime__details__content">
                 <div class="row">
                     <div class="col-lg-3">
-                        <div class="anime__details__pic set-bg" data-setbg="<?php echo $series['image_url'] ?>">
+                        <div class="anime__details__pic set-bg" data-setbg="<?php echo $series['image_url'] ?>" style="height:350px;">
                             <div class="comment"><i class="fa fa-comments"></i> <?php echo $Util->formatCount($series['comment']) ?></div>
                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($series['view']) ?></div>
                         </div>
@@ -123,7 +127,7 @@ $chapters=$Chapter->get($series_id);
                         <div class="anime__details__text">
                             <div class="anime__details__title">
                                 <h3><?php echo $series['title'] ?></h3>
-                                <span>フェイト／ステイナイト, Feito／sutei naito</span>
+                                <spa><?php echo $series['short'] ?></span>
                             </div>
                             <div class="anime__details__rating">
                                
@@ -159,19 +163,16 @@ $chapters=$Chapter->get($series_id);
                                 <div class="row">
                                     <div class="col-lg-6 col-md-6">
                                         <ul>
-                                            <li><span>Type:</span> TV Series</li>
-                                            <li><span>Studios:</span> Lerche</li>
-                                            <li><span>Date aired:</span> Oct 02, 2019 to ?</li>
-                                            <li><span>Status:</span> Airing</li>
-                                            <li><span>Genre:</span> Action, Adventure, Fantasy, Magic</li>
+                                            <li><span>Original Work:</span> <?php echo $series['original_work'] ?></li>
+                                            <li><span>Upload Status</span> <?php echo $series['upload_status'] ?></li>
+                                            <li><span>Genre:</span> <?php echo $series['genre'] ?></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-6 col-md-6">
                                         <ul>
-                                            <li><span>Scores:</span> 7.31 / 1,515</li>
                                             <li><span>Rating:</span> <?php echo $seriesRating ?></li>
-                                            <li><span>Views:</span> <?php echo $Util->formatCount($series['view']) ?></li>
-                                             <li><span>Point:</span> <?php echo $Util->formatCount($series['point']) ?></li>
+                                            <li><span>Views:</span> <?php echo $Util->formatCount($series['view']) ?> </li>
+                                             <li><span>Coin:</span> <?php echo $Util->formatCount($series['point']) ?> <img style="width:20px;height:20px;margin-bottom:5px;" src="img/Coin.png" /></li>
                                         </ul>
                                     </div>
                                 </div>
@@ -203,17 +204,27 @@ $chapters=$Chapter->get($series_id);
                                 <h5>Chapters</h5>
                             </div>
 
-                            <?php if($chapters) {foreach($chapters as $chapter){ 
-                                if(isset($user)){ 
-                                    if($series['point']>0){
-                                        if($isSaved)$download_url=$chapter['download_url'];
-                                        else $download_url="get_now.php?id=".$series_id;
-                                    }else{
-                                        $download_url=$chapter['download_url'];
-                                    }
+                            <?php if($chapters) {
+                                if(count($chapters)>10) $free_index = 5;
+                                else $free_index = 3;
+                                foreach($chapters as $key=>$chapter){ 
+                                
+                                if($key<$free_index){
+                                    $download_url=$chapter['download_url'];
                                 }else{
-                                    $download_url="login.php";
+                                    if(isset($user)){ 
+                                        if($series['point']>0){
+                                            if($isSaved)$download_url=$chapter['download_url'];
+                                            else $download_url="get_now.php?id=".$series_id;
+                                        }else{
+                                            $download_url=$chapter['download_url'];
+                                        }
+                                        
+                                    }else{
+                                        $download_url="login.php";
+                                    }
                                 }
+                                
                                 
                                 ?>
                                <div class="anime__review__item" style="width:100%">
@@ -245,67 +256,6 @@ $chapters=$Chapter->get($series_id);
                             
                         </div>
 
-                        <div class="anime__details__review">
-                            <div class="section-title">
-                                <h5>Reviews</h5>
-                            </div>
-
-                            <?php if($comments) {foreach($comments as $comment){ 
-                                $mydate=strtotime($comment['date']);
-                                $mydate=date( 'Y M,d', $mydate);
-                                ?>
-                                <div class="anime__review__item">
-                                    <div class="anime__review__item__pic">
-                                        <img src="<?php echo $comment['image_url'] ?>" alt="">
-                                    </div>
-                                    <div class="anime__review__item__text">
-                                        <h6><?php echo $comment['first_name']." ".$comment['last_name'] ?> - <span> <?php echo $mydate ?></span></h6>
-                                        <p><?php echo $comment['body'] ?></p>
-                                    </div>
-                                </div>
-                            <?php }}else{?>
-                                <div class="anime__review__item">
-                                     
-                                    <div class="anime__review__item__text">
-                                        <p>No Review</p>
-                                    </div>
-                                </div>
-                            <?php }?>
-                            <?php if($total_comment>30) {?>
-                             <div class="product__pagination">
-                                <?php if($cmt>1) { ?>
-                                    <a href='<?php echo "?id=$series_id&cmt=".($cmt-1) ?>'><i class="fa fa-angle-double-left"></i></a>
-                                
-                                <?php } ?>
-
-                                <?php for($i=0;$i<$total_comment/30;$i++){ 
-                                        $index=$i+1;
-                                    ?>
-                                    <a href='<?php echo "?id=$series_id&cmt=$index" ?>' class="<?php if($index==$cmt) echo 'current-page' ?>"><?php echo $index ?></a>
-
-                                <?php } ?>
-                                <?php if($cmt<$total_comment/30) { ?>
-                                    <a href='<?php echo "?id=$series_id&cmt=".($cmt+1) ?>'><i class="fa fa-angle-double-right"></i></a>
-                                <?php } ?>
-                            </div>
-                            <?php }?>
-                            
-                        </div>
-
-                        <div class="anime__details__form">
-                            <div class="section-title">
-                                <h5>Your Comment</h5>
-                            </div>
-                            <form action="" method="POST">
-                                <?php if(isset($_SESSION['webtoon_userid'])){ ?>
-                                    <input type="hidden" name="series_id" value="<?php echo $series_id ?>">
-                                    <input type="hidden" name="user_id" value="<?php echo $user['id'] ?>">
-                                    <input type="hidden" name="action_type" value="comment">
-                                <?php }?>
-                                <textarea placeholder="Your Comment" name="body"></textarea>
-                                <button type="submit"><i class="fa fa-location-arrow"></i> Review</button>
-                            </form>
-                        </div>
                     </div>
                     <div class="col-lg-4 col-md-4">
                         <div class="anime__details__sidebar">
@@ -319,7 +269,7 @@ $chapters=$Chapter->get($series_id);
                                         <div class="product__sidebar__view__item set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
                                             <div class="ep">  <?php echo $ser['uploaded_chapter']." / ".$ser['total_chapter'] ?> </div>
                                             <div class="view"><i class="fa fa-eye"></i> <?php echo $ser['view'] ?></div>
-                                            <h5> <a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
+                                            <h5> <a href="details.php?id=<?php echo $ser['id']?>" class="stroked-text"><?php echo $ser['title'] ?></a></h5>
                                         </div>
                                     </a>
                                 <?php }?>

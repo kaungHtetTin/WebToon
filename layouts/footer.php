@@ -6,7 +6,8 @@
         <div class="row">
             <div class="col-lg-3">
                 <div class="footer__logo">
-                    <a href="./index.php"><img src="img/logo.png" alt=""></a>
+                    <a href="./index.php"><img src="img/web_toon_logo.png" style="height:70px;" alt=""></a> <br>
+                     <h5 style="color:white;margin-top:10px;">World Of Webtoon MM Sub</h5>
                 </div>
             </div>
             <div class="col-lg-6">
@@ -18,6 +19,7 @@
                         <li><a href="contact.php">Contacts</a></li>
                     </ul>
                 </div>
+               
             </div>
             <div class="col-lg-3">
                 <p><!-- Link back to Colorlib can't be removed. Template is licensed under CC BY 3.0. -->

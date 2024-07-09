@@ -4,11 +4,10 @@
     <div class="container">
         <div class="row">
             <div class="col-lg-2">
-                <div class="header__logo">
+                <div class="header__logo" style="padding:0px;">
                     <a href="./index.php">
-                        <img src="img/logo.png" alt="">
+                        <img src="img/logo_round2.png" alt="" style="height:50px;margin-top:7px;">
                     </a>
-                    
                 </div>
             </div>
             <div class="col-lg-7">
@@ -20,7 +19,7 @@
                             <li class="<?php if($page_name=='My Series') echo'active' ?>"><a href="my_series.php?page=1">My Series</a></li>
                             <li class="<?php if($page_name=='Blog') echo'active' ?>"><a href="./blog.php?page=1">Our Blog</a></li>
                             <?php if(isset($categories)){ ?>
-                            <li><a href="./categories.html">Categories <span class="arrow_carrot-down"></span></a>
+                            <li><a href="">Categories <span class="arrow_carrot-down"></span></a>
                                 <ul class="dropdown">
                                     <?php foreach($categories as $category){
                                         $category_id=$category['id'];
@@ -47,8 +46,9 @@
                             </a>
                              <a href="logout.php" style="font-size:16px;">Logout</a>
                              <a href="vip_register.php">
-                                <span style="background:yellow;border-radius:20px;padding:7px;width:70px;text-align:center;font-size:13px;font-weight:bold;color:black">
+                                <span style="border-radius:20px;padding:7px;width:70px;text-align:center;font-size:13px;font-weight:bold;color:yellow">
                                     <?php echo $Util->formatCount( $user['point']) ?>
+                                    <img style="width:25px;height:25px;margin-bottom:5px;" src="img/Coin.png" />
                                 </span>
                              </a>
 

@@ -67,7 +67,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                         <h3>Sign Up</h3>
                         <form action="" method="POST">
                             <div class="input__item">
-                                <input type="text" placeholder="Email address" name="email">
+                                <input type="text" placeholder="Email address or Phone" name="email">
                                 <span class="icon_mail"></span>
                             </div>
                             <div class="input__item">

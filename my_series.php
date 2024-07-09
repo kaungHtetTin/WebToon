@@ -99,8 +99,15 @@ $yearViews = $ViewHistory->topViewYear();
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                         <div class="product__item">
                                             <div class="product__item__pic set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
-                                                <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
-                                                <div class="comment"><i class="fa fa-comments"></i> <?php echo $Util->formatCount($ser['comment'])?> </div>
+                                                <div class="ep" style="color:white;font:weight:bold">
+                                                    <?php if($ser['point']==0){ ?>
+                                                        Free
+                                                    <?php } else{?>
+                                                        <span><?= $ser['point']?> </span> <img style="width:20px;height:20px;margin-bottom:3px;" src="img/Coin.png" />
+                                                    <?php }?>
+                                                    
+                                                </div>
+                                               
                                                 <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?></div>
                                             </div>
                                             <div class="product__item__text">
@@ -164,7 +171,14 @@ $yearViews = $ViewHistory->topViewYear();
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix years"
                                             data-setbg="<?php echo $ser['image_url'] ?>">
-                                            <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                            <div class="ep" style="color:white;font:weight:bold">
+                                                <?php if($ser['point']==0){ ?>
+                                                    Free
+                                                <?php } else{?>
+                                                    <span><?= $ser['point']?> </span> <img style="width:20px;height:20px;margin-bottom:3px;" src="img/Coin.png" />
+                                                <?php }?>
+                                                
+                                            </div>
                                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
                                             <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                         </div>
@@ -178,7 +192,14 @@ $yearViews = $ViewHistory->topViewYear();
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix month"
                                             data-setbg="<?php echo $ser['image_url'] ?>">
-                                            <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                            <div class="ep" style="color:white;font:weight:bold">
+                                                <?php if($ser['point']==0){ ?>
+                                                    Free
+                                                <?php } else{?>
+                                                    <span><?= $ser['point']?> </span> <img style="width:20px;height:20px;margin-bottom:3px;" src="img/Coin.png" />
+                                                <?php }?>
+                                                
+                                            </div>
                                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
                                             <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                         </div>
@@ -192,7 +213,14 @@ $yearViews = $ViewHistory->topViewYear();
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix week"
                                             data-setbg="<?php echo $ser['image_url'] ?>">
-                                           <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                           <div class="ep" style="color:white;font:weight:bold">
+                                                <?php if($ser['point']==0){ ?>
+                                                    Free
+                                                <?php } else{?>
+                                                    <span><?= $ser['point']?> </span> <img style="width:20px;height:20px;margin-bottom:3px;" src="img/Coin.png" />
+                                                <?php }?>
+                                                
+                                            </div>
                                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
                                             <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                         </div>
@@ -207,7 +235,14 @@ $yearViews = $ViewHistory->topViewYear();
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                     <div class="product__sidebar__view__item set-bg mix day"
                                       data-setbg="<?php echo $ser['image_url'] ?>">
-                                    <div class="ep"> <?php if($ser['point']==0) echo"Free  "; else echo $ser['point']." Pt."?></div>
+                                    <div class="ep" style="color:white;font:weight:bold">
+                                        <?php if($ser['point']==0){ ?>
+                                            Free
+                                        <?php } else{?>
+                                           <span><?= $ser['point']?> </span> <img style="width:20px;height:20px;margin-bottom:3px;" src="img/Coin.png" />
+                                        <?php }?>
+                                        
+                                    </div>
                                     <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($ser['view'])?> </div>
                                     <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                 </div>
