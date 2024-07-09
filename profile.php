@@ -172,9 +172,8 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                     if(edit_mode) $('#input_profile').click();
                 })
 
-                 $('#input_profile').change(()=>{
+                $('#input_profile').change(()=>{
 
-                     
                     var files=$('#input_profile').prop('files');
                     var file=files[0];
                         

@@ -20,7 +20,7 @@
                             <li class="<?php if($page_name=='My Series') echo'active' ?>"><a href="my_series.php?page=1">My Series</a></li>
                             <li class="<?php if($page_name=='Blog') echo'active' ?>"><a href="./blog.php?page=1">Our Blog</a></li>
                             <?php if(isset($categories)){ ?>
-                            <li><a href="./categories.html">Categories <span class="arrow_carrot-down"></span></a>
+                            <li><a href="">Categories <span class="arrow_carrot-down"></span></a>
                                 <ul class="dropdown">
                                     <?php foreach($categories as $category){
                                         $category_id=$category['id'];

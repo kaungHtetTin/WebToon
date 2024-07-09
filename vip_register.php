@@ -15,7 +15,7 @@ if(isset($_SESSION['webtoon_userid'])){
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
     
-    if(isset($_FILES['myfile'])){
+    if(!isset($_FILES['myfile'])){
         $error = "Please select a screenshot";
     }else{
         $Payment = new Payment();
