@@ -1,19 +1,48 @@
 <?php
 Class Series {
 
-    public function index(){
+    public function index($data){
+ 
+        if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        } 
+
         $DB=new Database();
-        $query="SELECT * FROM series ORDER BY view DESC Limit 6";
+        $query="SELECT 
+            s.*,
+            CASE 
+                WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+                ELSE '0'
+            END AS visited
+            FROM series s
+            ORDER BY s.view DESC Limit 6";
         
         $trending=$DB->read($query);
+ 
         $result['trending']=$trending;
 
-        $query="SELECT * FROM series ORDER BY view DESC Limit 6";
+        $query="SELECT
+            s.*,
+            CASE 
+                WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+                ELSE '0'
+            END AS visited
+            FROM series s
+            ORDER BY view DESC Limit 6";
    
         $popular=$DB->read($query);
         $result['popular']=$popular;
 
-        $query="SELECT * FROM series ORDER BY id DESC limit 6";
+        $query="SELECT
+            s.*,
+            CASE 
+                WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+                ELSE '0'
+            END AS visited
+            FROM series s
+            ORDER BY id DESC limit 6";
      
         $newadded=$DB->read($query);
         $result['newadded']=$newadded;
@@ -45,12 +74,25 @@ Class Series {
     }
 
     public function getPopularSeries($data){
+        if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        } 
+
         $page=$data['page'];
         $page--;
         $offset=30;
         $count=$page*$offset;
 
-        $query="SELECT * FROM series ORDER BY view DESC LIMIT $count,$offset";
+        $query="SELECT
+         s.*,
+            CASE 
+                WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+                ELSE '0'
+            END AS visited
+        FROM series s ORDER BY view DESC LIMIT $count,$offset";
+
         $DB=new Database();
         $series=$DB->read($query);
         $result['series']=$series;
@@ -62,12 +104,24 @@ Class Series {
     }
 
     public function getTendingSeries($data){
+        if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        } 
+
         $page=$data['page'];
         $page--;
         $offset=30;
         $count=$page*$offset;
 
-        $query="SELECT * FROM series ORDER BY view DESC LIMIT $count,$offset";
+        $query="SELECT
+        s.*,
+        CASE 
+            WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+            ELSE '0'
+        END AS visited
+        FROM series s ORDER BY view DESC LIMIT $count,$offset";
         $DB=new Database();
         $series=$DB->read($query);
         $result['series']=$series;
@@ -80,12 +134,24 @@ Class Series {
 
     public function getNewSeries($data){
 
+        if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        } 
+
         $page=$data['page'];
         $page--;
         $offset=30;
         $count=$page*$offset;
 
-        $query="SELECT * FROM series ORDER BY id DESC LIMIT $count,$offset";
+        $query="SELECT
+        s.*,
+        CASE 
+            WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+            ELSE '0'
+        END AS visited
+        FROM series s ORDER BY id DESC LIMIT $count,$offset";
         $DB=new Database();
         $series=$DB->read($query);
         $result['series']=$series;
@@ -97,13 +163,31 @@ Class Series {
     }
 
     public function getSeriesByCategory($data){
+
+        if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        } 
+
         $page=$data['page'];
-        $category_id=$data['category_id'];
+        if(isset($data['q'])){
+             $category_id=$data['q'];
+        }else{
+            $category_id=$data['category_id'];
+        }
+       
         $page--;
         $offset=30;
         $count=$page*$offset;
 
-        $query="SELECT * FROM series WHERE category_id=$category_id ORDER BY id DESC LIMIT $count,$offset";
+        $query="SELECT
+        s.*,
+        CASE 
+            WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+            ELSE '0'
+        END AS visited
+        FROM series s WHERE category_id=$category_id ORDER BY id DESC LIMIT $count,$offset";
         $DB=new Database();
         $series=$DB->read($query);
         $result['series']=$series;
@@ -157,9 +241,13 @@ Class Series {
         $query="INSERT INTO view_histories (series_id) VALUES ($id)";
         $DB->save($query);
 
-        return $result[0];
+        if($result){
+            return $result[0];
+        }else{
+            return false;
+        }
+    
     }
-
 
 
     public function topViewDetail($id){
@@ -191,6 +279,8 @@ Class Series {
 
         $series=$series[0];
 
+        if($user['point']<$series['point']) return false;
+
         $remaining_point=$user['point']-$series['point'];
 
         $query="INSERT INTO saves (user_id,series_id) VALUE ($user_id,$series_id)";
@@ -200,6 +290,8 @@ Class Series {
         $DB->save($query);
         $DB->save($save_count);
         $DB->save($user_query);
+
+        return true;
     }
 
     public function rate($data){
@@ -246,6 +338,33 @@ Class Series {
         }
         
 
+    }
+
+    public function search($data){
+         if(isset($data['user_id'])){
+            $user_id = $data['user_id'];
+        }else{
+            $user_id=0;
+        }
+
+        $searching = $data['search'];
+
+        $DB = new Database();
+        $query="SELECT 
+            s.*,
+            c.title as category_title,
+            CASE 
+                WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
+                ELSE '0'
+            END AS visited
+            FROM series s
+            JOIN categories c ON c.id = s.category_id
+            WHERE s.title LIKE '%$searching%' OR s.description LIKE '%$searching%'  OR s.genre LIKE '%$searching%' 
+            ORDER BY s.rating";
+
+        $result = $DB->read($query);
+
+        return $result;
     }
 
 }

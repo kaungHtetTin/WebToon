@@ -14,6 +14,8 @@
             
             if($result){
                 $row=$result[0];
+             
+                
                 if($password==$row['password']){
                     
                     //create session data
@@ -21,10 +23,10 @@
                     
                     
                 }else{
-                    $error="Wrong email or wrong password<br>";
+                    $error="Wrong email or wrong password";
                 }
             }else{
-                $error="No such email was found<br>";
+                $error="No such email was found";
             }
             return $error;
 

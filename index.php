@@ -16,7 +16,7 @@ if(isset($_SESSION['webtoon_userid'])){
 }
 
 $Series=new Series();
-$series=$Series->index();
+$series=$Series->index($_GET);
 $Util=new Util();
 $Category=new Category();
 $Visit = new Visit();
@@ -25,6 +25,7 @@ $Visit = new Visit();
 $trendingSeries=$series['trending'];
 $popularSeries=$series['popular'];
 $newSeries=$series['newadded'];
+
 $owl_carousels=$series['owl_carousel'];
 
 $categories=$Category->get();

@@ -2,10 +2,12 @@
 Class User{
 
     public function create($data){
+        
         $email=$data['email'];
         $first_name=$data['first_name'];
         $last_name=$data['last_name'];
         $password=$data['password'];
+
         $image_url="../uploads/placeholder.jpg";
 
         $error="";
