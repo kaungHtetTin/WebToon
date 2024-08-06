@@ -199,7 +199,14 @@ Class Series {
     }
 
     public function getMySeries($user_id){
-        $query =" SELECT * FROM series JOIN saves ON series.id=saves.series_id WHERE saves.user_id=$user_id";
+        $query =" SELECT 
+            series.*,
+            categories.title as category_title
+        FROM series
+        JOIN categories ON categories.id = series.category_id
+        JOIN saves ON series.id=saves.series_id WHERE saves.user_id=$user_id
+        ORDER BY saves.date DESC";
+
         $DB=new Database();
         $series=$DB->read($query);
 
@@ -209,6 +216,8 @@ Class Series {
         $result['total_series']=$total[0]['total_series'];
         $result['series']=$series;
         return $result;
+
+        
 
     }
 
