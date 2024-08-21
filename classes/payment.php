@@ -2,7 +2,6 @@
 Class payment {
     public function add($data,$FILE){
 
-
         $user_id=$data['user_id'];
 
         $image_path="";
@@ -24,12 +23,14 @@ Class payment {
             }else{
                 $response['status']="fail";
                 $response['error']="error 900";
+                $response['message']="Unexpected error";
                 return $response;
             }
 
         }else{
             $response['status']="fail";
             $response['error']="902";
+            $response['message']="Unexpected error";
             return $response;
         }
     }

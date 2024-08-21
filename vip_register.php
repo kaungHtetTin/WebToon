@@ -14,7 +14,6 @@ $payments=false;
 if(isset($_SESSION['webtoon_userid'])){
     $user=$User->details($_SESSION['webtoon_userid']);
     $payments = $Payment->getPaymentHistory($user['id']);
-    
    
 }
 

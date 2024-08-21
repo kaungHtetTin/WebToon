@@ -11,4 +11,6 @@
     $series=$Series->index($_GET);
     $series['categories'] =$categories;
     echo json_encode($series);
+
+    
 ?>
