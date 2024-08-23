@@ -61,6 +61,11 @@
     $requestHeaders = apache_request_headers();
     $jwt_auth_token =$requestHeaders['Authorization'];
 
+    if($jwt_auth_token=="guest_user"){
+        echo json_encode($point_infor);
+        return;
+    }
+
     $user = $JWT->validateJWT($jwt_auth_token);
 
     if($user){

@@ -3,11 +3,13 @@
     include_once('../../classes/auth.php');
     include_once('../../classes/user.php');
     include_once('../../classes/jwt.php');
+    include_once('../../classes/util.php');
     
     $requestHeaders = apache_request_headers();
     $_token = $requestHeaders['Authorization'];
 
     $JWt = new JWt();
+    $Util = new Util();
 
     $payload = $JWt->validateJWT($_token);
     if($payload){
@@ -27,6 +29,7 @@
         ];
 
         $response['auth']="success";
+        $response['mobile_app_version_code']=$Util->mobileAppVersionCode();
         $response['user']=$user;
     }else{
         $response['auth']="fail";

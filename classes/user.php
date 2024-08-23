@@ -79,6 +79,91 @@ Class User{
             }
         }
 
+        $response['status']="success";
+        return $response;
+
+    }
+
+    public function changePassword($data){
+        $email = $data['email'];
+
+        $old_password=addslashes($data['old_password']);
+        $old_password=hash("md5", $old_password);
+
+        $new_password=addslashes($data['new_password']);
+        $new_password=hash("md5", $new_password);
+
+        $query="select*from users where email= '$email' limit 1";
+            
+        $DB=new Database();
+        $result=$DB->read($query);
+
+        if($result){
+            $row=$result[0];
+            if($old_password==$row['password']){
+                //update new password
+                $query = "UPDATE users SET password ='$new_password' WHERE email = '$email' ";
+                $DB->save($query);
+                $response['status']="success";
+                
+            }else{
+                $response['status']="Fail";
+                $response['msg']="Incorrect current password";
+            }
+        }else{
+            $response['status']="Fail";
+            $response['msg']="Unexpected error!";
+        }
+
+        return $response;
+    }
+
+    public function deleteAccount($data){
+        $user_id = $data['user_id'];
+        $email = $data['email'];
+
+        $password=addslashes($data['password']);
+        $password=hash("md5", $password);
+
+        $query="select*from users where email= '$email' limit 1";
+            
+        $DB=new Database();
+        $result=$DB->read($query);
+
+        if($result){
+            $row=$result[0];
+            if($password==$row['password']){
+                // delete account
+                $query = "DELETE FROM comments WHERE user_id=$user_id";
+                $DB->save($query);
+
+                $query = "DELETE FROM likes WHERE user_id=$user_id";
+                $DB->save($query);
+
+                $query = "DELETE FROM ratings WHERE user_id=$user_id";
+                $DB->save($query);
+
+                $query = "DELETE FROM saves WHERE user_id=$user_id";
+                $DB->save($query);
+
+                $query = "DELETE FROM visits WHERE user_id=$user_id";
+                $DB->save($query);
+
+                $query = "DELETE FROM users WHERE id=$user_id";
+                $DB->save($query);
+                $response['status']="success";
+                
+            }else{
+                $response['status']="Fail";
+                $response['msg']="Incorrect password";
+            }
+        }else{
+            $response['status']="Fail";
+            $response['msg']="Unexpected error!";
+        }
+
+        return $response;
+
     }
 }
 

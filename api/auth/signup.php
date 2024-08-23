@@ -3,6 +3,7 @@
     include_once('../../classes/auth.php');
     include_once('../../classes/user.php');
     include_once('../../classes/jwt.php');
+    include_once('../../classes/util.php');
    
     $Auth=new Auth();
     $User = new User();
@@ -33,6 +34,7 @@
             $response['status']="success";
             $response['user']=$user;
             $response['_token']=$jwt;
+            $response['mobile_app_version_code']=$Util->mobileAppVersionCode();
 
             echo json_encode($response);
 
