@@ -13,7 +13,7 @@ Class Util{
     }
 
     public function mobileAppVersionCode(){
-        return 2;
+        return 1;
     }
 }
 ?>

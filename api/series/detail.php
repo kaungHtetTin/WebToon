@@ -6,6 +6,7 @@
     $id = $_GET['id'];
     $Series = new Series();
     $series=$Series->details($_GET);
+    $myRating = 0;
     
     if(isset( $_GET['user_id'])){
         $user_id =  $_GET['user_id'];
@@ -16,6 +17,10 @@
         }else{
             $series['saved']=false;
         }
+
+        $myRating=$Series->getMyRating($user_id,$id);
+        $series['my_rating'] = $myRating;
+
     }else{
         $series['saved']=false;
     }

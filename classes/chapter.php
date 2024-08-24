@@ -20,8 +20,11 @@ Class Chapter {
         $chapter = $chapter[0];
         $series_id = $chapter['series_id'];
 
+        if($chapter['is_active']==0){
+            return  ['status'=>'success','download_url'=>$chapter['download_url']];
+        }
+
         // check if purchased
-        
         $query = "SELECT * FROM saves WHERE user_id=$user_id AND series_id=$series_id LIMIT 1";
         $purchased = $DB->read($query);
 

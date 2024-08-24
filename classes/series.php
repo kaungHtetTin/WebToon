@@ -255,9 +255,7 @@ Class Series {
         }else{
             return false;
         }
-    
     }
-
 
     public function topViewDetail($id){
         $query="SELECT * FROM series WHERE id=$id limit 1";
@@ -319,7 +317,14 @@ Class Series {
         }
     
         $DB->save($query);
+    }
 
+    public function deleteRating($data){
+        $user_id=$data['user_id'];
+        $series_id=$data['series_id'];
+        $DB=new Database();
+        $query = "DELETE FROM ratings WHERE user_id=$user_id and series_id=$series_id";
+        $DB->save($query);
     }
 
     public function getMyRating($user_id,$series_id){
@@ -345,8 +350,6 @@ Class Series {
         }else{
             return 0.0;
         }
-        
-
     }
 
     public function search($data){

@@ -8,6 +8,7 @@
     // email and password are required in request;
    
     $Auth=new Auth();
+    $Util = new Util();
     if($_SERVER['REQUEST_METHOD']=="POST"){
         $error=$Auth->login($_POST);
         if($error=="") {
