@@ -37,7 +37,7 @@ Class payment {
     
     public function getPaymentHistory($user_id){
         $DB=new Database();
-        $query = "SELECT * FROM payment_histories WHERE user_id=$user_id";
+        $query = "SELECT * FROM payment_histories WHERE user_id=$user_id ORDER BY id DESC";
         $result = $DB->read($query);
         return $result;
     }
