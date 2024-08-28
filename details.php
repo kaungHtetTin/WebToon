@@ -205,11 +205,10 @@ $chapters=$Chapter->get($series_id);
                             </div>
 
                             <?php if($chapters) {
-                                if(count($chapters)>10) $free_index = 5;
-                                else $free_index = 3;
+                               
                                 foreach($chapters as $key=>$chapter){ 
                                 
-                                if($key<$free_index){
+                                if($chapter['is_active']==0){
                                     $download_url=$chapter['download_url'];
                                 }else{
                                     if(isset($user)){ 
@@ -224,7 +223,6 @@ $chapters=$Chapter->get($series_id);
                                         $download_url="login.php";
                                     }
                                 }
-                                
                                 
                                 ?>
                                <div class="anime__review__item" style="width:100%">
