@@ -2,15 +2,15 @@
 
 class Database {
 
-	// private $host="localhost";
-	// private $username="u148234809_webtoon";
-	// private $password="Webtoon5241@@";
-	// private $db="u148234809_webtoon";
-
 	private $host="localhost";
-	private $username="root";
-	private $password="";
-	private $db="webtoon";
+	private $username="u148234809_webtoon";
+	private $password="Webtoon5241@@";
+	private $db="u148234809_webtoon";
+
+// 	private $host="localhost";
+// 	private $username="root";
+// 	private $password="";
+// 	private $db="webtoon";
 
 	//this is git ignore file
 	// I want to ignore this file

@@ -70,9 +70,9 @@ Class User{
         if($FILE['myfile']['name']!=""){
             $file=$FILE['myfile']['name'];
             $file_loc=$FILE['myfile']['tmp_name'];
-            $folder="../uploads/images/profiles/";
+            $folder=$_SERVER['DOCUMENT_ROOT']."/uploads/images/profiles/";
             if(move_uploaded_file($file_loc,$folder.$file)){
-                $image_url = $folder.$file;
+                $image_url = "/uploads/images/profiles/".$file;
                 $query = "UPDATE users SET image_url='$image_url' WHERE id = $user_id";
                 $DB->save($query);
 

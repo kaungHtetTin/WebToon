@@ -9,10 +9,10 @@ Class payment {
 
         $file=$FILE['myfile']['name'];
         $file_loc=$FILE['myfile']['tmp_name'];
-        $folder="../uploads/images/screenshots/";
+        $folder=$_SERVER['DOCUMENT_ROOT']."/uploads/images/screenshots/";
         if(move_uploaded_file($file_loc,$folder.$file)){
             
-            $screenshot_url = $folder.$file;
+            $screenshot_url = "/uploads/images/screenshots/".$file;
             $query = "INSERT INTO payment_histories (user_id,screenshot_url) VALUE ($user_id,'$screenshot_url')";
 
             $DB=new Database();
