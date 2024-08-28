@@ -7,6 +7,7 @@
    
     $Auth=new Auth();
     $User = new User();
+    $Util = new Util();
 
     if($_SERVER['REQUEST_METHOD']=="POST"){
 
