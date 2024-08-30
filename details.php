@@ -208,39 +208,21 @@ $chapters=$Chapter->get($series_id);
                                
                                 foreach($chapters as $key=>$chapter){ 
                                 
-                                if($chapter['is_active']==0){
-                                    $download_url=$chapter['download_url'];
-                                }else{
-                                    if(isset($user)){ 
-                                        if($series['point']>0){
-                                            if($isSaved)$download_url=$chapter['download_url'];
-                                            else $download_url="get_now.php?id=".$series_id;
-                                        }else{
-                                            $download_url=$chapter['download_url'];
-                                        }
-                                        
-                                    }else{
-                                        $download_url="login.php";
-                                    }
-                                }
+                                $url="contents.php?series_id=$series_id&c_chapter_id=".$chapter['id'];
                                 
                                 ?>
-                               <div class="anime__review__item" style="width:100%">
-                                     
-                                    <div class="anime__review__item__text" style="width:100%;">
-                                        <div style="display:flex;justify-content: space-between;">
-                                            <div style="width:45%">
-                                                <h6><?php echo $chapter['title'] ?></h6>
+                                <a href="<?=$url ?>">
+                                    <div class="anime__review__item" style="width:100%">
+                                        <div class="anime__review__item__text" style="width:100%;">
+                                            <div style="display:flex;justify-content: space-between;">
+                                                <div style="width:45%">
+                                                    <h6><?php echo $chapter['title'] ?></h6>
+                                                </div>
                                             </div>
-                                            <div style="width:45%;color:white;text-align:right">
-                                               <a href="<?php echo $download_url ?>" style="text-decoration:none;color:white">
-                                                 Download <i class="fa fa-download"></i>
-                                               </a>
-                                            </div>
+                                            
                                         </div>
-                                        
                                     </div>
-                                </div>
+                                </a>
 
                             <?php }}else{?>
                                 <div class="anime__review__item">
@@ -260,7 +242,6 @@ $chapters=$Chapter->get($series_id);
                             <div class="section-title">
                                 <h5>you might like...</h5>
                             </div>
-                            
                             <?php foreach($series_you_like as $ser){ ?>
                                 <?php if($ser['id']!=$series_id){ ?>
                                     <a href="details.php?id=<?php echo $ser['id']?>">
@@ -272,8 +253,6 @@ $chapters=$Chapter->get($series_id);
                                     </a>
                                 <?php }?>
                             <?php }?>
-
-                        
                         </div>
                     </div>
                 </div>

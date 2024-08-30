@@ -52,7 +52,11 @@ Class User{
         $query="SELECT * FROM users WHERE id=$id";
         $DB=new Database();
         $user=$DB->read($query);
-        return $user[0];
+        if($user){
+            return $user[0];
+        }else{
+            return $user;
+        }
     }
 
 

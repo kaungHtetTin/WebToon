@@ -7,6 +7,15 @@ Class Chapter {
         return $result;
     }
 
+    public function details($data){
+        $id = $data['id'];
+        $DB =new Database();
+        $query = "SELECT * FROM chapters WHERE id=$id LIMIT 1";
+        $result = $DB->read($query);
+        if($result) return $result[0];
+        else $result;
+    }
+
     public function download($chapter_id, $user_id){
         $DB = new Database();
 
@@ -34,6 +43,13 @@ Class Chapter {
 
         return  ['status'=>'success','download_url'=>$chapter['download_url']];
 
+    }
+
+    public function getContent($chapter_id){
+        $DB = new Database();
+        $query = "SELECT * FROM contents WHERE chapter_id=$chapter_id";
+        $contents = $DB->read($query);
+        return $contents;
     }
 }
 ?>
