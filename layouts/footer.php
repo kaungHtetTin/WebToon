@@ -8,6 +8,7 @@
                 <div class="footer__logo">
                     <a href="./index.php"><img src="img/web_toon_logo.png" style="height:70px;" alt=""></a> <br>
                      <h5 style="color:white;margin-top:10px;">World Of Webtoon MM Sub</h5>
+                     <a href="http://www.worldofwebtoonmmsub.com/WebtoonMM.apk">Download App</a>
                 </div>
             </div>
             <div class="col-lg-6">

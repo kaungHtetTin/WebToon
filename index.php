@@ -288,6 +288,33 @@ $newCommentSeries = $Series->newCommentSeries();
                     <div class="product__sidebar">
                         <div class="product__sidebar__view">
                             <div class="section-title">
+                                <h5>Download App</h5>
+                            </div>
+                             <div>
+                                <div>
+                                    <img src="img/hero/hero-1.jpg" alt="" style="width:100%">
+                                </div>
+                                <div style="background:#fff;display:flex;padding:5px;align-items: center;">
+                                    <div class="card" style="background:white;padding:5px;border-radius:7px;">
+                                        <img src="img/logo_round2.png" alt="" style="width:30px;height:30px;">
+                                    </div>
+                                    <div style="padding-left:5px;">
+                                        <div style="font-size:12px;">Word of Webtoon MM Sub</div>
+                                        <div style="font-size:10px;">Download for Android</div>
+                                    </div>
+                                    <a href="http://www.worldofwebtoonmmsub.com/WebtoonMM.apk" style="text-decoration:none; margin-left: auto;">
+                                        <div style="background:#ff5b00;color:white;padding:5px;border-radius:3px;font-size:12px;">
+                                            Install Now
+                                        </div>
+                                    </a>
+                                </div>
+                             </div>
+                        </div>
+                    </div>
+
+                    <div class="product__sidebar">
+                        <div class="product__sidebar__view">
+                            <div class="section-title">
                                 <h5>Categories</h5>
                             </div>
                             <?php  foreach($categories as $category){
