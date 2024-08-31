@@ -17,7 +17,7 @@ Class Series {
                 ELSE '0'
             END AS visited
             FROM series s
-            ORDER BY s.view DESC Limit 6";
+            ORDER BY s.view DESC Limit 12";
         
         $trending=$DB->read($query);
  
@@ -30,7 +30,7 @@ Class Series {
                 ELSE '0'
             END AS visited
             FROM series s
-            ORDER BY view DESC Limit 6";
+            ORDER BY view DESC Limit 12";
    
         $popular=$DB->read($query);
         $result['popular']=$popular;
@@ -42,7 +42,7 @@ Class Series {
                 ELSE '0'
             END AS visited
             FROM series s
-            ORDER BY id DESC limit 6";
+            ORDER BY id DESC limit 12";
      
         $newadded=$DB->read($query);
         $result['newadded']=$newadded;
