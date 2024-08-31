@@ -408,27 +408,7 @@ $newCommentSeries = $Series->newCommentSeries();
 
                         </div>
                     </div>
-                    
-        <?php foreach($newCommentSeries as $ser){ ?>
-            <div class="product__sidebar__comment__item">
-                <div class="product__sidebar__comment__item__pic">
-                    <img style="width:100px;" src="<?php echo $ser['image_url'] ?>" alt="">
-                </div>
-                <div class="product__sidebar__comment__item__text">
-                    <ul>
-                        <li>Active</li>
-                        <?php if($ser['point']==0){?>
-                            <li>Free</li>
-                        <?php }?>
-                        <li><?php echo filterCategory($ser['category_id'],$categories) ?></li>
-                    </ul>
-                    <h5><a href="details.php?id=<?php echo $ser['series_id']?>" class="stroked-text"><?php echo $ser['title']; ?></a></h5>
-                    <span><i class="fa fa-eye"></i> <?php echo $ser['view']; if($ser['view']>1) echo " Views"; else echo " View"; ?> </span>
-                </div>
-            </div>
-        <?php }?>
-
-        
+                
         
     </div>
 </div>

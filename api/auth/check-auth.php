@@ -11,14 +11,15 @@
     $JWt = new JWt();
     $Util = new Util();
 
+    $response['mobile_app_version_code']=$Util->mobileAppVersionCode();
+    
     $payload = $JWt->validateJWT($_token);
     if($payload){
         $user_id = $payload['userId'];
-
         $User=new User();
         $user=$User->details($user_id );
-
-        $user = [
+        if($user){
+            $user = [
             'user_id'=>$user['id'],
             'first_name'=>$user['first_name'],
             'last_name'=>$user['last_name'],
@@ -26,11 +27,14 @@
             'phone'=>$user['phone'],
             'image_url'=>$user['image_url'],
             'point'=>$user['point'],
-        ];
+            ];
 
-        $response['auth']="success";
-        $response['mobile_app_version_code']=$Util->mobileAppVersionCode();
-        $response['user']=$user;
+            $response['auth']="success";
+           
+            $response['user']=$user;
+        }else{
+            $response['auth']="fail";
+        }
     }else{
         $response['auth']="fail";
     }

@@ -45,6 +45,7 @@
         function validateJWT($jwt) {
             // Split the JWT into its three parts
             $tokenParts = explode('.', $jwt);
+            if(count($tokenParts)<3) return false;
             $header = $this->base64UrlDecode($tokenParts[0]);
             $payload = $this->base64UrlDecode($tokenParts[1]);
             $signatureProvided = $tokenParts[2];
