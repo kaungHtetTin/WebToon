@@ -37,7 +37,7 @@ if(isset($_GET['delete'])){
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -78,7 +78,7 @@ if(isset($_GET['delete'])){
       <h1>Series</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
           <li class="breadcrumb-item">Series</li>
           <li class="breadcrumb-item active">View Series</li>
         </ol>
@@ -91,8 +91,12 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View Series</h5>
-              <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Series</h5>
+                <a href="add_series.php" class="btn btn-primary">
+                  <i class="bi bi-plus-circle"></i> Add Series
+                </a>
+              </div>
 
               <!-- Table with stripped rows -->
               <table class="table datatable">
@@ -143,15 +147,34 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['image_url']; ?></td>
                         <td><?= $fetch_products['total_chapter']; ?></td>
                         <td><?= $fetch_products['uploaded_chapter']; ?></td>
-                        <td> <a href="manage_series.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> <br><br>
-                              <a href="series.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this series?');"><span class="badge bg-danger">Delete</span></a> <br><br>
-                              <a href="chapters.php?series_id=<?= $fetch_products['id']; ?>"><span class="badge bg-primary">Chapters</span></a> 
+                        <td>
+                          <div class="btn-group-vertical btn-group-sm" role="group">
+                            <a href="manage_series.php?update=<?= $fetch_products['id']; ?>" 
+                               class="btn btn-warning mb-1" 
+                               data-bs-toggle="tooltip" 
+                               title="Edit series">
+                              <i class="bi bi-pencil"></i> Edit
+                            </a>
+                            <a href="chapters.php?series_id=<?= $fetch_products['id']; ?>" 
+                               class="btn btn-primary mb-1" 
+                               data-bs-toggle="tooltip" 
+                               title="View chapters">
+                              <i class="bi bi-file-text"></i> Chapters
+                            </a>
+                            <a href="series.php?delete=<?= $fetch_products['id']; ?>" 
+                               class="btn btn-danger" 
+                               data-message="Are you sure you want to delete '<?= htmlspecialchars($fetch_products['title']); ?>'? This will also delete all associated chapters."
+                               data-bs-toggle="tooltip" 
+                               title="Delete series">
+                              <i class="bi bi-trash"></i> Delete
+                            </a>
+                          </div>
                         </td>
                   </tr>
                   <?php
                           }
                        }else{
-                          echo '<p class="empty">now books added yet!</p>';
+                          echo '<tr><td colspan="17" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No series found</h5><p class="text-muted">Get started by adding your first series.</p><a href="add_series.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Series</a></div></td></tr>';
                        }
                        ?>
                 </tbody>
@@ -198,6 +221,8 @@ if(isset($_GET['delete'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- UX Enhancements -->
+  <script src="assets/js/ux-enhancements.js"></script>
 
 </body>
 

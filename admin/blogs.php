@@ -38,7 +38,7 @@ if(isset($_GET['delete'])){
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -92,8 +92,12 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View Blogs</h5>
-              <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Blogs</h5>
+                <a href="add_blogs.php" class="btn btn-primary">
+                  <i class="bi bi-plus-circle"></i> Add Blog
+                </a>
+              </div>
 
               <!-- Table with stripped rows -->
               <table class="table datatable">

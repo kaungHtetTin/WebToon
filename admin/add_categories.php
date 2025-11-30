@@ -32,17 +32,19 @@ if(isset($_POST['add_categories'])){
    $select_products->execute([$title]);
 
    if($select_products->rowCount() > 0){
-      $message[] = 'book title already exist!';
+      header('location:add_categories.php?error=' . urlencode('Category title already exists! Please choose a different title.'));
+      exit();
    }else{
 
       $insert_products = $conn->prepare("INSERT INTO `categories`(title, description, date, is_active ) VALUES(?,?,?,?)");
-      $insert_products->execute([$title, $description, $date, $is_active]);
+      $result = $insert_products->execute([$title, $description, $date, $is_active]);
       
-
-      $message[] = 'categories updated successfully!';
-      header('location:categories.php');
-      
-      
+      if($result){
+         header('location:categories.php?success=' . urlencode('Category added successfully!'));
+      } else {
+         header('location:add_categories.php?error=' . urlencode('Failed to add category. Please try again.'));
+      }
+      exit();
 
    }
 
@@ -69,7 +71,7 @@ if(isset($_POST['add_categories'])){
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -106,7 +108,7 @@ if(isset($_POST['add_categories'])){
       <h1>Add New Category by Admin</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
           <li class="breadcrumb-item">Add </li>
           <li class="breadcrumb-item active">Category</li>
         </ol>
@@ -119,33 +121,40 @@ if(isset($_POST['add_categories'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">General Form Elements</h5>
+              <h5 class="card-title">Add New Category</h5>
 
               <!-- General Form Elements -->
               <form action="" method="POST" enctype="multipart/form-data">
                 <div class="row mb-3">
-                  <label for="inputText" class="col-sm-2 col-form-label">title</label>
+                  <label for="inputText" class="col-sm-2 col-form-label">Title <span class="text-danger">*</span></label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" name="title">
+                    <input type="text" class="form-control" name="title" id="inputText" required minlength="3" maxlength="100" placeholder="Enter category title">
+                    <small class="form-text text-muted">Category title (3-100 characters)</small>
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <label for="inputEmail" class="col-sm-2 col-form-label">description</label>
+                  <label for="inputDescription" class="col-sm-2 col-form-label">Description</label>
                   <div class="col-sm-10">
-                    <input type="text" class="form-control" name="description">
+                    <textarea class="form-control" name="description" id="inputDescription" rows="3" maxlength="500" placeholder="Enter category description (optional)"></textarea>
+                    <small class="form-text text-muted">Brief description of the category (max 500 characters)</small>
                   </div>
                 </div>
                 <div class="row mb-3">
-                  <label for="inputDate" class="col-sm-2 col-form-label">date</label>
+                  <label for="inputDate" class="col-sm-2 col-form-label">Date <span class="text-danger">*</span></label>
                   <div class="col-sm-10">
-                    <input type="date" class="form-control" name="date">
+                    <input type="date" class="form-control" name="date" id="inputDate" required value="<?= date('Y-m-d'); ?>">
+                    <small class="form-text text-muted">Category creation date</small>
                   </div>
                 </div>
 
                 <div class="row mb-3">
-                  <label for="inputDate" class="col-sm-2 col-form-label">is_active</label>
+                  <label for="inputActive" class="col-sm-2 col-form-label">Status <span class="text-danger">*</span></label>
                   <div class="col-sm-10">
-                    <input type="number" class="form-control" name="is_active">
+                    <select class="form-select" name="is_active" id="inputActive" required>
+                      <option value="1" selected>Active</option>
+                      <option value="0">Inactive</option>
+                    </select>
+                    <small class="form-text text-muted">Set category visibility status</small>
                   </div>
                 </div>
                 
@@ -195,9 +204,11 @@ if(isset($_POST['add_categories'])){
                 </div> -->
 
                 <div class="row mb-3">
-                  <label class="col-sm-2 col-form-label">Submit Button</label>
-                  <div class="col-sm-10">
-                    <button type="submit" name="add_categories" class="btn btn-primary">Submit Form</button>
+                  <div class="col-sm-10 offset-sm-2">
+                    <button type="submit" name="add_categories" class="btn btn-primary">
+                      <i class="bi bi-check-circle"></i> Add Category
+                    </button>
+                    <a href="categories.php" class="btn btn-secondary ms-2">Cancel</a>
                   </div>
                 </div>
 
@@ -242,6 +253,8 @@ if(isset($_POST['add_categories'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- UX Enhancements -->
+  <script src="assets/js/ux-enhancements.js"></script>
 
 </body>
 

@@ -11,10 +11,14 @@ if(isset($_GET['delete'])){
    $delete_id = $_GET['delete'];
    
    $delete_products = $conn->prepare("DELETE FROM `categories` WHERE id = ?");
-   $delete_products->execute([$delete_id]);
+   $result = $delete_products->execute([$delete_id]);
    
-   header('location:categories.php');
-
+   if($result){
+      header('location:categories.php?success=' . urlencode('Category deleted successfully!'));
+   } else {
+      header('location:categories.php?error=' . urlencode('Failed to delete category. Please try again.'));
+   }
+   exit();
 
 }
 
@@ -37,7 +41,7 @@ if(isset($_GET['delete'])){
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
-  <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Nunito:300,300i,400,400i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&family=Google+Sans:wght@400;500;700&display=swap" rel="stylesheet">
 
   <!-- Vendor CSS Files -->
   <link href="assets/vendor/bootstrap/css/bootstrap.min.css" rel="stylesheet">
@@ -78,7 +82,7 @@ if(isset($_GET['delete'])){
       <h1>Categories</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
           <li class="breadcrumb-item">Categories</li>
           <li class="breadcrumb-item active">View Categories</li>
         </ol>
@@ -91,8 +95,12 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View Categories</h5>
-              <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Categories</h5>
+                <a href="add_categories.php" class="btn btn-primary">
+                  <i class="bi bi-plus-circle"></i> Add Category
+                </a>
+              </div>
 
               <!-- Table with stripped rows -->
               <table class="table datatable">
@@ -120,15 +128,28 @@ if(isset($_GET['delete'])){
                     <td><?= $fetch_products['description']; ?></td>
                     <td><?= $fetch_products['date']; ?></td>
                     <td><?= $fetch_products['is_active']; ?></td>
-                    <td> <a href="manage_categories.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="categories.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this category?');"><span class="badge bg-danger">Delete</span></a>
-
-                        </td>
+                    <td>
+                      <div class="btn-group" role="group">
+                        <a href="manage_categories.php?update=<?= $fetch_products['id']; ?>" 
+                           class="btn btn-sm btn-warning" 
+                           data-bs-toggle="tooltip" 
+                           title="Edit category">
+                          <i class="bi bi-pencil"></i> Edit
+                        </a>
+                        <a href="categories.php?delete=<?= $fetch_products['id']; ?>" 
+                           class="btn btn-sm btn-danger" 
+                           data-message="Are you sure you want to delete '<?= htmlspecialchars($fetch_products['title']); ?>'? This action cannot be undone."
+                           data-bs-toggle="tooltip" 
+                           title="Delete category">
+                          <i class="bi bi-trash"></i> Delete
+                        </a>
+                      </div>
+                    </td>
                   </tr>
                   <?php
                           }
                        }else{
-                          echo '<p class="empty">now books added yet!</p>';
+                          echo '<tr><td colspan="6" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No categories found</h5><p class="text-muted">Get started by adding your first category.</p><a href="add_categories.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Category</a></div></td></tr>';
                        }
                        ?>
                 </tbody>
@@ -175,6 +196,8 @@ if(isset($_GET['delete'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- UX Enhancements -->
+  <script src="assets/js/ux-enhancements.js"></script>
 
 </body>
 
