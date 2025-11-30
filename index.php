@@ -137,7 +137,7 @@ $newCommentSeries = $Series->newCommentSeries();
                             </div>
                         </div>
                         <div class="row">
-
+                        <?php if($trendingSeries){ ?>
                           <?php  for($i=0;$i<count($trendingSeries);$i++) { 
                                 $ser=$trendingSeries[$i];
                             ?>
@@ -177,6 +177,13 @@ $newCommentSeries = $Series->newCommentSeries();
                             <?php }?>
                         
                         </div>
+                        <?php } else { ?>
+                            <div class="col-lg-12 col-md-12 col-sm-12">
+                                <div class="section-title">
+                                    <h4>No trending series found</h4>
+                                </div>
+                            </div>
+                        <?php }?>
                     </div>
                     <div class="popular__product">
                         <div class="row">
@@ -192,7 +199,7 @@ $newCommentSeries = $Series->newCommentSeries();
                             </div>
                         </div>
                         <div class="row">
-
+                        <?php if($popularSeries){ ?>
                             <?php  for($i=0;$i<count($popularSeries);$i++) { 
                                 $ser=$popularSeries[$i];
                                 ?>
@@ -227,7 +234,13 @@ $newCommentSeries = $Series->newCommentSeries();
                                     </a>
                                 </div>
                             <?php }?>
-                            
+                            <?php } else { ?>
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <div class="section-title">
+                                        <h4>No popular series found</h4>
+                                    </div>
+                                </div>
+                            <?php }?>
                         </div>
                     </div>
                     <div class="recent__product">
@@ -244,6 +257,7 @@ $newCommentSeries = $Series->newCommentSeries();
                             </div>
                         </div>
                         <div class="row">
+                        <?php if($newSeries){ ?>
                             <?php  for($i=0;$i<count($newSeries);$i++) { 
                                 $ser=$newSeries[$i];
                                 ?>
@@ -276,6 +290,13 @@ $newCommentSeries = $Series->newCommentSeries();
                                             </div>
                                         </div>
                                     </a>
+                                </div>
+                            <?php }?>
+                            <?php } else { ?>
+                                <div class="col-lg-12 col-md-12 col-sm-12">
+                                    <div class="section-title">
+                                        <h4>No recently added series found</h4>
+                                    </div>
                                 </div>
                             <?php }?>
                         </div>

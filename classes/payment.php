@@ -10,9 +10,20 @@ Class payment {
         $file=$FILE['myfile']['name'];
         $file_loc=$FILE['myfile']['tmp_name'];
         $folder=$_SERVER['DOCUMENT_ROOT']."/uploads/images/screenshots/";
-        if(move_uploaded_file($file_loc,$folder.$file)){
+        
+        // Create directory if it doesn't exist
+        if (!file_exists($folder)) {
+            mkdir($folder, 0755, true);
+        }
+        
+        // Generate unique filename to prevent overwrites
+        $file_extension = pathinfo($file, PATHINFO_EXTENSION);
+        $file_name = pathinfo($file, PATHINFO_FILENAME);
+        $unique_file = $file_name . "_" . $time . "." . $file_extension;
+        
+        if(move_uploaded_file($file_loc,$folder.$unique_file)){
             
-            $screenshot_url = "/uploads/images/screenshots/".$file;
+            $screenshot_url = "/uploads/images/screenshots/".$unique_file;
             $query = "INSERT INTO payment_histories (user_id,screenshot_url) VALUE ($user_id,'$screenshot_url')";
 
             $DB=new Database();

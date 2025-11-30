@@ -79,7 +79,6 @@ Class User{
                 $image_url = "/uploads/images/profiles/".$file;
                 $query = "UPDATE users SET image_url='$image_url' WHERE id = $user_id";
                 $DB->save($query);
-
             }
         }
 
