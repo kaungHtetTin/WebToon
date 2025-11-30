@@ -18,32 +18,81 @@ if(isset($_POST['update_blogs'])){
    $date = $_POST['date'];
    $date = filter_var($date, FILTER_SANITIZE_STRING);
    
-   $image_url = $_FILES['image_url']['name'];
-   $image_url = filter_var($image_url, FILTER_SANITIZE_STRING);
-   $image_url_size = $_FILES['image_url']['size'];
-   $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
-   $image_url_folder = 'img/trending/'.$image_url;
-
-   $cover_url = $_FILES['cover_url']['name'];
-   $cover_url = filter_var($cover_url, FILTER_SANITIZE_STRING);
-   $cover_url_size = $_FILES['cover_url']['size'];
-   $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
-   $cover_url_folder = 'img/blog/'.$cover_url;
+   // Handle image uploads
+   $image_url_folder = '../uploads/images/blogs/';
+   $final_image_url = '';
+   $final_cover_url = '';
+   $upload_success = true;
    
+   // Create directory if it doesn't exist
+   if (!file_exists($image_url_folder)) {
+       mkdir($image_url_folder, 0755, true);
+   }
+   
+   // Get current values from database if no new files uploaded
+   $select_current = $conn->prepare("SELECT image_url, cover_url FROM `blogs` WHERE id = ?");
+   $select_current->execute([$pid]);
+   $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+   $final_image_url = $current_data['image_url'] ?? '';
+   $final_cover_url = $current_data['cover_url'] ?? '';
+   
+   // Handle image_url upload
+   if(isset($_FILES['image_url']['name']) && !empty($_FILES['image_url']['name']) && isset($_FILES['image_url']['error']) && $_FILES['image_url']['error'] == UPLOAD_ERR_OK){
+       $image_url = $_FILES['image_url']['name'];
+       $image_url_size = $_FILES['image_url']['size'];
+       $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
+       
+       if($image_url_size > 12000000){
+           $message[] = 'image_url size is too large!';
+           $upload_success = false;
+       }else{
+           $time = time();
+           $file_extension = pathinfo($image_url, PATHINFO_EXTENSION);
+           $file_name = pathinfo($image_url, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           
+           if(move_uploaded_file($image_url_tmp_name, $image_url_folder.$unique_file)){
+               $final_image_url = "/uploads/images/blogs/".$unique_file;
+           }else{
+               $message[] = 'Failed to upload image_url!';
+               $upload_success = false;
+           }
+       }
+   }
+   
+   // Handle cover_url upload
+   if(isset($_FILES['cover_url']['name']) && !empty($_FILES['cover_url']['name']) && isset($_FILES['cover_url']['error']) && $_FILES['cover_url']['error'] == UPLOAD_ERR_OK){
+       $cover_url = $_FILES['cover_url']['name'];
+       $cover_url_size = $_FILES['cover_url']['size'];
+       $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
+       
+       if($cover_url_size > 12000000){
+           $message[] = 'cover_url size is too large!';
+           $upload_success = false;
+       }else{
+           $time = time() + 1;
+           $file_extension = pathinfo($cover_url, PATHINFO_EXTENSION);
+           $file_name = pathinfo($cover_url, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           
+           if(move_uploaded_file($cover_url_tmp_name, $image_url_folder.$unique_file)){
+               $final_cover_url = "/uploads/images/blogs/".$unique_file;
+           }else{
+               $message[] = 'Failed to upload cover_url!';
+               $upload_success = false;
+           }
+       }
+   }
+   
+   // Only proceed with database update if upload was successful or no files were uploaded
+   if($upload_success){
+       $update_product = $conn->prepare("UPDATE `blogs` SET title = ?, description = ?,  date = ?, image_url = ?, cover_url = ? WHERE id = ?");
+       $update_product->execute([$title, $description, $date,  $final_image_url, $final_cover_url]);
 
-   $update_product = $conn->prepare("UPDATE `blogs` SET title = ?, description = ?,  date = ?, image_url = ?, cover_url = ? WHERE id = ?");
-   $update_product->execute([$title, $description, $date,  $image_url, $cover_url, $pid]);
-
-   if($update_product){
-      if($image_url_size && $cover_url_size > 12000000){
-         $message[] = 'image_url size and cover_url size is too large!';
-      }else{
-         move_uploaded_file($image_url_tmp_name, $image_url_folder);
-         move_uploaded_file($cover_url_tmp_name, $cover_url_folder);
-
-         $message[] = 'updated successfully!';
-         header('location:blogs.php');
-      }
+       if($update_product){
+           $message[] = 'updated successfully!';
+           header('location:blogs.php');
+       }
    }
    
 

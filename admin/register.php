@@ -24,7 +24,19 @@ if(isset($_POST['submit'])){
    $image_url = filter_var($image_url, FILTER_SANITIZE_STRING);
    $image_url_size = $_FILES['image_url']['size'];
    $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
-   $image_url_folder = 'img/'.$image_url;
+   $image_url_folder = '../uploads/images/admin/';
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($image_url_folder)) {
+       mkdir($image_url_folder, 0755, true);
+   }
+   
+   // Generate unique filename to prevent overwrites
+   $time = time();
+   $file_extension = pathinfo($image_url, PATHINFO_EXTENSION);
+   $file_name = pathinfo($image_url, PATHINFO_FILENAME);
+   $unique_file = $file_name . "_" . $time . "." . $file_extension;
+   $final_image_url = "/uploads/images/admin/".$unique_file;
 
   
    $select_products = $conn->prepare("SELECT * FROM `admin` WHERE email = ?");
@@ -35,14 +47,14 @@ if(isset($_POST['submit'])){
    }else{
 
       $insert_products = $conn->prepare("INSERT INTO `admin`(username, email, phone, password, image_url) VALUES(?,?,?,?,?)");
-      $insert_products->execute([$username, $email, $phone, $password, $image_url]);
+      $insert_products->execute([$username, $email, $phone, $password, $final_image_url]);
 
 
       if($insert_products){
             if($image_url_size > 12000000){
                $message[] = 'image_url size is too large!';
             }else{
-               move_uploaded_file($image_url_tmp_name, $image_url_folder);
+               move_uploaded_file($image_url_tmp_name, $image_url_folder.$unique_file);
                $message[] = 'registered successfully!';
                header('location:login.php');
             }

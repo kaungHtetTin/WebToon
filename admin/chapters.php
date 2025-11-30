@@ -5,17 +5,23 @@ include('config.php');
 session_start();
 
 
-$series_id = $_GET['series_id'];
+// Validate and sanitize series_id
+$series_id = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;
 
 if(isset($_GET['delete'])){
 
-   $delete_id = $_GET['delete'];
+   $delete_id = filter_var($_GET['delete'], FILTER_SANITIZE_NUMBER_INT);
+   $series_id_param = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : '';
    
    $delete_products = $conn->prepare("DELETE FROM `chapters` WHERE id = ?");
    $delete_products->execute([$delete_id]);
    
-   header('location:chapters.php');
-
+   if($series_id_param){
+       header('location:chapters.php?series_id=' . $series_id_param);
+   } else {
+       header('location:series.php');
+   }
+   exit;
 
 }
 
@@ -93,8 +99,13 @@ if(isset($_GET['delete'])){
           <div class="card">
             <div class="card-body">
               <h5 class="card-title">Chapters
-                <span style="margin-left:20px;"><a href="add_chapters.php?series_id=<?= $series_id ?>">Add new</a></span>
+                <?php if($series_id && is_numeric($series_id)): ?>
+                  <span style="margin-left:20px;"><a href="add_chapters.php?series_id=<?= htmlspecialchars($series_id) ?>">Add new</a></span>
+                <?php endif; ?>
               </h5>
+              <?php if(!$series_id || !is_numeric($series_id)): ?>
+                <div class="alert alert-warning">Please select a valid series ID. <a href="series.php">Go back to Series</a></div>
+              <?php endif; ?>
 
 
               <!-- Table with stripped rows -->
@@ -114,8 +125,15 @@ if(isset($_GET['delete'])){
                 </thead>
                 <tbody>
                   <?php
-                        $show_products = $conn->prepare("SELECT * FROM `chapters` WHERE series_id = $series_id");
-                        $show_products->execute();
+                        // Check if series_id is valid
+                        if($series_id && is_numeric($series_id)){
+                            $show_products = $conn->prepare("SELECT * FROM `chapters` WHERE series_id = ?");
+                            $show_products->execute([$series_id]);
+                        } else {
+                            // If no valid series_id, show empty result
+                            $show_products = $conn->prepare("SELECT * FROM `chapters` WHERE 1=0");
+                            $show_products->execute();
+                        }
                         if($show_products->rowCount() > 0){
                            while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                      ?>
@@ -128,8 +146,8 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['date']; ?></td>
                         <td><?= $fetch_products['is_active']; ?></td>
                         
-                        <td> <a href="manage_chapters.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="chapters.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this chapter?');"><span class="badge bg-danger">Delete</span></a>
+                        <td> <a href="manage_chapters.php?update=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>"><span class="badge bg-warning">Update</span></a> |
+                             <a href="chapters.php?delete=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" onclick="return confirm('delete this chapter?');"><span class="badge bg-danger">Delete</span></a>
 
                         </td>
                       </tr>

@@ -74,9 +74,24 @@ Class User{
         if($FILE['myfile']['name']!=""){
             $file=$FILE['myfile']['name'];
             $file_loc=$FILE['myfile']['tmp_name'];
-            $folder=$_SERVER['DOCUMENT_ROOT']."/uploads/images/profiles/";
-            if(move_uploaded_file($file_loc,$folder.$file)){
-                $image_url = "/uploads/images/profiles/".$file;
+            
+            // Get path relative to project root (go up from classes/ directory)
+            $base_path = dirname(__DIR__);
+            $folder = $base_path . "/uploads/images/profiles/";
+            
+            // Create directory if it doesn't exist
+            if (!file_exists($folder)) {
+                mkdir($folder, 0755, true);
+            }
+            
+            // Generate unique filename to prevent overwrites
+            $time = time();
+            $file_extension = pathinfo($file, PATHINFO_EXTENSION);
+            $file_name = pathinfo($file, PATHINFO_FILENAME);
+            $unique_file = $file_name . "_" . $time . "." . $file_extension;
+            
+            if(move_uploaded_file($file_loc, $folder . $unique_file)){
+                $image_url = "/uploads/images/profiles/".$unique_file;
                 $query = "UPDATE users SET image_url='$image_url' WHERE id = $user_id";
                 $DB->save($query);
             }

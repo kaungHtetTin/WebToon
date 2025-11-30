@@ -59,7 +59,7 @@ $Util=new Util();
                 </div>
                 <div class="col-lg-12">
                     <div class="blog__details__pic">
-                        <img src="<?php echo $blog['cover_url'] ?>" alt="">
+                        <img src="<?php echo $Util->normalizeImageUrl($blog['cover_url']) ?>" alt="">
                     </div>
                 </div>
                 <div class="col-lg-8">

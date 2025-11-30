@@ -90,7 +90,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             <div class="anime__details__content">
                 <div class="row">
                     <div class="col-lg-3">
-                        <div style="width:150px;height:300px;" class="anime__details__pic set-bg" data-setbg="<?php echo $series['image_url'] ?>">
+                        <div style="width:150px;height:300px;" class="anime__details__pic set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($series['image_url']) ?>">
                             <div class="comment"><i class="fa fa-comments"></i> <?php echo $Util->formatCount($series['comment']) ?></div>
                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($series['view']) ?></div>
                         </div>

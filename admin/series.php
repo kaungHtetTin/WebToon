@@ -104,7 +104,7 @@ if(isset($_GET['delete'])){
                     <th scope="col">description</th>
                     <th scope="col">short</th>
                     <th scope="col">genre</th>
-                    <th scope="col">orginal_work</th>
+                    <th scope="col">original_work</th>
                     <th scope="col">upload_status</th>
                     <th scope="col">rating</th>
                     <th scope="col">comment</th>
@@ -133,7 +133,7 @@ if(isset($_GET['delete'])){
                         <td><?= substr($fetch_products['description'],0,20)."..." ?></td>
                         <td><?= $fetch_products['short']; ?></td> 
                         <td><?= $fetch_products['genre']; ?></td> 
-                        <td><?= $fetch_products['orginal_work']; ?></td> 
+                        <td><?= $fetch_products['original_work']; ?></td> 
                         <td><?= $fetch_products['upload_status']; ?></td> 
                         <td><?= $fetch_products['rating']; ?></td>
                         <td><?= $fetch_products['comment']; ?></td>

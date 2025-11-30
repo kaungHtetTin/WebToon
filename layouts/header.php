@@ -41,7 +41,7 @@
                    
                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                              <a href="profile.php">
-                                <img src="<?php echo $user['image_url'] ?>" style="width:30px; height:30px; border-radius:50px;">
+                                <img src="<?php echo $Util->normalizeImageUrl($user['image_url']) ?>" style="width:30px; height:30px; border-radius:50px;">
                                
                             </a>
                              <a href="logout.php" style="font-size:16px;">Logout</a>

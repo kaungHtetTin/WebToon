@@ -126,7 +126,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                 <div class="col-lg-4 col-md-6 col-sm-6" >
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                         <div class="product__item">
-                                            <div class="product__item__pic set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
+                                            <div class="product__item__pic set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                                 <div class="ep" style="color:white;font:weight:bold">
                                                     <?php if($ser['point']==0){ ?>
                                                         Free
@@ -224,7 +224,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix years"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -245,7 +245,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix month"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -266,7 +266,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix week"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -288,7 +288,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                 ?>
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                     <div class="product__sidebar__view__item set-bg mix day"
-                                      data-setbg="<?php echo $ser['image_url'] ?>">
+                                      data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                     <div class="ep" style="color:white;font:weight:bold">
                                         <?php if($ser['point']==0){ ?>
                                             Free
@@ -314,7 +314,7 @@ $newCommentSeries = $Series->newCommentSeries();
         <?php foreach($newCommentSeries as $ser){ ?>
             <div class="product__sidebar__comment__item">
                 <div class="product__sidebar__comment__item__pic">
-                    <img style="width:100px;" src="<?php echo $ser['image_url'] ?>" alt="">
+                    <img style="width:100px;" src="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>" alt="">
                 </div>
                 <div class="product__sidebar__comment__item__text">
                     <ul>

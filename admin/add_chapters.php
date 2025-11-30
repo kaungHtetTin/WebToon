@@ -28,7 +28,21 @@ if(isset($_POST['add_chapter'])){
    $download_url = filter_var($download_url, FILTER_SANITIZE_STRING);
    $download_url_size = $_FILES['download_url']['size'];
    $download_url_tmp_name = $_FILES['download_url']['tmp_name'];
-   $download_url_folder = '../uploads/pdfs/'.$download_url;
+   $download_url_folder = '../uploads/pdfs/';
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($download_url_folder)) {
+       mkdir($download_url_folder, 0755, true);
+   }
+   
+   // Generate unique filename to prevent overwrites (only if file is uploaded)
+   $unique_file = $download_url;
+   if(!empty($download_url)){
+       $time = time();
+       $file_extension = pathinfo($download_url, PATHINFO_EXTENSION);
+       $file_name = pathinfo($download_url, PATHINFO_FILENAME);
+       $unique_file = $file_name . "_" . $time . "." . $file_extension;
+   }
 
   
    $select_products = $conn->prepare("SELECT * FROM `chapters` WHERE title = ?");
@@ -39,16 +53,21 @@ if(isset($_POST['add_chapter'])){
    }else{
 
       $insert_products = $conn->prepare("INSERT INTO `chapters`(series_id, title, description, date, is_active, download_url) VALUES(?,?,?,?,?,?)");
-      $insert_products->execute([$series_id, $title, $description, $date, $is_active, $download_url]);
+      $insert_products->execute([$series_id, $title, $description, $date, $is_active, $unique_file]);
 
 
       if($insert_products){
-            if($download_url_size > 12000000){
-               $message[] = 'download_url size is too large!';
+            if(!empty($download_url)){
+                if($download_url_size > 12000000){
+                   $message[] = 'download_url size is too large!';
+                }else{
+                   move_uploaded_file($download_url_tmp_name, $download_url_folder.$unique_file);
+                   $message[] = 'registered successfully!';
+                   header("location:chapters.php?series_id=$series_id");
+                }
             }else{
-               move_uploaded_file($download_url_tmp_name, $download_url_folder);
-               $message[] = 'registered successfully!';
-               header("location:chapters.php?series_id=$series_id");
+                $message[] = 'registered successfully!';
+                header("location:chapters.php?series_id=$series_id");
             }
          }
 

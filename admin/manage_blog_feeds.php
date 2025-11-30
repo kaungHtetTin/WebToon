@@ -16,25 +16,55 @@ if(isset($_POST['update_blog_feeds'])){
    $body = filter_var($body, FILTER_SANITIZE_STRING);
 
 
+   // Handle image upload
+   $image_folder = '../uploads/images/blog_feeds/';
+   $final_image_url = '';
+   $upload_success = true;
    
-   $image = $_FILES['image']['name'];
-   $image = filter_var($image, FILTER_SANITIZE_STRING);
-   $image_size = $_FILES['image']['size'];
-   $image_tmp_name = $_FILES['image']['tmp_name'];
-   $image_folder = 'img/trending/'.$image;
+   // Create directory if it doesn't exist
+   if (!file_exists($image_folder)) {
+       mkdir($image_folder, 0755, true);
+   }
    
+   // Get current image from database if no new file uploaded
+   if(isset($_FILES['image']['name']) && !empty($_FILES['image']['name']) && isset($_FILES['image']['error']) && $_FILES['image']['error'] == UPLOAD_ERR_OK){
+       $image = $_FILES['image']['name'];
+       $image_size = $_FILES['image']['size'];
+       $image_tmp_name = $_FILES['image']['tmp_name'];
+       
+       if($image_size > 12000000){
+           $message[] = 'image size is too large!';
+           $upload_success = false;
+       }else{
+           $time = time();
+           $file_extension = pathinfo($image, PATHINFO_EXTENSION);
+           $file_name = pathinfo($image, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           
+           if(move_uploaded_file($image_tmp_name, $image_folder.$unique_file)){
+               $final_image_url = "/uploads/images/blog_feeds/".$unique_file;
+           }else{
+               $message[] = 'Failed to upload image!';
+               $upload_success = false;
+           }
+       }
+   }else{
+       // Get current image from database
+       $select_current = $conn->prepare("SELECT image FROM `blog_feeds` WHERE id = ?");
+       $select_current->execute([$pid]);
+       $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+       $final_image_url = $current_data['image'] ?? '';
+   }
+   
+   // Only proceed with database update if upload was successful or no file was uploaded
+   if($upload_success){
+       $update_product = $conn->prepare("UPDATE `blog_feeds` SET title = ?, body = ?, image = ? WHERE id = ?");
+       $update_product->execute([$title, $body, $final_image_url, $pid]);
 
-   $update_product = $conn->prepare("UPDATE `blog_feeds` SET title = ?, body = ?, image = ? WHERE id = ?");
-   $update_product->execute([$title, $body, $image, $pid]);
-
-   if($update_product){
-      if($image_size > 12000000){
-         $message[] = 'image size is too large!';
-      }else{
-         move_uploaded_file($image_tmp_name, $image_folder);
-         $message[] = 'updated successfully!';
-         header('location:blog_feeds.php');
-      }
+       if($update_product){
+           $message[] = 'updated successfully!';
+           header('location:blog_feeds.php');
+       }
    }
    
 

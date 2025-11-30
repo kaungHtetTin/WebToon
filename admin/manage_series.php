@@ -24,8 +24,8 @@ if(isset($_POST['update_series'])){
    $genre = $_POST['genre'];
    $genre = filter_var($genre, FILTER_SANITIZE_STRING);
 
-   $orginal_work = $_POST['orginal_work'];
-   $orginal_work = filter_var($orginal_work, FILTER_SANITIZE_STRING);
+   $original_work = $_POST['original_work'];
+   $original_work = filter_var($original_work, FILTER_SANITIZE_STRING);
 
    $upload_status = $_POST['upload_status'];
    $upload_status = filter_var($upload_status, FILTER_SANITIZE_STRING);
@@ -60,27 +60,62 @@ if(isset($_POST['update_series'])){
    $uploaded_chapter = $_POST['uploaded_chapter'];
    $uploaded_chapter = filter_var($uploaded_chapter, FILTER_SANITIZE_STRING);
 
-   $image_url = $_FILES['image_url']['name'];
-   $image_url = filter_var($image_url, FILTER_SANITIZE_STRING);
-   $image_url_size = $_FILES['image_url']['size'];
-   $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
-   $image_url_folder = '../img/series/'.$image_url;
+   // Handle image upload
+   $image_url_folder = '../uploads/images/series/';
+   $final_image_url = '';
+   $upload_success = true;
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($image_url_folder)) {
+       mkdir($image_url_folder, 0755, true);
+   }
+   
+   // Check if a new image is uploaded
+   if(isset($_FILES['image_url']['name']) && !empty($_FILES['image_url']['name']) && isset($_FILES['image_url']['error']) && $_FILES['image_url']['error'] == UPLOAD_ERR_OK){
+       $image_url = $_FILES['image_url']['name'];
+       $image_url_size = $_FILES['image_url']['size'];
+       $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
+       
+       if($image_url_size > 12000000){
+           $message[] = 'image size is too large!';
+           $upload_success = false;
+       }else{
+           // Generate unique filename to prevent overwrites
+           $time = time();
+           $file_extension = pathinfo($image_url, PATHINFO_EXTENSION);
+           $file_name = pathinfo($image_url, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           
+           // Upload the file first
+           if(move_uploaded_file($image_url_tmp_name, $image_url_folder.$unique_file)){
+               $final_image_url = "/uploads/images/series/".$unique_file;
+               $upload_success = true;
+           }else{
+               $message[] = 'Failed to upload image!';
+               $upload_success = false;
+           }
+       }
+   }
 
-  
+   // Only proceed with database update if upload was successful or no file was uploaded
+   if($upload_success){
+       // Get current image_url from database if no new image was uploaded
+       if(empty($final_image_url)){
+           $select_current = $conn->prepare("SELECT image_url FROM `series` WHERE id = ?");
+           $select_current->execute([$pid]);
+           $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+           $final_image_url = $current_data['image_url'] ?? '';
+       }
 
-   $update_product = $conn->prepare("UPDATE `series` SET  title = ?, description = ?,short = ?,genre = ?,orginal_work = ?,upload_status = ?, date = ?,  updated_date = ?, rating = ?, comment = ?, view = ?, save = ?,   is_active = ?,  image_url = ?, total_chapter = ?, uploaded_chapter = ? , image_url = ?  WHERE id = ?");
+       // Update database
+       $update_product = $conn->prepare("UPDATE `series` SET title = ?, description = ?, short = ?, genre = ?, original_work = ?, upload_status = ?, date = ?, updated_date = ?, rating = ?, comment = ?, view = ?, save = ?, is_active = ?, image_url = ?, total_chapter = ?, uploaded_chapter = ? WHERE id = ?");
+       $update_product->execute([$title, $description, $short, $genre, $original_work, $upload_status, $date, $updated_date, $rating, $comment, $view, $save, $is_active, $final_image_url, $total_chapter, $uploaded_chapter, $pid]);
 
-   $update_product->execute([ $title, $description, $short, $genre, $orginal_work, $upload_status, $date, $updated_date, $rating, $comment, $view, $save, $is_active, $image_url, $total_chapter, $uploaded_chapter, $image_url, $pid]);
-
-   if($update_product){
-            if($image_url_size > 12000000){
-               $message[] = 'image size is too large!';
-            }else{
-               move_uploaded_file($image_url_tmp_name, $image_url_folder);
-               $message[] = 'registered successfully!';
-               header('location:series.php');
-            }
-         }
+       if($update_product){
+           $message[] = 'updated successfully!';
+           header('location:series.php');
+       }
+   }
    
 
 }
@@ -173,7 +208,7 @@ if(isset($_POST['update_series'])){
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">title</label>
                       <div class="col-sm-10">
-                        <input type="text" name="title" class="form-control" value="<?= $fetch_products['title']; ?>">
+                        <input type="text" name="title" class="form-control" value="<?= isset($fetch_products['title']) ? htmlspecialchars($fetch_products['title']) : ''; ?>">
                         
 
                       </div>
@@ -184,35 +219,35 @@ if(isset($_POST['update_series'])){
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">description</label>
                       <div class="col-sm-10">
-                        <input type="textarea" name="description" class="form-control" value="<?= $fetch_products['description']; ?>">
+                        <input type="textarea" name="description" class="form-control" value="<?= isset($fetch_products['description']) ? htmlspecialchars($fetch_products['description']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">short</label>
                       <div class="col-sm-10">
-                        <input type="textarea" name="short" class="form-control" value="<?= $fetch_products['short']; ?>">
+                        <input type="textarea" name="short" class="form-control" value="<?= isset($fetch_products['short']) ? htmlspecialchars($fetch_products['short']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">genre</label>
                       <div class="col-sm-10">
-                        <input type="textarea" name="genre" class="form-control" value="<?= $fetch_products['genre']; ?>">
+                        <input type="textarea" name="genre" class="form-control" value="<?= isset($fetch_products['genre']) ? htmlspecialchars($fetch_products['genre']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">orginal_work</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">original_work</label>
                       <div class="col-sm-10">
-                        <input type="textarea" name="orginal_work" class="form-control" value="<?= $fetch_products['orginal_work']; ?>">
+                        <input type="textarea" name="original_work" class="form-control" value="<?= isset($fetch_products['original_work']) ? htmlspecialchars($fetch_products['original_work']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">upload_status</label>
                       <div class="col-sm-10">
-                        <input type="textarea" name="upload_status" class="form-control" value="<?= $fetch_products['upload_status']; ?>">
+                        <input type="textarea" name="upload_status" class="form-control" value="<?= isset($fetch_products['upload_status']) ? htmlspecialchars($fetch_products['upload_status']) : ''; ?>">
                       </div>
                     </div>
 
@@ -220,56 +255,59 @@ if(isset($_POST['update_series'])){
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">date</label>
                       <div class="col-sm-10">
-                        <input type="date" name="date" class="form-control" value="<?= $fetch_products['date']; ?>">
+                        <input type="date" name="date" class="form-control" value="<?= isset($fetch_products['date']) ? htmlspecialchars($fetch_products['date']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">date</label>
                       <div class="col-sm-10">
-                        <input type="date" name="updated_date" class="form-control" value="<?= $fetch_products['updated_date']; ?>">
+                        <input type="date" name="updated_date" class="form-control" value="<?= isset($fetch_products['updated_date']) ? htmlspecialchars($fetch_products['updated_date']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">rating</label>
                       <div class="col-sm-10">
-                        <input type="text" name="rating" class="form-control" value="<?= $fetch_products['rating']; ?>">
+                        <input type="text" name="rating" class="form-control" value="<?= isset($fetch_products['rating']) ? htmlspecialchars($fetch_products['rating']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">comment</label>
                       <div class="col-sm-10">
-                        <input type="text" name="comment" class="form-control" value="<?= $fetch_products['comment']; ?>">
+                        <input type="text" name="comment" class="form-control" value="<?= isset($fetch_products['comment']) ? htmlspecialchars($fetch_products['comment']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">view</label>
                       <div class="col-sm-10">
-                        <input type="text" name="view" class="form-control" value="<?= $fetch_products['view']; ?>">
+                        <input type="text" name="view" class="form-control" value="<?= isset($fetch_products['view']) ? htmlspecialchars($fetch_products['view']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">save</label>
                       <div class="col-sm-10">
-                        <input type="text" name="save" class="form-control" value="<?= $fetch_products['save']; ?>">
+                        <input type="text" name="save" class="form-control" value="<?= isset($fetch_products['save']) ? htmlspecialchars($fetch_products['save']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">is_active </label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control" value="<?= $fetch_products['is_active']; ?>">
+                        <input type="text" name="is_active" class="form-control" value="<?= isset($fetch_products['is_active']) ? htmlspecialchars($fetch_products['is_active']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputNumber" class="col-sm-2 col-form-label">image_url</label>
                       <div class="col-sm-10">
-                        <input class="form-control" type="file" name="image_url" value="<?= $fetch_products['image_url']; ?>">
+                        <input class="form-control" type="file" name="image_url">
+                        <?php if(isset($fetch_products['image_url']) && !empty($fetch_products['image_url'])): ?>
+                          <small>Current: <?= htmlspecialchars($fetch_products['image_url']); ?></small>
+                        <?php endif; ?>
                       </div>
                     </div> 
 
@@ -278,14 +316,14 @@ if(isset($_POST['update_series'])){
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">total_chapter</label>
                       <div class="col-sm-10">
-                        <input type="text" name="total_chapter" class="form-control" value="<?= $fetch_products['total_chapter']; ?>">
+                        <input type="text" name="total_chapter" class="form-control" value="<?= isset($fetch_products['total_chapter']) ? htmlspecialchars($fetch_products['total_chapter']) : ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">uploaded_chapter</label>
                       <div class="col-sm-10">
-                        <input type="text" name="uploaded_chapter" class="form-control" value="<?= $fetch_products['uploaded_chapter']; ?>">
+                        <input type="text" name="uploaded_chapter" class="form-control" value="<?= isset($fetch_products['uploaded_chapter']) ? htmlspecialchars($fetch_products['uploaded_chapter']) : ''; ?>">
                       </div>
                     </div>
 

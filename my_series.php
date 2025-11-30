@@ -98,7 +98,7 @@ $yearViews = $ViewHistory->topViewYear();
                                 <div class="col-lg-4 col-md-6 col-sm-6" >
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                         <div class="product__item">
-                                            <div class="product__item__pic set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
+                                            <div class="product__item__pic set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                                 <div class="ep" style="color:white;font:weight:bold">
                                                     <?php if($ser['point']==0){ ?>
                                                         Free
@@ -170,7 +170,7 @@ $yearViews = $ViewHistory->topViewYear();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix years"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -191,7 +191,7 @@ $yearViews = $ViewHistory->topViewYear();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix month"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -212,7 +212,7 @@ $yearViews = $ViewHistory->topViewYear();
                                         ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix week"
-                                            data-setbg="<?php echo $ser['image_url'] ?>">
+                                            data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                            <div class="ep" style="color:white;font:weight:bold">
                                                 <?php if($ser['point']==0){ ?>
                                                     Free
@@ -234,7 +234,7 @@ $yearViews = $ViewHistory->topViewYear();
                                 ?>
                                     <a href="details.php?id=<?php echo $ser['id']?>">
                                     <div class="product__sidebar__view__item set-bg mix day"
-                                      data-setbg="<?php echo $ser['image_url'] ?>">
+                                      data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                     <div class="ep" style="color:white;font:weight:bold">
                                         <?php if($ser['point']==0){ ?>
                                             Free

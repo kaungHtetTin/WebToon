@@ -23,13 +23,31 @@ if(isset($_POST['add_blogs'])){
    $image_url = filter_var($image_url, FILTER_SANITIZE_STRING);
    $image_url_size = $_FILES['image_url']['size'];
    $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
-   $image_url_folder = 'img/trending/'.$image_url;
+   $image_url_folder = '../uploads/images/blogs/';
 
    $cover_url = $_FILES['cover_url']['name'];
    $cover_url = filter_var($cover_url, FILTER_SANITIZE_STRING);
    $cover_url_size = $_FILES['cover_url']['size'];
    $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
-   $cover_url_folder = 'img/blog/'.$cover_url;
+   $cover_url_folder = '../uploads/images/blogs/';
+
+   // Create directories if they don't exist
+   if (!file_exists($image_url_folder)) {
+       mkdir($image_url_folder, 0755, true);
+   }
+   
+   // Generate unique filenames to prevent overwrites
+   $time = time();
+   $image_extension = pathinfo($image_url, PATHINFO_EXTENSION);
+   $image_name = pathinfo($image_url, PATHINFO_FILENAME);
+   $unique_image = $image_name . "_" . $time . "." . $image_extension;
+   
+   $cover_extension = pathinfo($cover_url, PATHINFO_EXTENSION);
+   $cover_name = pathinfo($cover_url, PATHINFO_FILENAME);
+   $unique_cover = $cover_name . "_" . ($time + 1) . "." . $cover_extension;
+
+   $final_image_url = "/uploads/images/blogs/".$unique_image;
+   $final_cover_url = "/uploads/images/blogs/".$unique_cover;
 
   
    $select_products = $conn->prepare("SELECT * FROM `blogs` WHERE title = ?");
@@ -40,15 +58,15 @@ if(isset($_POST['add_blogs'])){
    }else{
 
       $insert_products = $conn->prepare("INSERT INTO `blogs`( title, description, date, image_url, cover_url) VALUES(?,?,?,?,?)");
-      $insert_products->execute([$title, $description, $date, $image_url, $cover_url]);
+      $insert_products->execute([$title, $description, $date, $final_image_url, $final_cover_url]);
 
 
       if($insert_products){
             if($image_url_size && $cover_url_size  > 12000000){
                $message[] = 'image_url and cover_url size is too large!';
             }else{
-               move_uploaded_file($image_url_tmp_name, $image_url_folder);
-               move_uploaded_file($cover_url_tmp_name, $cover_url_folder);
+               move_uploaded_file($image_url_tmp_name, $image_url_folder.$unique_image);
+               move_uploaded_file($cover_url_tmp_name, $cover_url_folder.$unique_cover);
                $message[] = 'registered successfully!';
                header('location:blogs.php');
             }

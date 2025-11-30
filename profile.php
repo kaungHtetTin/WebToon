@@ -3,7 +3,9 @@ session_start();
 
 include('classes/connect.php');
 include('classes/user.php');
+include('classes/util.php');
 $User=new User();
+$Util=new Util();
 
 if(isset($_SESSION['webtoon_userid'])){
     $user_id=$_SESSION['webtoon_userid'];
@@ -61,7 +63,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
             <div class="anime__details__content">
                 <div class="row">
                     <div class="col-lg-3">
-                        <img id="img_profile" src="<?php echo $user['image_url']; ?>" alt="" style="width:150px; height:150px;border-radius:50px;cursor:pointer">
+                        <img id="img_profile" src="<?php echo $Util->normalizeImageUrl($user['image_url']); ?>" alt="" style="width:150px; height:150px;border-radius:50px;cursor:pointer">
                         <br>
                         <i id="icon_camera" class="fa fa-camera" style="color:white;font-size:30px;cursor:pointer;margin-left:150px;display:none"></i>
                     </div>
@@ -69,7 +71,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                     <div class="col-lg-9">
                         <div class="anime__details__text">
                             <div class="anime__details__title">
-                                <h3> <?php echo $user['first_name']." ".$user['last_name'] ?></h3>
+                                <h3> <?php echo $user['first_name']." ".$user['last_name'] ?> <?php echo $Util->normalizeImageUrl($user['image_url']); ?></h3>
                             </div>
 
                             <span id="btn_edit" style="color:blue;cursor:pointer">Edit Profile</span>
@@ -84,7 +86,7 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                                             </li>
                                             <li><span>Phone:</span> <?php echo $user['phone'] ?></li>
                                             <li><span>Webtoon Point:</span> <?php echo $user['point'] ?> <a href="vip_register.php" style="margin-left:50px;">(Get more)</a> </li>
-                                            <li><span>Join At:</span> <?php echo date('d M, Y',strtotime($user['date'])); ?> </li>
+                                            <li><span>Join At:</span> <?php echo date('d M, Y',strtotime($user['created_at'])); ?> </li>
                                         </ul>
                                     </div>
 

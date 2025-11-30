@@ -17,17 +17,29 @@ if(isset($_POST['add_owl_carousels'])){
    $cover_url = filter_var($cover_url, FILTER_SANITIZE_STRING);
    $cover_url_size = $_FILES['cover_url']['size'];
    $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
-   $cover_url_folder = 'img/owl_carousels/'.$cover_url;
+   $cover_url_folder = '../uploads/images/owl_carousels/';
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($cover_url_folder)) {
+       mkdir($cover_url_folder, 0755, true);
+   }
+   
+   // Generate unique filename to prevent overwrites
+   $time = time();
+   $file_extension = pathinfo($cover_url, PATHINFO_EXTENSION);
+   $file_name = pathinfo($cover_url, PATHINFO_FILENAME);
+   $unique_file = $file_name . "_" . $time . "." . $file_extension;
+   $final_cover_url = "/uploads/images/owl_carousels/".$unique_file;
 
       $insert_products = $conn->prepare("INSERT INTO `owl_carousels`(series_id, cover_url ) VALUES(?,?)");
-      $insert_products->execute([$series_id, $cover_url]);
+      $insert_products->execute([$series_id, $final_cover_url]);
       
 
       if($insert_products){
             if($cover_url_size > 12000000){
                $message[] = 'image size is too large!';
             }else{
-               move_uploaded_file($cover_url_tmp_name, $cover_url_folder);
+               move_uploaded_file($cover_url_tmp_name, $cover_url_folder.$unique_file);
                $message[] = 'registered successfully!';
                header('location:owl_carousels.php');
             }

@@ -30,25 +30,45 @@ if(isset($_POST['update_profile'])){
    $update_profile = $conn->prepare("UPDATE `admin` SET username = ?,  email = ?, phone = ? WHERE id = ?");
    $update_profile->execute([$username, $email, $phone, $admin_id]);
 
-   $image = $_FILES['image']['name'];
-   $image = filter_var($image, FILTER_SANITIZE_STRING);
-   $image_size = $_FILES['image']['size'];
-   $image_tmp_name = $_FILES['image']['tmp_name'];
-   $image_folder = 'img/'.$image;
+   $image_folder = '../uploads/images/admin/';
    $old_image = $_POST['old_image'];
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($image_folder)) {
+       mkdir($image_folder, 0755, true);
+   }
 
-   if(!empty($image)){
-      if($image_size > 12000000){
-         $message[] = 'image size is too large!';
-      }else{
-         $update_image = $conn->prepare("UPDATE `admin` SET image_url = ? WHERE id = ?");
-         $update_image->execute([$image, $admin_id]);
-         if($update_image){
-            move_uploaded_file($image_tmp_name, $image_folder);
-            unlink('img/'.$old_image);
-            $message[] = 'image updated successfully!';
-         };
-      };
+   if(isset($_FILES['image']['name']) && !empty($_FILES['image']['name']) && isset($_FILES['image']['error']) && $_FILES['image']['error'] == UPLOAD_ERR_OK){
+       $image = $_FILES['image']['name'];
+       $image_size = $_FILES['image']['size'];
+       $image_tmp_name = $_FILES['image']['tmp_name'];
+       
+       if($image_size > 12000000){
+           $message[] = 'image size is too large!';
+       }else{
+           // Generate unique filename to prevent overwrites
+           $time = time();
+           $file_extension = pathinfo($image, PATHINFO_EXTENSION);
+           $file_name = pathinfo($image, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           $final_image_url = "/uploads/images/admin/".$unique_file;
+           
+           $update_image = $conn->prepare("UPDATE `admin` SET image_url = ? WHERE id = ?");
+           $update_image->execute([$final_image_url, $admin_id]);
+           if($update_image){
+               if(move_uploaded_file($image_tmp_name, $image_folder.$unique_file)){
+                   // Delete old image if it exists and is in the uploads folder
+                   if(!empty($old_image) && file_exists('../uploads/images/admin/'.$old_image)){
+                       unlink('../uploads/images/admin/'.$old_image);
+                   }elseif(!empty($old_image) && file_exists('img/'.$old_image)){
+                       unlink('img/'.$old_image);
+                   }
+                   $message[] = 'image updated successfully!';
+               }else{
+                   $message[] = 'Failed to upload image!';
+               }
+           };
+       };
    };
 
 }

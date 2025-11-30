@@ -1,9 +1,26 @@
 -- Webtoon Database Structure
--- Created based on PHP codebase analysis
+-- Updated based on PHP codebase analysis
 
 -- Database: webtoon (or u148234809_webtoon for production)
 -- Character Set: utf8mb4
 -- Collation: utf8mb4_unicode_ci
+
+-- ============================================
+-- Table: admin
+-- ============================================
+CREATE TABLE IF NOT EXISTS `admin` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `username` varchar(255) NOT NULL,
+  `email` varchar(255) NOT NULL,
+  `phone` varchar(50) DEFAULT NULL,
+  `password` varchar(255) NOT NULL,
+  `image_url` varchar(500) DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
+  `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `email` (`email`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ============================================
 -- Table: users
@@ -17,6 +34,7 @@ CREATE TABLE IF NOT EXISTS `users` (
   `phone` varchar(50) DEFAULT NULL,
   `image_url` varchar(500) DEFAULT '/uploads/placeholder.jpg',
   `point` int(11) DEFAULT 0,
+  `is_vip` tinyint(1) DEFAULT 0,
   `otp` int(11) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -29,6 +47,9 @@ CREATE TABLE IF NOT EXISTS `users` (
 CREATE TABLE IF NOT EXISTS `categories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `title` varchar(255) NOT NULL,
+  `description` text,
+  `date` date DEFAULT NULL,
+  `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
@@ -38,16 +59,24 @@ CREATE TABLE IF NOT EXISTS `categories` (
 -- ============================================
 CREATE TABLE IF NOT EXISTS `series` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `category_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text,
+  `short` text,
   `genre` varchar(255) DEFAULT NULL,
-  `category_id` int(11) NOT NULL,
+  `original_work` varchar(255) DEFAULT NULL,
+  `upload_status` varchar(50) DEFAULT NULL,
   `image_url` varchar(500) DEFAULT NULL,
+  `total_chapter` int(11) DEFAULT 0,
+  `uploaded_chapter` int(11) DEFAULT 0,
   `view` int(11) DEFAULT 0,
   `save` int(11) DEFAULT 0,
   `comment` int(11) DEFAULT 0,
   `point` int(11) DEFAULT 0,
   `rating` decimal(3,1) DEFAULT 0.0,
+  `is_active` tinyint(1) DEFAULT 1,
+  `date` date DEFAULT NULL,
+  `updated_date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -65,6 +94,7 @@ CREATE TABLE IF NOT EXISTS `chapters` (
   `series_id` int(11) NOT NULL,
   `title` varchar(255) NOT NULL,
   `description` text,
+  `date` date DEFAULT NULL,
   `is_active` tinyint(1) DEFAULT 1,
   `download_url` varchar(500) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -171,8 +201,13 @@ CREATE TABLE IF NOT EXISTS `payment_histories` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `screenshot_url` varchar(500) NOT NULL,
+  `amount` decimal(10,2) DEFAULT 0.00,
+  `point` int(11) DEFAULT 0,
   `status` varchar(50) DEFAULT 'pending',
   `points_added` int(11) DEFAULT 0,
+  `date` date DEFAULT NULL,
+  `verified` tinyint(1) DEFAULT 0,
+  `confirm` tinyint(1) DEFAULT 0,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
@@ -188,6 +223,8 @@ CREATE TABLE IF NOT EXISTS `blogs` (
   `title` varchar(255) NOT NULL,
   `description` text,
   `image_url` varchar(500) DEFAULT NULL,
+  `cover_url` varchar(500) DEFAULT NULL,
+  `date` date DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   `updated_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`)
@@ -199,9 +236,9 @@ CREATE TABLE IF NOT EXISTS `blogs` (
 CREATE TABLE IF NOT EXISTS `blog_feeds` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `blog_id` int(11) NOT NULL,
-  `content` text,
-  `image_url` varchar(500) DEFAULT NULL,
-  `order_index` int(11) DEFAULT 0,
+  `title` varchar(255) DEFAULT NULL,
+  `body` text,
+  `image` varchar(500) DEFAULT NULL,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
   PRIMARY KEY (`id`),
   KEY `blog_id` (`blog_id`),
@@ -214,6 +251,7 @@ CREATE TABLE IF NOT EXISTS `blog_feeds` (
 CREATE TABLE IF NOT EXISTS `owl_carousels` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `series_id` int(11) NOT NULL,
+  `cover_url` varchar(500) DEFAULT NULL,
   `order_index` int(11) DEFAULT 0,
   `is_active` tinyint(1) DEFAULT 1,
   `created_at` timestamp NULL DEFAULT CURRENT_TIMESTAMP,
@@ -257,6 +295,11 @@ INSERT INTO `categories` (`title`) VALUES
 
 -- Insert sample admin user (password: admin123 - MD5 hash)
 -- Note: Change password after first login
+INSERT INTO `admin` (`username`, `email`, `phone`, `password`, `image_url`, `is_active`) VALUES
+('Admin', 'admin@webtoon.com', NULL, '0192023a7bbd73250516f069df18b500', NULL, 1);
+
+-- Insert sample user (password: admin123 - MD5 hash)
+-- Note: Change password after first login
 INSERT INTO `users` (`email`, `first_name`, `last_name`, `password`, `point`) VALUES
 ('admin@webtoon.com', 'Admin', 'User', '0192023a7bbd73250516f069df18b500', 10000);
 
@@ -281,6 +324,8 @@ CREATE INDEX idx_view_histories_date_series ON view_histories(date, series_id);
 -- 6. Foreign key constraints ensure data integrity
 -- 7. All timestamps use CURRENT_TIMESTAMP for automatic date tracking
 -- 8. Character set utf8mb4 supports emojis and special characters
+-- 9. The 'admin' table stores administrator accounts
+-- 10. The 'is_vip' field in users table indicates VIP status
+-- 11. The 'date' fields in categories, series, chapters, and blogs use DATE type
+-- 12. The 'blog_feeds' table uses 'title', 'body', and 'image' fields (not 'content', 'image_url', 'order_index')
 -- ============================================
-
-

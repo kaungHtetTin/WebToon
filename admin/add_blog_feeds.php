@@ -22,7 +22,19 @@ if(isset($_POST['add_blog_feeds'])){
    $image = filter_var($image, FILTER_SANITIZE_STRING);
    $image_size = $_FILES['image']['size'];
    $image_tmp_name = $_FILES['image']['tmp_name'];
-   $image_folder = 'img/trending/'.$image;
+   $image_folder = '../uploads/images/blog_feeds/';
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($image_folder)) {
+       mkdir($image_folder, 0755, true);
+   }
+   
+   // Generate unique filename to prevent overwrites
+   $time = time();
+   $file_extension = pathinfo($image, PATHINFO_EXTENSION);
+   $file_name = pathinfo($image, PATHINFO_FILENAME);
+   $unique_file = $file_name . "_" . $time . "." . $file_extension;
+   $final_image_url = "/uploads/images/blog_feeds/".$unique_file;
 
   
    $select_products = $conn->prepare("SELECT * FROM `blog_feeds` WHERE title = ?");
@@ -33,14 +45,14 @@ if(isset($_POST['add_blog_feeds'])){
    }else{
 
       $insert_products = $conn->prepare("INSERT INTO `blog_feeds`(blog_id, title, body, image ) VALUES(?,?,?,?)");
-      $insert_products->execute([$blog_id, $title, $body, $image]);
+      $insert_products->execute([$blog_id, $title, $body, $final_image_url]);
       
 
       if($insert_products){
             if($image_size > 12000000){
                $message[] = 'image size is too large!';
             }else{
-               move_uploaded_file($image_tmp_name, $image_folder);
+               move_uploaded_file($image_tmp_name, $image_folder.$unique_file);
                $message[] = 'registered successfully!';
                header('location:blog_feeds.php');
             }

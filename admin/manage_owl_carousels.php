@@ -10,28 +10,56 @@ if(isset($_POST['update_owl_carousels'])){
    $pid = $_POST['pid'];
 
    
-   $cover_url = $_FILES['cover_url']['name'];
-   $cover_url = filter_var($cover_url, FILTER_SANITIZE_STRING);
-   $cover_url_size = $_FILES['cover_url']['size'];
-   $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
-   $cover_url_folder = 'img/owl_carousels/'.$cover_url;
-
+   // Handle cover_url upload
+   $cover_url_folder = '../uploads/images/owl_carousels/';
+   $final_cover_url = '';
+   $upload_success = true;
    
+   // Create directory if it doesn't exist
+   if (!file_exists($cover_url_folder)) {
+       mkdir($cover_url_folder, 0755, true);
+   }
    
+   // Get current cover_url from database if no new file uploaded
+   if(isset($_FILES['cover_url']['name']) && !empty($_FILES['cover_url']['name']) && isset($_FILES['cover_url']['error']) && $_FILES['cover_url']['error'] == UPLOAD_ERR_OK){
+       $cover_url = $_FILES['cover_url']['name'];
+       $cover_url_size = $_FILES['cover_url']['size'];
+       $cover_url_tmp_name = $_FILES['cover_url']['tmp_name'];
+       
+       if($cover_url_size > 12000000){
+           $message[] = 'image size is too large!';
+           $upload_success = false;
+       }else{
+           $time = time();
+           $file_extension = pathinfo($cover_url, PATHINFO_EXTENSION);
+           $file_name = pathinfo($cover_url, PATHINFO_FILENAME);
+           $unique_file = $file_name . "_" . $time . "." . $file_extension;
+           
+           if(move_uploaded_file($cover_url_tmp_name, $cover_url_folder.$unique_file)){
+               $final_cover_url = "/uploads/images/owl_carousels/".$unique_file;
+           }else{
+               $message[] = 'Failed to upload cover!';
+               $upload_success = false;
+           }
+       }
+   }else{
+       // Get current cover_url from database
+       $select_current = $conn->prepare("SELECT cover_url FROM `owl_carousels` WHERE id = ?");
+       $select_current->execute([$pid]);
+       $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+       $final_cover_url = $current_data['cover_url'] ?? '';
+   }
 
-   $update_product = $conn->prepare("UPDATE `owl_carousels` SET   cover_url = ?  WHERE id = ?");
+   // Only proceed with database update if upload was successful or no file was uploaded
+   if($upload_success){
+       $update_product = $conn->prepare("UPDATE `owl_carousels` SET   cover_url = ?  WHERE id = ?");
+       $update_product->execute([$final_cover_url, $pid]);
 
-   $update_product->execute([$cover_url, $pid]);
-
-   if($update_product){
-            if($cover_url_size > 12000000){
-               $message[] = 'image size is too large!';
-            }else{
-               move_uploaded_file($cover_url_tmp_name, $cover_url_folder);
-               $message[] = 'registered successfully!';
-               header('location:owl_carousels.php');
-            }
-         }
+       if($update_product){
+           $message[] = 'updated successfully!';
+           header('location:owl_carousels.php');
+       }
+   }
    
 
 }

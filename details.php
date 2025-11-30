@@ -118,7 +118,7 @@ $chapters=$Chapter->get($series_id);
             <div class="anime__details__content">
                 <div class="row">
                     <div class="col-lg-3">
-                        <div class="anime__details__pic set-bg" data-setbg="<?php echo $series['image_url'] ?>" style="height:350px;">
+                        <div class="anime__details__pic set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($series['image_url']) ?>" style="height:350px;">
                             <div class="comment"><i class="fa fa-comments"></i> <?php echo $Util->formatCount($series['comment']) ?></div>
                             <div class="view"><i class="fa fa-eye"></i> <?php echo $Util->formatCount($series['view']) ?></div>
                         </div>
@@ -245,7 +245,7 @@ $chapters=$Chapter->get($series_id);
                             <?php foreach($series_you_like as $ser){ ?>
                                 <?php if($ser['id']!=$series_id){ ?>
                                     <a href="details.php?id=<?php echo $ser['id']?>">
-                                        <div class="product__sidebar__view__item set-bg" data-setbg="<?php echo $ser['image_url'] ?>">
+                                        <div class="product__sidebar__view__item set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
                                             <div class="ep">  <?php echo $ser['uploaded_chapter']." / ".$ser['total_chapter'] ?> </div>
                                             <div class="view"><i class="fa fa-eye"></i> <?php echo $ser['view'] ?></div>
                                             <h5> <a href="details.php?id=<?php echo $ser['id']?>" class="stroked-text"><?php echo $ser['title'] ?></a></h5>

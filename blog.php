@@ -76,7 +76,7 @@ $Util=new Util();
                             ?>
 
                         <div class="<?php if($col_check) echo "col-lg-12";else echo 'col-lg-6 col-md-6 col-sm-6' ?>">
-                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $blog['image_url']; ?>">
+                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($blog['image_url']); ?>">
                                 <div class="blog__item__text">
                                     <p class="stroked-text"><span class="icon_calendar"></span> <?php echo $mydate ?></p>
                                     <h4><a href="blog_details.php?id=<?php echo $blog['id'];?>" class="stroked-text"><?php echo $blog['title']; ?></a></h4>
@@ -104,7 +104,7 @@ $Util=new Util();
                             ?>
 
                         <div class="<?php if($col_check) echo "col-lg-12";else echo 'col-lg-6 col-md-6 col-sm-6' ?>">
-                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $blog['image_url']; ?>">
+                            <div class="blog__item small__item set-bg" data-setbg="<?php echo $Util->normalizeImageUrl($blog['image_url']); ?>">
                                 <div class="blog__item__text">
                                     <p class="stroked-text"><span class="icon_calendar"></span> <?php echo $mydate ?></p>
                                     <h4><a href="blog_details.php?id=<?php echo $blog['id'];?>" class="stroked-text"><?php echo $blog['title']; ?></a></h4>

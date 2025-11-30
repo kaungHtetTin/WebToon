@@ -9,7 +9,10 @@ Class payment {
 
         $file=$FILE['myfile']['name'];
         $file_loc=$FILE['myfile']['tmp_name'];
-        $folder=$_SERVER['DOCUMENT_ROOT']."/uploads/images/screenshots/";
+        
+        // Get path relative to project root (go up from classes/ directory)
+        $base_path = dirname(__DIR__);
+        $folder = $base_path . "/uploads/images/screenshots/";
         
         // Create directory if it doesn't exist
         if (!file_exists($folder)) {

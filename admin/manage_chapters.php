@@ -26,19 +26,44 @@ if(isset($_POST['update_chapters'])){
    $download_url = filter_var($download_url, FILTER_SANITIZE_STRING);
    $download_url_size = $_FILES['download_url']['size'];
    $download_url_tmp_name = $_FILES['download_url']['tmp_name'];
-   $download_url_folder = '../uploads/pdfs/'.$download_url;
+   $download_url_folder = '../uploads/pdfs/';
+   
+   // Create directory if it doesn't exist
+   if (!file_exists($download_url_folder)) {
+       mkdir($download_url_folder, 0755, true);
+   }
+   
+   // Generate unique filename to prevent overwrites (only if file is uploaded)
+   $unique_file = $download_url;
+   if(!empty($download_url)){
+       $time = time();
+       $file_extension = pathinfo($download_url, PATHINFO_EXTENSION);
+       $file_name = pathinfo($download_url, PATHINFO_FILENAME);
+       $unique_file = $file_name . "_" . $time . "." . $file_extension;
+   }
    
 
-   $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ?, download_url = ? WHERE id = ?");
-   $update_product->execute([$title, $description, $date, $is_active, $download_url, $pid]);
+   // Only update download_url if a new file is uploaded
+   if(!empty($download_url)){
+       $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ?, download_url = ? WHERE id = ?");
+       $update_product->execute([$title, $description, $date, $is_active, $unique_file, $pid]);
+   }else{
+       $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ? WHERE id = ?");
+       $update_product->execute([$title, $description, $date, $is_active, $pid]);
+   }
 
    if($update_product){
-      if($download_url_size > 12000000){
-         $message[] = 'download_url size is too large!';
+      if(!empty($download_url)){
+          if($download_url_size > 12000000){
+             $message[] = 'download_url size is too large!';
+          }else{
+             move_uploaded_file($download_url_tmp_name, $download_url_folder.$unique_file);
+             $message[] = 'updated successfully!';
+             header('location:chapters.php');
+          }
       }else{
-         move_uploaded_file($download_url_tmp_name, $download_url_folder);
-         $message[] = 'updated successfully!';
-         header('location:chapters.php');
+          $message[] = 'updated successfully!';
+          header('location:chapters.php');
       }
    }
    
