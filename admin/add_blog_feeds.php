@@ -4,13 +4,28 @@ include('config.php');
 
 session_start();
 
-
-
+// Optional preselected blog id from query
+$preselected_blog_id = null;
+$preselected_blog_title = null;
+if(isset($_GET['blog_id'])){
+    $preselected_blog_id = filter_var($_GET['blog_id'], FILTER_SANITIZE_NUMBER_INT);
+    if($preselected_blog_id === '' || !is_numeric($preselected_blog_id)){
+        $preselected_blog_id = null;
+    } else {
+        // Fetch blog title for display
+        $stmt = $conn->prepare("SELECT title FROM `blogs` WHERE id = ?");
+        $stmt->execute([$preselected_blog_id]);
+        if($stmt->rowCount() > 0){
+            $row = $stmt->fetch(PDO::FETCH_ASSOC);
+            $preselected_blog_title = $row['title'] ?? null;
+        }
+    }
+}
 
 if(isset($_POST['add_blog_feeds'])){
 
    $blog_id = $_POST['blog_id'];
-   $blog_id = filter_var($blog_id, FILTER_SANITIZE_STRING);
+   $blog_id = filter_var($blog_id, FILTER_SANITIZE_NUMBER_INT);
 
    $title = $_POST['title'];
    $title = filter_var($title, FILTER_SANITIZE_STRING);
@@ -18,45 +33,132 @@ if(isset($_POST['add_blog_feeds'])){
    $body = $_POST['body'];
    $body = filter_var($body, FILTER_SANITIZE_STRING);
 
-   $image = $_FILES['image']['name'];
-   $image = filter_var($image, FILTER_SANITIZE_STRING);
-   $image_size = $_FILES['image']['size'];
-   $image_tmp_name = $_FILES['image']['tmp_name'];
+   // Handle image upload
    $image_folder = '../uploads/images/blog_feeds/';
+   $final_image_url = '';
+   $upload_error = '';
    
    // Create directory if it doesn't exist
    if (!file_exists($image_folder)) {
        mkdir($image_folder, 0755, true);
    }
    
-   // Generate unique filename to prevent overwrites
-   $time = time();
-   $file_extension = pathinfo($image, PATHINFO_EXTENSION);
-   $file_name = pathinfo($image, PATHINFO_FILENAME);
-   $unique_file = $file_name . "_" . $time . "." . $file_extension;
-   $final_image_url = "/uploads/images/blog_feeds/".$unique_file;
+   // Validate image
+   if(isset($_FILES['image']) && !empty($_FILES['image']['name']) && $_FILES['image']['error'] !== UPLOAD_ERR_NO_FILE){
+       if($_FILES['image']['error'] !== UPLOAD_ERR_OK){
+           switch($_FILES['image']['error']){
+               case UPLOAD_ERR_INI_SIZE:
+               case UPLOAD_ERR_FORM_SIZE:
+                   $upload_error = 'Image file is too large!';
+                   break;
+               case UPLOAD_ERR_PARTIAL:
+                   $upload_error = 'Image upload was incomplete!';
+                   break;
+               case UPLOAD_ERR_NO_TMP_DIR:
+                   $upload_error = 'Missing temporary folder for image!';
+                   break;
+               case UPLOAD_ERR_CANT_WRITE:
+                   $upload_error = 'Failed to write image to disk!';
+                   break;
+               default:
+                   $upload_error = 'Image upload failed!';
+           }
+       } else {
+           $image = $_FILES['image']['name'];
+           $image_size = $_FILES['image']['size'];
+           $image_tmp_name = $_FILES['image']['tmp_name'];
+           
+           // Validate file size (12MB max)
+           if($image_size > 12000000){
+               $upload_error = 'Image size is too large! Maximum size is 12MB.';
+           } else {
+               // Get file extension and validate
+               $file_extension = strtolower(pathinfo($image, PATHINFO_EXTENSION));
+               $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+               
+               if(!in_array($file_extension, $allowed_extensions)){
+                   $upload_error = 'Invalid image format! Allowed formats: JPG, JPEG, PNG, GIF, WEBP.';
+               } else {
+                   // Validate MIME type
+                   $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                   $mime_type = finfo_file($finfo, $image_tmp_name);
+                   finfo_close($finfo);
+                   
+                   $allowed_mime_types = [
+                       'image/jpeg',
+                       'image/jpg',
+                       'image/png',
+                       'image/gif',
+                       'image/webp'
+                   ];
+                   
+                   if(!in_array($mime_type, $allowed_mime_types)){
+                       $upload_error = 'Invalid image file type! Please upload a valid image.';
+                   } else {
+                       // Sanitize filename
+                       $file_name = pathinfo($image, PATHINFO_FILENAME);
+                       $file_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $file_name);
+                       $file_name = preg_replace('/_+/', '_', $file_name);
+                       $file_name = trim($file_name, '_');
+                       
+                       if(empty($file_name)){
+                           $file_name = 'blog_feed_image';
+                       }
+                       
+                       if(strlen($file_name) > 100){
+                           $file_name = substr($file_name, 0, 100);
+                       }
+                       
+                       // Generate unique filename
+                       $time = time();
+                       $random = mt_rand(1000, 9999);
+                       $unique_file = $file_name . '_' . $time . '_' . $random . '.' . $file_extension;
+                       
+                       // Ensure filename is unique
+                       $counter = 0;
+                       while(file_exists($image_folder . $unique_file) && $counter < 100){
+                           $counter++;
+                           $unique_file = $file_name . '_' . $time . '_' . $random . '_' . $counter . '.' . $file_extension;
+                       }
+                       
+                       // Move uploaded file
+                       if(move_uploaded_file($image_tmp_name, $image_folder . $unique_file)){
+                           $final_image_url = "/uploads/images/blog_feeds/" . $unique_file;
+                       } else {
+                           $upload_error = 'Failed to save image file!';
+                       }
+                   }
+               }
+           }
+       }
+       
+       if(!empty($upload_error)){
+           $message[] = $upload_error;
+       }
+   } else {
+       $upload_error = 'Please select an image file!';
+       $message[] = $upload_error;
+   }
 
-  
-   $select_products = $conn->prepare("SELECT * FROM `blog_feeds` WHERE title = ?");
-   $select_products->execute([$title]);
+   $select_products = $conn->prepare("SELECT * FROM `blog_feeds` WHERE title = ? AND blog_id = ?");
+   $select_products->execute([$title, $blog_id]);
 
    if($select_products->rowCount() > 0){
-      $message[] = 'blog feed already exist!';
+      $message[] = 'blog feed already exist for this blog!';
    }else{
 
-      $insert_products = $conn->prepare("INSERT INTO `blog_feeds`(blog_id, title, body, image ) VALUES(?,?,?,?)");
-      $insert_products->execute([$blog_id, $title, $body, $final_image_url]);
-      
-
-      if($insert_products){
-            if($image_size > 12000000){
-               $message[] = 'image size is too large!';
-            }else{
-               move_uploaded_file($image_tmp_name, $image_folder.$unique_file);
-               $message[] = 'registered successfully!';
-               header('location:blog_feeds.php');
-            }
-         }
+      // Only insert if upload successful
+      if(empty($upload_error) && !empty($final_image_url)){
+          $insert_products = $conn->prepare("INSERT INTO `blog_feeds`(blog_id, title, body, image ) VALUES(?,?,?,?)");
+          $insert_products->execute([$blog_id, $title, $body, $final_image_url]);
+          
+          if($insert_products){
+              $message[] = 'registered successfully!';
+              // Redirect back to blog_feeds filtered by this blog
+              header('location:blog_feeds.php?blog_id=' . $blog_id);
+              exit;
+          }
+      }
 
    }
 
@@ -137,28 +239,39 @@ if(isset($_POST['add_blog_feeds'])){
 
               <!-- General Form Elements -->
               <form action="" method="POST" enctype="multipart/form-data">
+                <?php if($preselected_blog_id): ?>
+                  <input type="hidden" name="blog_id" value="<?= htmlspecialchars($preselected_blog_id); ?>">
+                  <div class="row mb-3">
+                    <label class="col-sm-2 col-form-label">Blog</label>
+                    <div class="col-sm-10 d-flex align-items-center">
+                      <strong>
+                        <?= htmlspecialchars($preselected_blog_title ?? ('Blog #' . $preselected_blog_id)); ?>
+                      </strong>
+                    </div>
+                  </div>
+                <?php else: ?>
                 <div class="row mb-3">
-                  <label class="col-sm-2 col-form-label">blog_id</label>
+                  <label class="col-sm-2 col-form-label">Blog</label>
                   <div class="col-sm-10">
-                    <select name="blog_id" class="form-select" aria-label="Default select example">
-                      <option selected>Open this select menu</option>
+                    <select name="blog_id" class="form-select" aria-label="Select blog" required>
+                      <option value="">Select a blog</option>
                       <?php
-                        $show_products = $conn->prepare("SELECT * FROM `blogs`");
+                        $show_products = $conn->prepare("SELECT * FROM `blogs` ORDER BY id DESC");
                         $show_products->execute();
                         if($show_products->rowCount() > 0){
                            while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                      ?>
-                      
-                      <option value="<?= $fetch_products['id']; ?>" ><?= $fetch_products['title']; ?></option>
+                      <option value="<?= $fetch_products['id']; ?>"><?= htmlspecialchars($fetch_products['title']); ?></option>
                      <?php
                           }
                        }else{
-                          echo '<p class="empty">now books added yet!</p>';
+                          echo '<option disabled>No blogs available</option>';
                        }
                        ?>
                     </select>
                   </div>
                 </div> 
+                <?php endif; ?>
 
 
                     <div class="row mb-3">

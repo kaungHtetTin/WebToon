@@ -30,13 +30,6 @@
       </li>
 
       <li class="nav-item">
-        <a class="nav-link" href="chapters.php" data-page="chapters">
-          <i class="bi bi-file-text"></i>
-          <span>Chapters</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
         <a class="nav-link" href="owl_carousels.php" data-page="owl_carousels">
           <i class="bi bi-images"></i>
           <span>Carousels</span>
@@ -50,13 +43,6 @@
         <a class="nav-link" href="blogs.php" data-page="blogs">
           <i class="bi bi-journal-text"></i>
           <span>Blogs</span>
-        </a>
-      </li>
-
-      <li class="nav-item">
-        <a class="nav-link" href="blog_feeds.php" data-page="blog_feeds">
-          <i class="bi bi-rss"></i>
-          <span>Blog Feeds</span>
         </a>
       </li>
 
@@ -74,6 +60,13 @@
         <a class="nav-link" href="admin.php" data-page="admin">
           <i class="bi bi-shield-check"></i>
           <span>Admins</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
+        <a class="nav-link" href="payment_methods.php" data-page="payment_methods">
+          <i class="bi bi-wallet2"></i>
+          <span>Payment Methods</span>
         </a>
       </li>
 

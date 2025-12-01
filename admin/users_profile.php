@@ -4,18 +4,14 @@ include('config.php');
 require_once('includes/image_helper.php');
 
 session_start();
-$admin_id = $_SESSION['admin_id'];
 
-
-
-if(isset($_GET['delete'])){
-
-   $delete_id = $_GET['delete'];
-   $delete_users = $conn->prepare("DELETE FROM `admin` WHERE id = ?");
-   $delete_users->execute([$delete_id]);
-   header('location:admin_users.php');
-
+// Ensure admin is logged in
+if(!isset($_SESSION['admin_id'])){
+   header('location:login.php');
+   exit;
 }
+
+$admin_id = $_SESSION['admin_id'];
 
 if(isset($_POST['update_profile'])){
 
@@ -167,27 +163,30 @@ if(isset($_POST['update_password'])){
 
     <section class="section profile">
       <div class="row">
+        <!-- Left: Compact profile card -->
         <div class="col-xl-4">
-
-          <div class="card" >
-            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center">
+          <div class="card">
+            <div class="card-body profile-card pt-4 d-flex flex-column align-items-center text-center">
               <?php
                   $select_profile = $conn->prepare("SELECT * FROM `admin` WHERE id = ?");
                   $select_profile->execute([$admin_id]);
                   $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
                ?>   
 
-              <img src="<?= htmlspecialchars(getImagePath($fetch_profile['image_url'] ?? '', 'admin')); ?>" alt="Profile" onerror="this.src='../img/placeholder.jpg'">
-              <h2><?= $fetch_profile['username']; ?></h2>
-              <br>
-              <h3><?= $fetch_profile['email']; ?></h3>
-              <br>
-              
+              <div class="user-image-container mb-3">
+                <img src="<?= htmlspecialchars(getImagePath($fetch_profile['image_url'] ?? '', 'admin')); ?>" 
+                     alt="Profile" 
+                     class="user-avatar"
+                     onerror="this.src='../img/placeholder.jpg'">
+              </div>
+              <h2 class="mb-1"><?= htmlspecialchars($fetch_profile['username'] ?? 'Admin'); ?></h2>
+              <p class="mb-1 text-muted"><?= htmlspecialchars($fetch_profile['email'] ?? ''); ?></p>
+              <p class="text-muted small mb-0"><?= htmlspecialchars($fetch_profile['phone'] ?? ''); ?></p>
             </div>
           </div>
-
         </div>
 
+        <!-- Right: Tabs -->
         <div class="col-xl-8">
 
           <div class="card">
@@ -204,10 +203,6 @@ if(isset($_POST['update_password'])){
                 </li>
 
                 <li class="nav-item">
-                  <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-settings">Settings</button>
-                </li>
-
-                <li class="nav-item">
                   <button class="nav-link" data-bs-toggle="tab" data-bs-target="#profile-change-password">Change Password</button>
                 </li>
 
@@ -221,49 +216,21 @@ if(isset($_POST['update_password'])){
                       $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
                    ?>  
 
-                  <h5 class="card-title">About</h5>
-                  <p class="small fst-italic">Lorem ipsum dolor sit amet, consectetur adipisicing elit, sed do eiusmod
-                  tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam,
-                  quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
-                  consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse
-                  cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non
-                  proident, sunt in culpa qui officia deserunt mollit anim id est laborum.</p>
-
                   <h5 class="card-title">Profile Details</h5>
 
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label ">Full Name</div>
-                    <div class="col-lg-9 col-md-8"> <?= $fetch_profile['username']; ?></div>
+                  <div class="row mb-2">
+                    <div class="col-lg-3 col-md-4 label">Full Name</div>
+                    <div class="col-lg-9 col-md-8"><?= htmlspecialchars($fetch_profile['username'] ?? ''); ?></div>
                   </div>
 
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Company</div>
-                    <div class="col-lg-9 col-md-8">Myanmar Webtoon MM Translation</div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Job</div>
-                    <div class="col-lg-9 col-md-8">Webtoon</div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Country</div>
-                    <div class="col-lg-9 col-md-8">Myanmar</div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Address</div>
-                    <div class="col-lg-9 col-md-8">Yangon</div>
-                  </div>
-
-                  <div class="row">
-                    <div class="col-lg-3 col-md-4 label">Phone</div>
-                    <div class="col-lg-9 col-md-8">+95 9459006979</div>
-                  </div>
-
-                  <div class="row">
+                  <div class="row mb-2">
                     <div class="col-lg-3 col-md-4 label">Email</div>
-                    <div class="col-lg-9 col-md-8"><?= $fetch_profile['email']; ?></div>
+                    <div class="col-lg-9 col-md-8"><?= htmlspecialchars($fetch_profile['email'] ?? ''); ?></div>
+                  </div>
+
+                  <div class="row mb-2">
+                    <div class="col-lg-3 col-md-4 label">Phone</div>
+                    <div class="col-lg-9 col-md-8"><?= htmlspecialchars($fetch_profile['phone'] ?? ''); ?></div>
                   </div>
                   
                 </div>
@@ -315,48 +282,6 @@ if(isset($_POST['update_password'])){
                       <button type="submit" value="update profile" name="update_profile" class="btn btn-primary">Save Changes</button>
                     </div>
                   </form><!-- End Profile Edit Form -->
-
-                </div>
-
-                <div class="tab-pane fade pt-3" id="profile-settings">
-
-                  <!-- Settings Form -->
-                  <form>
-
-                    <div class="row mb-3">
-                      <label for="fullName" class="col-md-4 col-lg-3 col-form-label">Email Notifications</label>
-                      <div class="col-md-8 col-lg-9">
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="changesMade" checked>
-                          <label class="form-check-label" for="changesMade">
-                            Changes made to your account
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="newProducts" checked>
-                          <label class="form-check-label" for="newProducts">
-                            Information on new products and services
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="proOffers">
-                          <label class="form-check-label" for="proOffers">
-                            Marketing and promo offers
-                          </label>
-                        </div>
-                        <div class="form-check">
-                          <input class="form-check-input" type="checkbox" id="securityNotify" checked disabled>
-                          <label class="form-check-label" for="securityNotify">
-                            Security alerts
-                          </label>
-                        </div>
-                      </div>
-                    </div>
-
-                    <div class="text-center">
-                      <button type="submit" class="btn btn-primary">Save Changes</button>
-                    </div>
-                  </form><!-- End settings Form -->
 
                 </div>
 

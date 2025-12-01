@@ -101,49 +101,83 @@ if(isset($_GET['delete'])){
               </div>
 
               <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">id</th>
-                    <th scope="col">title</th>
-                    <th scope="col">description</th>
-                    <th scope="col">image</th>
-                    <th scope="col">cover</th>
-                    <th scope="col">date</th>
-                    <th scope="col">action</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                        $show_products = $conn->prepare("SELECT * FROM `blogs`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <td><?= $fetch_products['id']; ?></td>
-                        <td><?= $fetch_products['id']; ?></td>
-                        <td><?= $fetch_products['title']; ?></td>
-                        <td><?= $fetch_products['description']; ?></td>
-                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'blogs')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"> </td>
-                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['cover_url'] ?? '', 'blogs')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"></td>
-                        <td><?= $fetch_products['date']; ?></td>
-                        
-                        <td> <a href="manage_blogs.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="blogs.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this blog?');"><span class="badge bg-danger">Delete</span></a>
-
-                        </td>
-                      </tr>
-                      <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+              <div class="table-responsive">
+                <table class="table datatable table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 60px;">#</th>
+                      <th scope="col">Title</th>
+                      <th scope="col">Description</th>
+                      <th scope="col" style="width: 80px;">Image</th>
+                      <th scope="col" style="width: 80px;">Cover</th>
+                      <th scope="col" style="width: 120px;">Date</th>
+                      <th scope="col" style="width: 220px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                          $show_products = $conn->prepare("SELECT * FROM `blogs` ORDER BY id DESC");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                        ?>
-                </tbody>
-              </table>
+                        <tr>
+                          <td><?= $fetch_products['id']; ?></td>
+                          <td><?= htmlspecialchars($fetch_products['title'] ?? ''); ?></td>
+                          <td>
+                            <span class="text-muted">
+                              <?= htmlspecialchars(substr($fetch_products['description'] ?? '', 0, 80)); ?>
+                              <?= strlen($fetch_products['description'] ?? '') > 80 ? '...' : ''; ?>
+                            </span>
+                          </td>
+                          <td>
+                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'blogs')); ?>" 
+                                 style="height: 50px;width: 50px;object-fit: cover;border-radius: 4px;" 
+                                 onerror="this.src='../img/placeholder.jpg'"
+                                 alt="Blog image">
+                          </td>
+                          <td>
+                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['cover_url'] ?? '', 'blogs')); ?>" 
+                                 style="height: 50px;width: 50px;object-fit: cover;border-radius: 4px;" 
+                                 onerror="this.src='../img/placeholder.jpg'"
+                                 alt="Cover image">
+                          </td>
+                          <td><?= htmlspecialchars($fetch_products['date'] ?? ''); ?></td>
+                          <td>
+                            <div class="btn-group" role="group">
+                              <a href="manage_blogs.php?update=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-primary" 
+                                 title="Edit blog">
+                                <i class="bi bi-pencil"></i>
+                              </a>
+                              <a href="add_blog_feeds.php?blog_id=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-success" 
+                                 title="Add blog feed">
+                                <i class="bi bi-plus-circle"></i>
+                              </a>
+                              <a href="blog_feeds.php?blog_id=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-info" 
+                                 title="View blog feeds">
+                                <i class="bi bi-list-ul"></i>
+                              </a>
+                              <a href="blogs.php?delete=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-danger" 
+                                 onclick="return confirm('delete this blog?');"
+                                 title="Delete blog">
+                                <i class="bi bi-trash"></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="7" class="text-center py-4"><p class="text-muted mb-0">No blogs found</p></td></tr>';
+                         }
+                         ?>
+                  </tbody>
+                </table>
+              </div>
               <!-- End Table with stripped rows -->
 
             </div>

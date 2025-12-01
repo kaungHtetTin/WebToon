@@ -5,7 +5,16 @@ require_once('includes/image_helper.php');
 
 session_start();
 
+// Optional filter by blog
+$filter_blog_id = null;
+if(isset($_GET['blog_id'])){
+    $filter_blog_id = filter_var($_GET['blog_id'], FILTER_SANITIZE_NUMBER_INT);
+    if($filter_blog_id === '' || !is_numeric($filter_blog_id)){
+        $filter_blog_id = null;
+    }
+}
 
+// Handle delete action
 if(isset($_GET['delete'])){
 
    $delete_id = $_GET['delete'];
@@ -13,9 +22,13 @@ if(isset($_GET['delete'])){
    $delete_products = $conn->prepare("DELETE FROM `blog_feeds` WHERE id = ?");
    $delete_products->execute([$delete_id]);
    
-   header('location:blog_feeds.php');
-
-
+   // Preserve blog filter if present
+   if($filter_blog_id){
+       header('location:blog_feeds.php?blog_id=' . $filter_blog_id);
+   }else{
+       header('location:blog_feeds.php');
+   }
+   exit;
 }
 
 ?>
@@ -78,9 +91,9 @@ if(isset($_GET['delete'])){
       <h1>Blog Feeds</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item">Blog Feeds</li>
-          <li class="breadcrumb-item active">View Blog Feeds</li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+          <li class="breadcrumb-item"><a href="blogs.php">Blogs</a></li>
+          <li class="breadcrumb-item active">Blog Feeds</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -91,51 +104,116 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View Blog Feeds</h5>
-              <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">
+                  Blog Feeds
+                  <?php if($filter_blog_id): ?>
+                    <span class="text-muted" style="font-size: 0.85rem;">
+                      (Filtered for Blog ID: <?= htmlspecialchars($filter_blog_id); ?>)
+                    </span>
+                  <?php endif; ?>
+                </h5>
+                <div class="d-flex gap-2">
+                  <?php if($filter_blog_id): ?>
+                    <a href="add_blog_feeds.php?blog_id=<?= htmlspecialchars($filter_blog_id); ?>" class="btn btn-primary btn-sm">
+                      <i class="bi bi-plus-circle"></i> Add Blog Feed
+                    </a>
+                    <a href="blog_feeds.php" class="btn btn-outline-secondary btn-sm">
+                      <i class="bi bi-x-circle"></i> Clear Filter
+                    </a>
+                  <?php else: ?>
+                    <a href="add_blog_feeds.php" class="btn btn-primary btn-sm">
+                      <i class="bi bi-plus-circle"></i> Add Blog Feed
+                    </a>
+                  <?php endif; ?>
+                </div>
+              </div>
 
               <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">blog id</th>
-                    <th scope="col">title</th>
-                    <th scope="col">image</th>
-                    <th scope="col">body</th>
-                    
-                    <th scope="col">action</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                        $show_products = $conn->prepare("SELECT * FROM `blog_feeds`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <td><?= $fetch_products['id']; ?></td>
-                        <td><?= $fetch_products['blog_id']; ?></td>
-                        <td><?= $fetch_products['title']; ?></td>
-                        
-                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['image'] ?? '', 'blog_feeds')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"> </td>
-                        <td><?= $fetch_products['body']; ?></td>
-                        
-                        <td> <a href="manage_blog_feeds.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="blog_feeds.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this blog feed?');"><span class="badge bg-danger">Delete</span></a>
-
-                        </td>
-                      </tr>
-                      <?php
+              <div class="table-responsive">
+                <table class="table datatable table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 60px;">#</th>
+                      <th scope="col">Blog</th>
+                      <th scope="col">Feed Title</th>
+                      <th scope="col" style="width: 80px;">Image</th>
+                      <th scope="col">Body</th>
+                      <th scope="col" style="width: 160px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                          // Join with blogs to show blog titles and enable navigation from blog feeds to blogs
+                          if($filter_blog_id){
+                              $show_products = $conn->prepare("
+                                SELECT bf.*, b.title AS blog_title 
+                                FROM `blog_feeds` bf 
+                                LEFT JOIN `blogs` b ON bf.blog_id = b.id
+                                WHERE bf.blog_id = ?
+                                ORDER BY bf.id DESC
+                              ");
+                              $show_products->execute([$filter_blog_id]);
+                          }else{
+                              $show_products = $conn->prepare("
+                                SELECT bf.*, b.title AS blog_title 
+                                FROM `blog_feeds` bf 
+                                LEFT JOIN `blogs` b ON bf.blog_id = b.id
+                                ORDER BY bf.id DESC
+                              ");
+                              $show_products->execute();
                           }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                        ?>
-                </tbody>
-              </table>
+                        <tr>
+                          <td><?= $fetch_products['id']; ?></td>
+                          <td>
+                            <div class="d-flex flex-column">
+                              <a href="manage_blogs.php?update=<?= $fetch_products['blog_id']; ?>" class="text-primary fw-bold text-decoration-none">
+                                <?= htmlspecialchars($fetch_products['blog_title'] ?? ('Blog #' . $fetch_products['blog_id'])); ?>
+                              </a>
+                              <small class="text-muted">ID: <?= htmlspecialchars($fetch_products['blog_id']); ?></small>
+                            </div>
+                          </td>
+                          <td><?= htmlspecialchars($fetch_products['title'] ?? ''); ?></td>
+                          <td>
+                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['image'] ?? '', 'blog_feeds')); ?>" 
+                                 style="height: 50px;width: 50px;object-fit: cover;border-radius: 4px;" 
+                                 onerror="this.src='../img/placeholder.jpg'" 
+                                 alt="Feed image">
+                          </td>
+                          <td>
+                            <span class="text-muted">
+                              <?= htmlspecialchars(substr($fetch_products['body'] ?? '', 0, 80)); ?>
+                              <?= strlen($fetch_products['body'] ?? '') > 80 ? '...' : ''; ?>
+                            </span>
+                          </td>
+                          <td>
+                            <div class="btn-group" role="group">
+                              <a href="manage_blog_feeds.php?update=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-primary" 
+                                 title="Edit feed">
+                                <i class="bi bi-pencil"></i>
+                              </a>
+                              <a href="blog_feeds.php?delete=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-danger" 
+                                 onclick="return confirm('delete this blog feed?');"
+                                 title="Delete feed">
+                                <i class="bi bi-trash"></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="6" class="text-center py-4"><p class="text-muted mb-0">No blog feeds found</p></td></tr>';
+                         }
+                         ?>
+                  </tbody>
+                </table>
+              </div>
               <!-- End Table with stripped rows -->
 
             </div>

@@ -28,17 +28,9 @@
       'add_series.php': 'series.php',
       'manage_series.php': 'series.php',
       
-      // Chapters
-      'add_chapters.php': 'chapters.php',
-      'manage_chapters.php': 'chapters.php',
-      
       // Blogs
       'add_blogs.php': 'blogs.php',
       'manage_blogs.php': 'blogs.php',
-      
-      // Blog Feeds
-      'add_blog_feeds.php': 'blog_feeds.php',
-      'manage_blog_feeds.php': 'blog_feeds.php',
       
       // Owl Carousels
       'add_owl_carousels.php': 'owl_carousels.php',
@@ -49,6 +41,9 @@
       'manage_admin.php': 'admin.php',
       
       // Payments
+      'payment_methods.php': 'payment_methods.php',
+      'add_payment_methods.php': 'payment_methods.php',
+      'manage_payment_methods.php': 'payment_methods.php',
       'approve_payment.php': 'approve_payment.php',
       'pending_payment.php': 'pending_payment.php',
       'recent_payment.php': 'approve_payment.php',

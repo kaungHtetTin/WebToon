@@ -72,123 +72,70 @@
     <section class="section dashboard">
       <div class="row">
 
-        <!-- Left side columns -->
+        <!-- Statistics Cards -->
         <div class="col-lg-12">
           <div class="row">
 
-            <!-- Sales Card -->
-            <div class="col-xxl-4 col-md-6">
+            <!-- Categories Card -->
+            <div class="col-xxl-3 col-md-6">
               <div class="card info-card sales-card">
-
-
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
                   <h5 class="card-title">Categories <span>| Total</span></h5>
-
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-cart"></i>
+                      <i class="bi bi-tags"></i>
                     </div>
-                    <a href="categories.php">
+                    <a href="categories.php" class="text-decoration-none flex-grow-1">
                       <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `categories`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-success small pt-1 fw-bold">Categories</span>
-
-                    </div>
+                        <?php
+                           $select_products = $conn->prepare("SELECT * FROM `categories`");
+                           $select_products->execute();
+                           $number_of_products = $select_products->rowCount();
+                        ?>
+                        <h6><?= $number_of_products; ?></h6>
+                        <span class="text-success small pt-1 fw-bold">Categories</span>
+                      </div>
                     </a>
-                    
                   </div>
                 </div>
-
               </div>
-            </div><!-- End Sales Card -->
+            </div><!-- End Categories Card -->
 
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
+            <!-- Series Card -->
+            <div class="col-xxl-3 col-md-6">
               <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
                   <h5 class="card-title">Series <span>| Total</span></h5>
-
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
+                      <i class="bi bi-book"></i>
                     </div>
-                    <a href="series.php">
+                    <a href="series.php" class="text-decoration-none flex-grow-1">
                       <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `series`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-success small pt-1 fw-bold">series</span>
-
-                    </div>
+                        <?php
+                           $select_products = $conn->prepare("SELECT * FROM `series`");
+                           $select_products->execute();
+                           $number_of_products = $select_products->rowCount();
+                        ?>
+                        <h6><?= $number_of_products; ?></h6>
+                        <span class="text-success small pt-1 fw-bold">Series</span>
+                      </div>
                     </a>
-                    
                   </div>
                 </div>
-
               </div>
-            </div><!-- End Revenue Card -->
+            </div><!-- End Series Card -->
 
-            <!-- Revenue Card -->
-            <div class="col-xxl-4 col-md-6">
+            <!-- Payments Card -->
+            <div class="col-xxl-3 col-md-6">
               <div class="card info-card revenue-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
                   <h5 class="card-title">Payments <span>| Total</span></h5>
-
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-currency-dollar"></i>
+                      <i class="bi bi-credit-card"></i>
                     </div>
-                    <a href="payment_histories.php">
+                    <a href="unapprove_payment.php" class="text-decoration-none flex-grow-1">
                       <div class="ps-3">
                         <?php
                            $select_products = $conn->prepare("SELECT * FROM `payment_histories`");
@@ -196,318 +143,174 @@
                            $number_of_products = $select_products->rowCount();
                         ?>
                         <h6><?= $number_of_products; ?></h6>
-                        <span class="text-success small pt-1 fw-bold">payment_histories</span>
-
+                        <span class="text-success small pt-1 fw-bold">Payments</span>
                       </div>
                     </a>
-                    
                   </div>
                 </div>
-
               </div>
-            </div><!-- End Revenue Card -->
+            </div><!-- End Payments Card -->
 
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
+            <!-- Blogs Card -->
+            <div class="col-xxl-3 col-md-6">
               <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title">Chapters <span>| Total</span></h5>
-
+                  <h5 class="card-title">Blogs <span>| Total</span></h5>
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
+                      <i class="bi bi-newspaper"></i>
                     </div>
-                    <a href="chapters.php">
-                        <div class="ps-3">
+                    <a href="blogs.php" class="text-decoration-none flex-grow-1">
+                      <div class="ps-3">
                         <?php
-                           $select_products = $conn->prepare("SELECT * FROM `chapters`");
+                           $select_products = $conn->prepare("SELECT * FROM `blogs`");
                            $select_products->execute();
                            $number_of_products = $select_products->rowCount();
                         ?>
                         <h6><?= $number_of_products; ?></h6>
-                        <span class="text-danger small pt-1 fw-bold">Chapters</span>
-
+                        <span class="text-success small pt-1 fw-bold">Blogs</span>
                       </div>
                     </a>
-                    
                   </div>
-
                 </div>
               </div>
+            </div><!-- End Blogs Card -->
 
-            </div>
-            <!-- End Customers Card -->
+            <!-- (Chapters summary card removed as requested) -->
 
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
+            <!-- Users Card -->
+            <div class="col-xxl-3 col-md-6">
               <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Blogs <span>| Total</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <a href="blogs.php">
-                      <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `blogs`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-danger small pt-1 fw-bold">Blogs</span>
-
-                    </div>
-                    </a>
-                    
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-            <!-- End Customers Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Blog_Feeds <span>| Total</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <a href="blog_feeds.php">
-                      <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `blog_feeds`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-danger small pt-1 fw-bold">Blog_Feeds</span>
-
-                    </div>
-                    </a>
-                    
-                  </div>
-
-                </div>
-              </div>
-
-            </div>
-            <!-- End Customers Card -->
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
-                <div class="card-body">
-                  <h5 class="card-title">Admins <span>| Total</span></h5>
-
-                  <div class="d-flex align-items-center">
-                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
-                      <i class="bi bi-people"></i>
-                    </div>
-                    <a href="admin.php">
-                      <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `admin`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-danger small pt-1 fw-bold">Admins</span>
-
-                    </div>
-                    </a>
-                    
-                  </div>
-
-                </div>
-              </div>
-
-            </div><!-- End Customers Card -->
-
-
-            <!-- Customers Card -->
-            <div class="col-xxl-4 col-xl-12">
-
-              <div class="card info-card customers-card">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
                   <h5 class="card-title">Users <span>| Total</span></h5>
-
                   <div class="d-flex align-items-center">
                     <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
                       <i class="bi bi-people"></i>
                     </div>
-                    <a href="users.php">
+                    <a href="users.php" class="text-decoration-none flex-grow-1">
                       <div class="ps-3">
-                      <?php
-                         $select_products = $conn->prepare("SELECT * FROM `users`");
-                         $select_products->execute();
-                         $number_of_products = $select_products->rowCount();
-                      ?>
-                      <h6><?= $number_of_products; ?></h6>
-                      <span class="text-danger small pt-1 fw-bold">Users</span>
-
-                    </div>
+                        <?php
+                           $select_products = $conn->prepare("SELECT * FROM `users`");
+                           $select_products->execute();
+                           $number_of_products = $select_products->rowCount();
+                        ?>
+                        <h6><?= $number_of_products; ?></h6>
+                        <span class="text-success small pt-1 fw-bold">Users</span>
+                      </div>
                     </a>
-                    
                   </div>
-
                 </div>
               </div>
+            </div><!-- End Users Card -->
 
-            </div><!-- End Customers Card -->
+            <!-- Admins Card -->
+            <div class="col-xxl-3 col-md-6">
+              <div class="card info-card customers-card">
+                <div class="card-body">
+                  <h5 class="card-title">Admins <span>| Total</span></h5>
+                  <div class="d-flex align-items-center">
+                    <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                      <i class="bi bi-shield-check"></i>
+                    </div>
+                    <a href="admin.php" class="text-decoration-none flex-grow-1">
+                      <div class="ps-3">
+                        <?php
+                           $select_products = $conn->prepare("SELECT * FROM `admin`");
+                           $select_products->execute();
+                           $number_of_products = $select_products->rowCount();
+                        ?>
+                        <h6><?= $number_of_products; ?></h6>
+                        <span class="text-success small pt-1 fw-bold">Admins</span>
+                      </div>
+                    </a>
+                  </div>
+                </div>
+              </div>
+            </div><!-- End Admins Card -->
 
 
             
-            <!-- Recent Sales -->
+            <!-- Payment Histories Table -->
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title">Unapprove Payment Histories List<span>| Collection</span></h5>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Payment Histories <span>| Pending Approval</span></h5>
+                    <a href="unapprove_payment.php" class="btn btn-sm btn-primary">
+                      <i class="bi bi-eye"></i> View All
+                    </a>
+                  </div>
 
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">user id</th>
-                        
-                        <th scope="col">point</th>
-                        <th scope="col">screenshot url</th>
-                        <th scope="col">date</th>
-                        <th scope="col">verified</th>
-                        <th scope="col">confirmed</th>
-                        <th scope="col">Action</th>
-
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                        $show_products = $conn->prepare("SELECT * FROM `payment_histories`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td><?= $fetch_products['user_id']; ?></td>
-                        <td><?= $fetch_products['point']; ?></td>
-                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['screenshot_url'] ?? '', 'screenshots')); ?>" style="width: 100px;height: 100px;" onerror="this.src='../img/placeholder.jpg'"></td>
-
-                        <td><?= $fetch_products['date']; ?></td>
-                        <td><?= $fetch_products['verified']; ?></td>
-                        <td><?= $fetch_products['confirm']; ?></td>
-                        <td>
-                          <?php if(!$fetch_products['verified'] || !$fetch_products['confirm']): ?>
-                            <a href="unapprove_payment.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-success">Approve</span></a> |
-                          <?php else: ?>
-                            <span class="badge bg-secondary">Approved</span> |
-                          <?php endif; ?>
-                          <a href="unapprove_payment.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this payment?');"><span class="badge bg-danger">Delete</span></a>
-                        </td>
-                       
-                      </tr>
-                      <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                  <div class="table-responsive">
+                    <table class="table table-borderless datatable">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 60px;">#</th>
+                          <th scope="col" style="width: 100px;">User ID</th>
+                          <th scope="col" style="width: 100px;">Points</th>
+                          <th scope="col" style="width: 120px;">Screenshot</th>
+                          <th scope="col" style="width: 120px;">Date</th>
+                          <th scope="col" style="width: 100px;">Status</th>
+                          <th scope="col" style="width: 150px;">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          $show_products = $conn->prepare("SELECT * FROM `payment_histories` ORDER BY id DESC LIMIT 10");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
+                               $is_pending = !$fetch_products['verified'] || !$fetch_products['confirm'];
                        ?>
-                    </tbody>
-                  </table>
+                        <tr>
+                          <th scope="row"><?= $fetch_products['id']; ?></th>
+                          <td><?= $fetch_products['user_id']; ?></td>
+                          <td><span class="badge bg-info"><?= number_format($fetch_products['point']); ?></span></td>
+                          <td>
+                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['screenshot_url'] ?? '', 'screenshots')); ?>" 
+                                 style="width: 80px; height: 80px; object-fit: cover; border-radius: 4px;" 
+                                 onerror="this.src='../img/placeholder.jpg'"
+                                 alt="Screenshot">
+                          </td>
+                          <td><?= htmlspecialchars($fetch_products['date'] ?? 'N/A'); ?></td>
+                          <td>
+                            <?php if($is_pending): ?>
+                              <span class="badge bg-warning">
+                                <i class="bi bi-clock"></i> Pending
+                              </span>
+                            <?php else: ?>
+                              <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Approved
+                              </span>
+                            <?php endif; ?>
+                          </td>
+                          <td>
+                            <div class="btn-group" role="group">
+                              <?php if($is_pending): ?>
+                                <a href="unapprove_payment.php?update=<?= $fetch_products['id']; ?>" 
+                                   class="btn btn-sm btn-outline-success" 
+                                   title="Approve Payment">
+                                  <i class="bi bi-check-circle"></i>
+                                </a>
+                              <?php endif; ?>
+                              <a href="unapprove_payment.php?delete=<?= $fetch_products['id']; ?>" 
+                                 class="btn btn-sm btn-outline-danger" 
+                                 onclick="return confirm('Are you sure you want to delete this payment?');"
+                                 title="Delete Payment">
+                                <i class="bi bi-trash"></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="7" class="text-center py-4"><p class="text-muted mb-0">No payment histories found</p></td></tr>';
+                         }
+                         ?>
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
 
@@ -515,58 +318,61 @@
             </div>
             <!-- End Recent Sales -->
 
-            <!-- Recent Sales -->
+            <!-- Admins Table -->
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title">All Admin <span>| Collection</span></h5>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">All Admins <span>| Collection</span></h5>
+                    <a href="admin.php" class="btn btn-sm btn-primary">
+                      <i class="bi bi-eye"></i> View All
+                    </a>
+                  </div>
 
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">name</th>
-                        <th scope="col">email</th>
-                        <th scope="col">phone</th>
-                        <th scope="col">active</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                        $show_products = $conn->prepare("SELECT * FROM `admin`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td><?= $fetch_products['username']; ?></td>
-                        <td><?= $fetch_products['email']; ?></td>
-                        <td><?= $fetch_products['phone']; ?></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['is_active']; ?></span></td>
-                      </tr>
-                      <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                  <div class="table-responsive">
+                    <table class="table table-borderless datatable">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 60px;">#</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Email</th>
+                          <th scope="col" style="width: 120px;">Phone</th>
+                          <th scope="col" style="width: 100px;">Status</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          $show_products = $conn->prepare("SELECT * FROM `admin` ORDER BY id DESC LIMIT 10");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                        ?>
-                    </tbody>
-                  </table>
+                        <tr>
+                          <th scope="row"><?= $fetch_products['id']; ?></th>
+                          <td><strong><?= htmlspecialchars($fetch_products['username'] ?? 'N/A'); ?></strong></td>
+                          <td><?= htmlspecialchars($fetch_products['email'] ?? 'N/A'); ?></td>
+                          <td><?= htmlspecialchars($fetch_products['phone'] ?? 'N/A'); ?></td>
+                          <td>
+                            <?php if($fetch_products['is_active'] == 1): ?>
+                              <span class="badge bg-success">
+                                <i class="bi bi-check-circle"></i> Active
+                              </span>
+                            <?php else: ?>
+                              <span class="badge bg-secondary">
+                                <i class="bi bi-x-circle"></i> Inactive
+                              </span>
+                            <?php endif; ?>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="5" class="text-center py-4"><p class="text-muted mb-0">No admins found</p></td></tr>';
+                         }
+                         ?>
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
 
@@ -574,138 +380,149 @@
             </div>
             <!-- End Recent Sales -->
 
-            <!-- Recent Sales -->
+            <!-- Users Table -->
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title">All Users <span>| Collection</span></h5>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">All Users <span>| Collection</span></h5>
+                    <a href="users.php" class="btn btn-sm btn-primary">
+                      <i class="bi bi-eye"></i> View All
+                    </a>
+                  </div>
 
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col" style="width: 60px;">Image</th>
-                        <th scope="col">name</th>
-                        <th scope="col">email</th>
-                        <th scope="col">phone</th>
-                        <th scope="col">vip</th>
-                        <th scope="col">point</th>
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                        $show_products = $conn->prepare("SELECT * FROM `users`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td>
-                          <div class="user-image-container">
-                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'profile')); ?>" 
-                                 alt="<?= htmlspecialchars(($fetch_products['first_name'] ?? '') . ' ' . ($fetch_products['last_name'] ?? '')); ?>" 
-                                 class="user-avatar"
-                                 onerror="this.src='../img/placeholder.jpg'">
-                          </div>
-                        </td>
-                        <td><?= $fetch_products['first_name']; ?> <?= $fetch_products['last_name']; ?></td>
-                        <td><?= $fetch_products['email']; ?></td>
-                        <td><?= $fetch_products['phone']; ?></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['is_vip']; ?></span></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['point']; ?></span></td>
-
-                      </tr>
-                      <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                  <div class="table-responsive">
+                    <table class="table table-borderless datatable">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 60px;">#</th>
+                          <th scope="col" style="width: 60px;">Image</th>
+                          <th scope="col">Name</th>
+                          <th scope="col">Email</th>
+                          <th scope="col" style="width: 120px;">Phone</th>
+                          <th scope="col" style="width: 80px;">VIP</th>
+                          <th scope="col" style="width: 100px;">Points</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          $show_products = $conn->prepare("SELECT * FROM `users` ORDER BY id DESC LIMIT 10");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                        ?>
-                    </tbody>
-                  </table>
+                        <tr>
+                          <th scope="row"><?= $fetch_products['id']; ?></th>
+                          <td>
+                            <div class="user-image-container">
+                              <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'profile')); ?>" 
+                                   alt="<?= htmlspecialchars(($fetch_products['first_name'] ?? '') . ' ' . ($fetch_products['last_name'] ?? '')); ?>" 
+                                   class="user-avatar"
+                                   onerror="this.src='../img/placeholder.jpg'">
+                            </div>
+                          </td>
+                          <td><strong><?= htmlspecialchars(($fetch_products['first_name'] ?? '') . ' ' . ($fetch_products['last_name'] ?? '')); ?></strong></td>
+                          <td><?= htmlspecialchars($fetch_products['email'] ?? 'N/A'); ?></td>
+                          <td><?= htmlspecialchars($fetch_products['phone'] ?? 'N/A'); ?></td>
+                          <td>
+                            <?php if($fetch_products['is_vip'] == 1): ?>
+                              <span class="badge bg-warning">
+                                <i class="bi bi-star-fill"></i> VIP
+                              </span>
+                            <?php else: ?>
+                              <span class="badge bg-secondary">Regular</span>
+                            <?php endif; ?>
+                          </td>
+                          <td><span class="badge bg-info"><?= number_format($fetch_products['point'] ?? 0); ?></span></td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="7" class="text-center py-4"><p class="text-muted mb-0">No users found</p></td></tr>';
+                         }
+                         ?>
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
 
               </div>
             </div><!-- End Recent Sales -->
 
-            <!-- Top Selling -->
+            <!-- Recent Series (still shows series with their chapter content indirectly) -->
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
-
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="series.php">See All</a></li>
-                    <!-- <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li> -->
-                  </ul>
-                </div>
-
                 <div class="card-body pb-0">
-                  <h5 class="card-title">Last Update Series <span>| Collection</span></h5>
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0">Recent Series <span>| Latest Updates</span></h5>
+                    <a href="series.php" class="btn btn-sm btn-primary">
+                      <i class="bi bi-eye"></i> View All
+                    </a>
+                  </div>
 
-                  <table class="table table-borderless">
-                    <thead>
-                      <tr>
-                        <th scope="col">image</th>
-                        <th scope="col">title</th>
-                        <th scope="col">description</th>
-                        <th scope="col">rating</th>
-                        <th scope="col">view</th>
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                        $show_products = $conn->prepare("SELECT * FROM `series` order by id desc limit 10");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <th scope="row">
-                          <div class="series-image-container-small">
-                            <a href="#">
-                              <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'series')); ?>" 
-                                   alt="<?= htmlspecialchars($fetch_products['title'] ?? ''); ?>" 
-                                   class="series-thumbnail-small"
-                                   onerror="this.src='../img/placeholder.jpg'">
-                            </a>
-                          </div>
-                        </th>
-                        <td><a href="#" class="text-primary fw-bold"><?= $fetch_products['title']; ?></a></td>
-                        <td><?= $fetch_products['description']; ?></td>
-                        <td class="fw-bold"><?= $fetch_products['rating']; ?></td>
-                        <td><?= $fetch_products['view']; ?></td>
-                      </tr>
-                      <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                  <div class="table-responsive">
+                    <table class="table table-borderless">
+                      <thead>
+                        <tr>
+                          <th scope="col" style="width: 80px;">Image</th>
+                          <th scope="col">Title</th>
+                          <th scope="col">Description</th>
+                          <th scope="col" style="width: 100px;">Rating</th>
+                          <th scope="col" style="width: 100px;">Views</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          $show_products = $conn->prepare("SELECT * FROM `series` ORDER BY id DESC LIMIT 10");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                        ?>
-                    </tbody>
-                  </table>
+                        <tr>
+                          <td>
+                            <div class="series-image-container-small">
+                              <a href="manage_series.php?update=<?= $fetch_products['id']; ?>">
+                                <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'series')); ?>" 
+                                     alt="<?= htmlspecialchars($fetch_products['title'] ?? ''); ?>" 
+                                     class="series-thumbnail-small"
+                                     onerror="this.src='../img/placeholder.jpg'">
+                              </a>
+                            </div>
+                          </td>
+                          <td>
+                            <a href="manage_series.php?update=<?= $fetch_products['id']; ?>" class="text-primary fw-bold text-decoration-none">
+                              <?= htmlspecialchars($fetch_products['title'] ?? 'Untitled'); ?>
+                            </a>
+                          </td>
+                          <td>
+                            <span class="text-muted">
+                              <?= htmlspecialchars(substr($fetch_products['description'] ?? '', 0, 100)); ?>
+                              <?= strlen($fetch_products['description'] ?? '') > 100 ? '...' : ''; ?>
+                            </span>
+                          </td>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-star-fill text-warning me-1"></i>
+                              <span class="fw-bold"><?= number_format($fetch_products['rating'] ?? 0, 1); ?></span>
+                            </div>
+                          </td>
+                          <td>
+                            <div class="d-flex align-items-center">
+                              <i class="bi bi-eye text-primary me-1"></i>
+                              <span><?= number_format($fetch_products['view'] ?? 0); ?></span>
+                            </div>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="5" class="text-center py-4"><p class="text-muted mb-0">No series found</p></td></tr>';
+                         }
+                         ?>
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
 

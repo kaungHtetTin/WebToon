@@ -71,9 +71,15 @@ $Util=new Util();
 
                         <?php if($feeds){foreach($feeds as $feed){ ?>
                             <div class="blog__details__item__text">
-                                <h4><?php echo $feed['title'] ?></h4>
-                                <img src="<?php echo $feed['image'] ?>" alt="">
-                                <p><?php echo $feed['body'] ?></p>
+                                <h4><?php echo htmlspecialchars($feed['title']); ?></h4>
+                                <?php if(!empty($feed['image'])): ?>
+                                    <div class="blog__details__pic mb-3">
+                                        <img src="<?php echo $Util->normalizeImageUrl($feed['image']); ?>" 
+                                             alt="<?php echo htmlspecialchars($feed['title']); ?>" 
+                                             style="max-width:100%;height:auto;object-fit:cover;">
+                                    </div>
+                                <?php endif; ?>
+                                <p><?php echo nl2br(htmlspecialchars($feed['body'])); ?></p>
                             </div>
                         <?php }}?>
 
@@ -112,4 +118,4 @@ $Util=new Util();
 
     </body>
 
-    </html>
+</html>
