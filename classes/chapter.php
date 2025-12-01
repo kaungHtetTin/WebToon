@@ -47,7 +47,7 @@ Class Chapter {
 
     public function getContent($chapter_id){
         $DB = new Database();
-        $query = "SELECT * FROM contents WHERE chapter_id=$chapter_id";
+        $query = "SELECT * FROM contents WHERE chapter_id=$chapter_id ORDER BY order_index ASC, id ASC";
         $contents = $DB->read($query);
         return $contents;
     }

@@ -25,6 +25,34 @@ if(isset($_GET['delete'])){
 
 }
 
+// Delete content
+if(isset($_GET['delete_content'])){
+   $delete_content_id = filter_var($_GET['delete_content'], FILTER_SANITIZE_NUMBER_INT);
+   $chapter_id_param = isset($_GET['chapter_id']) ? filter_var($_GET['chapter_id'], FILTER_SANITIZE_NUMBER_INT) : '';
+   $series_id_param = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : '';
+   
+   $delete_content = $conn->prepare("DELETE FROM `contents` WHERE id = ?");
+   $delete_content->execute([$delete_content_id]);
+   
+   if($series_id_param && $chapter_id_param){
+       header('location:chapters.php?series_id=' . $series_id_param);
+   } else {
+       header('location:chapters.php?series_id=' . $series_id_param);
+   }
+   exit;
+}
+
+// Get series title
+$series_title = '';
+if($series_id && is_numeric($series_id)){
+    $get_series = $conn->prepare("SELECT title FROM `series` WHERE id = ?");
+    $get_series->execute([$series_id]);
+    if($get_series->rowCount() > 0){
+        $series_data = $get_series->fetch(PDO::FETCH_ASSOC);
+        $series_title = $series_data['title'] ?? '';
+    }
+}
+
 ?>
 
 <!DOCTYPE html>
@@ -34,13 +62,13 @@ if(isset($_GET['delete'])){
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Tables / Data - NiceAdmin Bootstrap Template</title>
+  <title>Admin | Chapters Management</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="../img/logo_round2.png" rel="icon" type="image/png">
+  <link href="../img/logo_round2.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
@@ -86,7 +114,7 @@ if(isset($_GET['delete'])){
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-          <li class="breadcrumb-item">Chapters</li>
+          <li class="breadcrumb-item"><a href="series.php">Series</a></li>
           <li class="breadcrumb-item active">Chapters</li>
         </ol>
       </nav>
@@ -98,9 +126,26 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
+              <?php if($series_id && is_numeric($series_id) && !empty($series_title)): ?>
+                <div class="content-header-info mb-4">
+                  <div class="d-flex align-items-center gap-3 p-3 rounded" style="background: linear-gradient(135deg, var(--active-bg) 0%, var(--bg-tertiary) 100%); border: 1px solid var(--border-color);">
+                    <div class="d-flex align-items-center flex-grow-1">
+                      <div class="info-icon me-3">
+                        <i class="bi bi-book" style="font-size: 28px; color: #1A73E8;"></i>
+                      </div>
+                      <div class="info-content">
+                        <div class="info-label" style="font-size: 12px; color: var(--text-secondary); text-transform: uppercase; letter-spacing: 0.5px; font-weight: 500; margin-bottom: 2px;">Series</div>
+                        <div class="info-value" style="font-size: 20px; font-weight: 500; color: var(--text-primary);"><?= htmlspecialchars($series_title); ?></div>
+                        <div class="info-meta mt-1" style="font-size: 13px; color: var(--text-secondary);">ID: <?= htmlspecialchars($series_id); ?></div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <?php endif; ?>
+              
               <h5 class="card-title">Chapters
                 <?php if($series_id && is_numeric($series_id)): ?>
-                  <span style="margin-left:20px;"><a href="add_chapters.php?series_id=<?= htmlspecialchars($series_id) ?>">Add new</a></span>
+                  <span style="margin-left:20px;"><a href="add_chapters.php?series_id=<?= htmlspecialchars($series_id) ?>" class="btn btn-sm btn-primary"><i class="bi bi-plus-circle"></i> Add Chapter</a></span>
                 <?php endif; ?>
               </h5>
               <?php if(!$series_id || !is_numeric($series_id)): ?>
@@ -113,13 +158,11 @@ if(isset($_GET['delete'])){
                 <thead>
                   <tr>
                     <th scope="col">#</th>
-                    <th scope="col">series_id</th>
-                    <th scope="col">title</th>
-                    <th scope="col">description</th>
-                    <th scope="col">download_url</th>
-                    <th scope="col">date</th>
-                    <th scope="col">is_active</th>
-                    <th scope="col">action</th>
+                    <th scope="col">Title</th>
+                    <th scope="col">Description</th>
+                    <th scope="col">Date</th>
+                    <th scope="col">Status</th>
+                    <th scope="col">Actions</th>
                     
                   </tr>
                 </thead>
@@ -139,16 +182,41 @@ if(isset($_GET['delete'])){
                      ?>
                       <tr>
                         <td><?= $fetch_products['id']; ?></td>
-                        <td><?= $fetch_products['series_id']; ?></td>
-                        <td><?= $fetch_products['title']; ?></td>
-                        <td><?= $fetch_products['description']; ?></td>
-                        <td><?= $fetch_products['download_url']; ?></td>
-                        <td><?= $fetch_products['date']; ?></td>
-                        <td><?= $fetch_products['is_active']; ?></td>
+                        <td><strong><?= htmlspecialchars($fetch_products['title'] ?? 'Untitled'); ?></strong></td>
+                        <td><?= htmlspecialchars(substr($fetch_products['description'] ?? '', 0, 100)) . (strlen($fetch_products['description'] ?? '') > 100 ? '...' : ''); ?></td>
+                        <td><?= htmlspecialchars($fetch_products['date'] ?? 'N/A'); ?></td>
+                        <td>
+                          <?php if($fetch_products['is_active'] == 1): ?>
+                            <span class="badge bg-success">Active</span>
+                          <?php else: ?>
+                            <span class="badge bg-secondary">Inactive</span>
+                          <?php endif; ?>
+                        </td>
                         
-                        <td> <a href="manage_chapters.php?update=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="chapters.php?delete=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" onclick="return confirm('delete this chapter?');"><span class="badge bg-danger">Delete</span></a>
-
+                        <td>
+                          <div class="btn-group" role="group">
+                            <a href="add_content.php?chapter_id=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
+                               class="btn btn-sm btn-primary" 
+                               title="Add Content">
+                              <i class="bi bi-plus-circle"></i> Add Content
+                            </a>
+                            <a href="view_contents.php?chapter_id=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
+                               class="btn btn-sm btn-info" 
+                               title="View Contents">
+                              <i class="bi bi-eye"></i> View
+                            </a>
+                            <a href="manage_chapters.php?update=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
+                               class="btn btn-sm btn-warning" 
+                               title="Edit Chapter">
+                              <i class="bi bi-pencil"></i>
+                            </a>
+                            <a href="chapters.php?delete=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
+                               onclick="return confirm('Are you sure you want to delete this chapter?');" 
+                               class="btn btn-sm btn-danger" 
+                               title="Delete Chapter">
+                              <i class="bi bi-trash"></i>
+                            </a>
+                          </div>
                         </td>
                       </tr>
                       <?php

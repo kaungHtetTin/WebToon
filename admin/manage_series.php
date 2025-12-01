@@ -134,8 +134,8 @@ if(isset($_POST['update_series'])){
   <meta content="" name="keywords">
 
   <!-- Favicons -->
-  <link href="assets/img/favicon.png" rel="icon">
-  <link href="assets/img/apple-touch-icon.png" rel="apple-touch-icon">
+  <link href="../img/logo_round2.png" rel="icon" type="image/png">
+  <link href="../img/logo_round2.png" rel="apple-touch-icon">
 
   <!-- Google Fonts -->
   <link href="https://fonts.gstatic.com" rel="preconnect">
