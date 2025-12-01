@@ -24,8 +24,8 @@ if(isset($_POST['add_categories'])){
   
    $date = $_POST['date'];
    $date = filter_var($date, FILTER_SANITIZE_STRING);
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
 
   
    $select_products = $conn->prepare("SELECT * FROM `categories` WHERE title = ?");
@@ -148,13 +148,15 @@ if(isset($_POST['add_categories'])){
                 </div>
 
                 <div class="row mb-3">
-                  <label for="inputActive" class="col-sm-2 col-form-label">Status <span class="text-danger">*</span></label>
+                  <label class="col-sm-2 col-form-label">Status</label>
                   <div class="col-sm-10">
-                    <select class="form-select" name="is_active" id="inputActive" required>
-                      <option value="1" selected>Active</option>
-                      <option value="0">Inactive</option>
-                    </select>
-                    <small class="form-text text-muted">Set category visibility status</small>
+                    <div class="form-check form-switch">
+                      <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                      <label class="form-check-label" for="is_active">
+                        Active (Category will be visible to users)
+                      </label>
+                    </div>
+                    <small class="form-text text-muted">Uncheck to make this category inactive/hidden</small>
                   </div>
                 </div>
                 

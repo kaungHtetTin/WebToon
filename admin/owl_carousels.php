@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -75,12 +76,12 @@ if(isset($_GET['delete'])){
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>owl_carousels</h1>
+      <h1>Owl Carousels</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
-          <li class="breadcrumb-item">owl_carousels</li>
-          <li class="breadcrumb-item active">View owl_carousels</li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+          <li class="breadcrumb-item">Owl Carousels</li>
+          <li class="breadcrumb-item active">View Carousels</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -91,45 +92,99 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View owl_carousels</h5>
-              <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">Owl Carousels</h5>
+                <a href="add_owl_carousels.php" class="btn btn-primary">
+                  <i class="bi bi-plus-circle"></i> Add Carousel
+                </a>
+              </div>
 
               <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">series_id</th>
-                    <th scope="col">image</th>
-                    <th scope="col">Action</th>
-
+              <div class="table-responsive">
+                <table class="table datatable table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 60px;">#</th>
+                      <th scope="col" style="width: 80px;">Image</th>
+                      <th scope="col">Series</th>
+                      <th scope="col" style="width: 100px;">Order</th>
+                      <th scope="col" style="width: 80px;">Status</th>
+                      <th scope="col" style="width: 180px;">Actions</th>
                     </tr>
-                </thead>
-                <tbody>
-                  <?php
-                        $show_products = $conn->prepare("SELECT * FROM `owl_carousels`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                  <tr>
-                   
-                    <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td><?= $fetch_products['series_id']; ?></td>                        
-                        <td><?= $fetch_products['cover_url']; ?></td>
-                        <td> <a href="manage_owl_carousels.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |
-                             <a href="owl_carousels.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this owl_carousels?');"><span class="badge bg-danger">Delete</span></a>
-
-                        </td>
-                  </tr>
-                  <?php
-                          }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
+                  </thead>
+                  <tbody>
+                    <?php
+                          $show_products = $conn->prepare("SELECT oc.*, s.title as series_title FROM `owl_carousels` oc LEFT JOIN `series` s ON oc.series_id = s.id ORDER BY oc.order_index ASC, oc.id DESC");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
+                             
+                             // Determine image path using universal function
+                             $image_path = getImagePath(
+                                 $fetch_products['cover_url'] ?? '', 
+                                 'owl_carousels'
+                             );
+                             
+                             $order_index = $fetch_products['order_index'] ?? 0;
+                             $is_active = $fetch_products['is_active'] ?? 0;
                        ?>
-                </tbody>
-              </table>
+                    <tr>
+                      <th scope="row" class="text-muted"><?= $fetch_products['id']; ?></th>
+                      <td>
+                        <div class="series-image-container-small">
+                          <img src="<?= htmlspecialchars($image_path); ?>" 
+                               alt="<?= htmlspecialchars($fetch_products['series_title'] ?? 'Carousel image'); ?>" 
+                               class="series-thumbnail-small"
+                               onerror="this.src='../img/placeholder.jpg'">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="series-title">
+                          <strong class="d-block"><?= htmlspecialchars($fetch_products['series_title'] ?? 'Series #' . $fetch_products['series_id']); ?></strong>
+                          <small class="text-muted">ID: <?= htmlspecialchars($fetch_products['series_id']); ?></small>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-info"><?= $order_index; ?></span>
+                      </td>
+                      <td>
+                        <?php if($is_active): ?>
+                          <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Active
+                          </span>
+                        <?php else: ?>
+                          <span class="badge bg-secondary">
+                            <i class="bi bi-x-circle"></i> Inactive
+                          </span>
+                        <?php endif; ?>
+                      </td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <a href="manage_owl_carousels.php?update=<?= $fetch_products['id']; ?>" 
+                             class="btn btn-sm btn-outline-primary" 
+                             data-bs-toggle="tooltip" 
+                             title="Edit carousel">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                          <a href="owl_carousels.php?delete=<?= $fetch_products['id']; ?>" 
+                             class="btn btn-sm btn-outline-danger" 
+                             onclick="return confirm('Are you sure you want to delete this carousel?');"
+                             data-bs-toggle="tooltip" 
+                             title="Delete carousel">
+                            <i class="bi bi-trash"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                    <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="6" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No carousels found</h5><p class="text-muted">Get started by adding your first carousel.</p><a href="add_owl_carousels.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Carousel</a></div></td></tr>';
+                         }
+                         ?>
+                  </tbody>
+                </table>
+              </div>
               <!-- End Table with stripped rows -->
 
             </div>

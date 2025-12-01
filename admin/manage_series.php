@@ -64,40 +64,116 @@ if(isset($_POST['update_series'])){
    $uploaded_chapter = $_POST['uploaded_chapter'];
    $uploaded_chapter = filter_var($uploaded_chapter, FILTER_SANITIZE_STRING);
 
-   // Handle image upload
+   // Handle image upload with validation
    $image_url_folder = '../uploads/images/series/';
    $final_image_url = '';
    $upload_success = true;
+   $upload_error = '';
    
    // Create directory if it doesn't exist
    if (!file_exists($image_url_folder)) {
        mkdir($image_url_folder, 0755, true);
    }
    
-   // Check if a new image is uploaded
-   if(isset($_FILES['image_url']['name']) && !empty($_FILES['image_url']['name']) && isset($_FILES['image_url']['error']) && $_FILES['image_url']['error'] == UPLOAD_ERR_OK){
-       $image_url = $_FILES['image_url']['name'];
-       $image_url_size = $_FILES['image_url']['size'];
-       $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
-       
-       if($image_url_size > 12000000){
-           $message[] = 'image size is too large!';
-           $upload_success = false;
-       }else{
-           // Generate unique filename to prevent overwrites
-           $time = time();
-           $file_extension = pathinfo($image_url, PATHINFO_EXTENSION);
-           $file_name = pathinfo($image_url, PATHINFO_FILENAME);
-           $unique_file = $file_name . "_" . $time . "." . $file_extension;
-           
-           // Upload the file first
-           if(move_uploaded_file($image_url_tmp_name, $image_url_folder.$unique_file)){
-               $final_image_url = "/uploads/images/series/".$unique_file;
-               $upload_success = true;
-           }else{
-               $message[] = 'Failed to upload image!';
-               $upload_success = false;
+   // Check if a new image is uploaded (optional for update)
+   if(isset($_FILES['image_url']) && !empty($_FILES['image_url']['name']) && $_FILES['image_url']['error'] !== UPLOAD_ERR_NO_FILE){
+       if($_FILES['image_url']['error'] !== UPLOAD_ERR_OK){
+           switch($_FILES['image_url']['error']){
+               case UPLOAD_ERR_INI_SIZE:
+               case UPLOAD_ERR_FORM_SIZE:
+                   $upload_error = 'Image file is too large!';
+                   break;
+               case UPLOAD_ERR_PARTIAL:
+                   $upload_error = 'Image upload was incomplete!';
+                   break;
+               case UPLOAD_ERR_NO_TMP_DIR:
+                   $upload_error = 'Missing temporary folder!';
+                   break;
+               case UPLOAD_ERR_CANT_WRITE:
+                   $upload_error = 'Failed to write file to disk!';
+                   break;
+               default:
+                   $upload_error = 'Image upload failed!';
            }
+           $upload_success = false;
+       } else {
+           $image_url = $_FILES['image_url']['name'];
+           $image_url_size = $_FILES['image_url']['size'];
+           $image_url_tmp_name = $_FILES['image_url']['tmp_name'];
+           
+           // Validate file size (12MB max)
+           if($image_url_size > 12000000){
+               $upload_error = 'Image size is too large! Maximum size is 12MB.';
+               $upload_success = false;
+           } else {
+               // Get file extension and validate
+               $file_extension = strtolower(pathinfo($image_url, PATHINFO_EXTENSION));
+               $allowed_extensions = ['jpg', 'jpeg', 'png', 'gif', 'webp'];
+               
+               if(!in_array($file_extension, $allowed_extensions)){
+                   $upload_error = 'Invalid image format! Allowed formats: JPG, JPEG, PNG, GIF, WEBP.';
+                   $upload_success = false;
+               } else {
+                   // Validate MIME type
+                   $finfo = finfo_open(FILEINFO_MIME_TYPE);
+                   $mime_type = finfo_file($finfo, $image_url_tmp_name);
+                   finfo_close($finfo);
+                   
+                   $allowed_mime_types = [
+                       'image/jpeg',
+                       'image/jpg',
+                       'image/png',
+                       'image/gif',
+                       'image/webp'
+                   ];
+                   
+                   if(!in_array($mime_type, $allowed_mime_types)){
+                       $upload_error = 'Invalid image file type! Please upload a valid image.';
+                       $upload_success = false;
+                   } else {
+                       // Sanitize filename: remove special characters, spaces, and non-ASCII
+                       $file_name = pathinfo($image_url, PATHINFO_FILENAME);
+                       $file_name = preg_replace('/[^a-zA-Z0-9_-]/', '_', $file_name); // Replace special chars with underscore
+                       $file_name = preg_replace('/_+/', '_', $file_name); // Replace multiple underscores with single
+                       $file_name = trim($file_name, '_'); // Remove leading/trailing underscores
+                       
+                       // If filename is empty after sanitization, use default
+                       if(empty($file_name)){
+                           $file_name = 'series_image';
+                       }
+                       
+                       // Limit filename length
+                       if(strlen($file_name) > 100){
+                           $file_name = substr($file_name, 0, 100);
+                       }
+                       
+                       // Generate unique filename
+                       $time = time();
+                       $random = mt_rand(1000, 9999);
+                       $unique_file = $file_name . '_' . $time . '_' . $random . '.' . $file_extension;
+                       
+                       // Ensure filename is unique
+                       $counter = 0;
+                       while(file_exists($image_url_folder . $unique_file) && $counter < 100){
+                           $counter++;
+                           $unique_file = $file_name . '_' . $time . '_' . $random . '_' . $counter . '.' . $file_extension;
+                       }
+                       
+                       // Move uploaded file
+                       if(move_uploaded_file($image_url_tmp_name, $image_url_folder . $unique_file)){
+                           $final_image_url = "/uploads/images/series/" . $unique_file;
+                           $upload_success = true;
+                       } else {
+                           $upload_error = 'Failed to save image file!';
+                           $upload_success = false;
+                       }
+                   }
+               }
+           }
+       }
+       
+       if(!empty($upload_error)){
+           $message[] = $upload_error;
        }
    }
 
@@ -320,11 +396,14 @@ if(isset($_POST['update_series'])){
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputNumber" class="col-sm-2 col-form-label">image_url</label>
+                      <label for="inputNumber" class="col-sm-2 col-form-label">Series Image</label>
                       <div class="col-sm-10">
-                        <input class="form-control" type="file" name="image_url">
+                        <input class="form-control" type="file" name="image_url" accept="image/jpeg,image/jpg,image/png,image/gif,image/webp">
+                        <small class="form-text text-muted">Allowed formats: JPG, JPEG, PNG, GIF, WEBP. Maximum size: 12MB. Leave empty to keep current image.</small>
                         <?php if(isset($fetch_products['image_url']) && !empty($fetch_products['image_url'])): ?>
-                          <small>Current: <?= htmlspecialchars($fetch_products['image_url']); ?></small>
+                          <div class="mt-2">
+                            <small class="text-muted">Current: <?= htmlspecialchars($fetch_products['image_url']); ?></small>
+                          </div>
                         <?php endif; ?>
                       </div>
                     </div> 

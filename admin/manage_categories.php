@@ -17,8 +17,8 @@ if(isset($_POST['update_categories'])){
 
    $date = $_POST['date'];
    $date = filter_var($date, FILTER_SANITIZE_STRING);
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
    
 
    
@@ -133,9 +133,15 @@ if(isset($_POST['update_categories'])){
                       </div>
                     </div>
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active </label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control" value="<?= $fetch_products['is_active']; ?>">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" <?= isset($fetch_products['is_active']) && $fetch_products['is_active'] == 1 ? 'checked' : ''; ?>>
+                          <label class="form-check-label" for="is_active">
+                            Active (Category will be visible to users)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to make this category inactive/hidden</small>
                       </div>
                     </div>
                     

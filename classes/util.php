@@ -79,7 +79,7 @@ Class Util{
             'blog_feeds' => ['uploads/images/blog_feeds/'],
             'screenshots' => ['uploads/images/screenshots/', 'img/screenshot_url/'],
             'contents' => ['uploads/images/contents/', 'uploads/pdfs/contents/'],
-            'owl_carousels' => ['img/owl_carousels/'],
+            'owl_carousels' => ['uploads/images/owl_carousels/', 'img/owl_carousels/'],
             'trending' => ['img/trending/'],
             'profile' => ['img/profile/', 'uploads/images/admin/'],
         ];

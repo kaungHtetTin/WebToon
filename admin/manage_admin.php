@@ -24,8 +24,8 @@ if(isset($_POST['update_users'])){
    $password = md5($_POST['password']);
    $password = filter_var($password, FILTER_SANITIZE_STRING);
    
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
 
    // Handle image_url upload
    $image_url_folder = '../uploads/images/admin/';
@@ -190,9 +190,15 @@ if(isset($_POST['update_users'])){
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active </label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control" value="<?= $fetch_products['is_active']; ?>">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" <?= isset($fetch_products['is_active']) && $fetch_products['is_active'] == 1 ? 'checked' : ''; ?>>
+                          <label class="form-check-label" for="is_active">
+                            Active (Admin account will be active)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to deactivate this admin account</small>
                       </div>
                     </div>
 
