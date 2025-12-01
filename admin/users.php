@@ -99,15 +99,13 @@ if(isset($_GET['delete'])){
                 <thead>
                   <tr>
                     <th scope="col">ID</th>
-                    <th scope="col">name</th>
-                    <th scope="col">email</th>
-                    <th scope="col">phone</th>                    
-                    <th scope="col">password</th>                    
-                    <th scope="col">image_url</th>
-                    <th scope="col">vip</th> 
-                    <th scope="col">point</th>                   
+                    <th scope="col">Name</th>
+                    <th scope="col">Email</th>
+                    <th scope="col">Phone</th>
+                    <th scope="col">Avatar</th>
+                    <th scope="col">VIP</th>
+                    <th scope="col">Point</th>
                     <th scope="col">Action</th>
-                    
                   </tr>
                 </thead>
                 <tbody>
@@ -123,8 +121,6 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['first_name']; ?> <?= $fetch_products['last_name']; ?></td>
                         <td><?= $fetch_products['email']; ?></td>
                         <td><?= $fetch_products['phone']; ?></td>
-                        <td><?= $fetch_products['password']; ?></td>
-                        
                         <td>
                         <div class="post-item clearfix">
                            
@@ -135,9 +131,20 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['is_vip']; ?></td>
                         <td><?= $fetch_products['point']; ?></td>
                         
-                        <td> <a href="manage_users.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Edit</span></a> |
-                             <a href="users.php?delete=<?= $fetch_products['id']; ?>" onclick="return confirm('delete this admin?');"><span class="badge bg-danger">Delete</span></a>
-
+                        <td>
+                          <div class="btn-group" role="group">
+                            <a href="manage_users.php?update=<?= $fetch_products['id']; ?>" 
+                               class="btn btn-sm btn-outline-primary" 
+                               title="View / Edit user">
+                              <i class="bi bi-person-lines-fill"></i> View
+                            </a>
+                            <a href="users.php?delete=<?= $fetch_products['id']; ?>" 
+                               class="btn btn-sm btn-outline-danger" 
+                               onclick="return confirm('Are you sure you want to delete this user?');" 
+                               title="Delete user">
+                              <i class="bi bi-trash"></i>
+                            </a>
+                          </div>
                         </td>
                       </tr>
                       <?php
