@@ -36,11 +36,139 @@
           </a>
         </li><!-- End Search Icon-->
 
-        
+        <!-- Quick Navigation Menu -->
+        <li class="nav-item dropdown">
+          <a class="nav-link nav-icon" href="#" data-bs-toggle="dropdown" title="Quick Navigation">
+            <i class="bi bi-grid-3x3-gap"></i>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow quick-nav">
+            <li class="dropdown-header">
+              <h6>Quick Navigation</h6>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="add_categories.php">
+                <i class="bi bi-plus-circle text-primary"></i>
+                <span>Add Category</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="add_series.php">
+                <i class="bi bi-book-plus text-primary"></i>
+                <span>Add Series</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="add_chapters.php">
+                <i class="bi bi-file-plus text-primary"></i>
+                <span>Add Chapter</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="add_blogs.php">
+                <i class="bi bi-journal-plus text-primary"></i>
+                <span>Add Blog</span>
+              </a>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="pending_payment.php">
+                <i class="bi bi-clock-history text-warning"></i>
+                <span>Pending Payments</span>
+              </a>
+            </li>
+            <li>
+              <a class="dropdown-item d-flex align-items-center" href="pages_contact.php">
+                <i class="bi bi-envelope text-info"></i>
+                <span>Contact Messages</span>
+              </a>
+            </li>
+          </ul>
+        </li><!-- End Quick Nav -->
 
-        <!-- End Notification Nav -->
-
-
+        <!-- Notifications -->
+        <li class="nav-item dropdown">
+          <?php
+            // Count pending payments
+            try {
+              $pending_payments = $conn->prepare("SELECT COUNT(*) as count FROM `payment_histories` WHERE (verified = 0 OR confirm = 0)");
+              $pending_payments->execute();
+              $pending_result = $pending_payments->fetch(PDO::FETCH_ASSOC);
+              $pending_count = $pending_result ? (int)$pending_result['count'] : 0;
+            } catch(Exception $e) {
+              $pending_count = 0;
+            }
+            
+            // Count recent users (try different date fields)
+            $recent_count = 0;
+            try {
+              // Try with created_at first
+              $recent_users = $conn->prepare("SELECT COUNT(*) as count FROM `users` WHERE created_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR)");
+              $recent_users->execute();
+              $recent_result = $recent_users->fetch(PDO::FETCH_ASSOC);
+              $recent_count = $recent_result ? (int)$recent_result['count'] : 0;
+            } catch(Exception $e) {
+              // If created_at doesn't exist, just count all users (or skip)
+              $recent_count = 0;
+            }
+            
+            $total_notifications = $pending_count + $recent_count;
+          ?>
+          <a class="nav-link nav-icon position-relative" href="#" data-bs-toggle="dropdown" title="Notifications">
+            <i class="bi bi-bell"></i>
+            <?php if($total_notifications > 0): ?>
+              <span class="badge bg-danger badge-number"><?= $total_notifications > 9 ? '9+' : $total_notifications; ?></span>
+            <?php endif; ?>
+          </a>
+          <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow notifications">
+            <li class="dropdown-header">
+              <h6>Notifications</h6>
+              <?php if($total_notifications > 0): ?>
+                <span class="badge bg-primary rounded-pill"><?= $total_notifications; ?> new</span>
+              <?php endif; ?>
+            </li>
+            <li><hr class="dropdown-divider"></li>
+            
+            <?php if($pending_count > 0): ?>
+              <li class="notification-item">
+                <a href="pending_payment.php" class="d-flex align-items-center">
+                  <i class="bi bi-credit-card text-warning"></i>
+                  <div class="flex-grow-1">
+                    <h6>Pending Payments</h6>
+                    <p><?= $pending_count; ?> payment<?= $pending_count > 1 ? 's' : ''; ?> waiting for approval</p>
+                    <small class="text-muted">Click to review</small>
+                  </div>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+            <?php endif; ?>
+            
+            <?php if($recent_count > 0): ?>
+              <li class="notification-item">
+                <a href="users.php" class="d-flex align-items-center">
+                  <i class="bi bi-person-plus text-success"></i>
+                  <div class="flex-grow-1">
+                    <h6>New Users</h6>
+                    <p><?= $recent_count; ?> new user<?= $recent_count > 1 ? 's' : ''; ?> registered today</p>
+                    <small class="text-muted">Click to view</small>
+                  </div>
+                </a>
+              </li>
+              <li><hr class="dropdown-divider"></li>
+            <?php endif; ?>
+            
+            <?php if($total_notifications == 0): ?>
+              <li class="notification-item text-center py-4">
+                <i class="bi bi-bell-slash text-muted" style="font-size: 32px;"></i>
+                <p class="text-muted mb-0 mt-2">No new notifications</p>
+              </li>
+            <?php else: ?>
+              <li class="dropdown-footer text-center">
+                <a href="index.php">View all notifications</a>
+              </li>
+            <?php endif; ?>
+          </ul>
+        </li><!-- End Notification Nav -->
 
         <li class="nav-item dropdown pe-3">
 

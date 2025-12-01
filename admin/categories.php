@@ -196,6 +196,8 @@ if(isset($_GET['delete'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- Navigation Enhancement -->
+  <script src="assets/js/navigation.js"></script>
   <!-- UX Enhancements -->
   <script src="assets/js/ux-enhancements.js"></script>
 
