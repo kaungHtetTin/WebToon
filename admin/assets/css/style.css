@@ -3,79 +3,89 @@
 * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
 * Author: BootstrapMade.com
 * License: https://bootstrapmade.com/license/
-* Redesigned to match Google AdMob Console Style
+* Redesigned to match Google Firebase Console Style
 */
 
 /*--------------------------------------------------------------
-# General - Google AdMob Style
+# General - Google Firebase Console Style
 --------------------------------------------------------------*/
 :root {
   scroll-behavior: smooth;
-  --admob-blue: #4285F4;
-  --admob-blue-hover: #3367D6;
-  --admob-gray: #5F6368;
-  --admob-gray-light: #F8F9FA;
-  --admob-gray-border: #DADCE0;
-  --admob-text: #202124;
-  --admob-text-secondary: #5F6368;
-  --admob-white: #FFFFFF;
-  --admob-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
-  --admob-shadow-hover: 0 2px 4px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+  --firebase-blue: #1A73E8;
+  --firebase-blue-hover: #1557B0;
+  --firebase-blue-light: #E8F0FE;
+  --firebase-gray: #5F6368;
+  --firebase-gray-light: #F8F9FA;
+  --firebase-gray-border: #DADCE0;
+  --firebase-gray-hover: #F1F3F4;
+  --firebase-text: #202124;
+  --firebase-text-secondary: #5F6368;
+  --firebase-white: #FFFFFF;
+  --firebase-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  --firebase-shadow-hover: 0 2px 4px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
+  --firebase-sidebar-width: 256px;
+  --firebase-header-height: 64px;
 }
 
 body {
-  font-family: "Roboto", "Google Sans", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
-  background: #FAFAFA;
+  font-family: "Google Sans", "Roboto", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  background: #F8F9FA;
   color: #202124;
   font-size: 14px;
   line-height: 1.5;
+  margin: 0;
+  padding: 0;
 }
 
 a {
-  color: #4285F4;
+  color: #1A73E8;
   text-decoration: none;
   transition: color 0.2s;
 }
 
 a:hover {
-  color: #3367D6;
+  color: #1557B0;
   text-decoration: none;
 }
 
 h1, h2, h3, h4, h5, h6 {
   font-family: "Google Sans", "Roboto", sans-serif;
-  font-weight: 500;
+  font-weight: 400;
   color: #202124;
+  letter-spacing: 0;
 }
 
 /*--------------------------------------------------------------
-# Main - Google AdMob Style
+# Main - Google Firebase Console Style
 --------------------------------------------------------------*/
 #main {
-  margin-top: 64px;
-  padding: 24px 32px;
+  margin-top: var(--firebase-header-height);
+  margin-left: var(--firebase-sidebar-width);
+  padding: 32px 40px;
   transition: all 0.3s;
-  background: #FAFAFA;
-  min-height: calc(100vh - 64px);
+  background: #F8F9FA;
+  min-height: calc(100vh - var(--firebase-header-height));
 }
 @media (max-width: 1199px) {
   #main {
-    padding: 16px;
+    margin-left: 0;
+    padding: 24px 16px;
   }
 }
 
 /*--------------------------------------------------------------
-# Page Title - Google AdMob Style
+# Page Title - Google Firebase Console Style
 --------------------------------------------------------------*/
 .pagetitle {
-  margin-bottom: 24px;
+  margin-bottom: 32px;
 }
 .pagetitle h1 {
-  font-size: 24px;
+  font-size: 28px;
   margin-bottom: 8px;
   font-weight: 400;
   color: #202124;
   letter-spacing: 0;
+  line-height: 1.2;
 }
 
 /*--------------------------------------------------------------
@@ -226,7 +236,7 @@ h1, h2, h3, h4, h5, h6 {
   border-color: #d3d3d4;
 }
 
-/* Card - Google AdMob Style */
+/* Card - Google Firebase Console Style */
 .card {
   margin-bottom: 24px;
   border: 1px solid #DADCE0;
@@ -234,6 +244,7 @@ h1, h2, h3, h4, h5, h6 {
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
   background: #FFFFFF;
   transition: box-shadow 0.2s;
+  overflow: hidden;
 }
 
 .card:hover {
@@ -323,11 +334,11 @@ h1, h2, h3, h4, h5, h6 {
   margin-bottom: 0;
 }
 .breadcrumb a {
-  color: #4285F4;
+  color: #1A73E8;
   transition: color 0.2s;
 }
 .breadcrumb a:hover {
-  color: #3367D6;
+  color: #1557B0;
 }
 .breadcrumb .breadcrumb-item::before {
   color: #5F6368;
@@ -349,33 +360,35 @@ h1, h2, h3, h4, h5, h6 {
   color: #2c384e;
 }
 .nav-tabs-bordered .nav-link:hover, .nav-tabs-bordered .nav-link:focus {
-  color: #4154f1;
+  color: #1A73E8;
 }
 .nav-tabs-bordered .nav-link.active {
   background-color: #fff;
-  color: #4154f1;
-  border-bottom: 2px solid #4154f1;
+  color: #1A73E8;
+  border-bottom: 2px solid #1A73E8;
 }
 
 /*--------------------------------------------------------------
-# Header - Google AdMob Style
+# Header - Google Firebase Console Style
 --------------------------------------------------------------*/
 .logo {
   line-height: 1;
   display: flex;
   align-items: center;
+  padding: 0 16px;
 }
 @media (min-width: 1200px) {
   .logo {
-    width: 280px;
+    width: var(--firebase-sidebar-width);
+    padding: 0 24px;
   }
 }
 .logo img {
-  max-height: 32px;
+  max-height: 24px;
   margin-right: 12px;
 }
 .logo span {
-  font-size: 22px;
+  font-size: 20px;
   font-weight: 400;
   color: #202124;
   font-family: "Google Sans", "Roboto", sans-serif;
@@ -383,32 +396,43 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .header {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
   transition: all 0.3s;
-  z-index: 997;
-  height: 64px;
+  z-index: 1000;
+  height: var(--firebase-header-height);
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
   background-color: #FFFFFF;
-  padding: 0 24px;
+  padding: 0;
   display: flex;
   align-items: center;
   border-bottom: 1px solid #DADCE0;
 }
 .header .toggle-sidebar-btn {
-  font-size: 24px;
-  padding: 8px;
+  font-size: 20px;
+  padding: 12px;
   cursor: pointer;
   color: #5F6368;
-  margin-right: 16px;
+  margin-left: 8px;
   border-radius: 50%;
   transition: background-color 0.2s;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .header .toggle-sidebar-btn:hover {
   background-color: #F1F3F4;
 }
 .header .search-bar {
-  min-width: 360px;
+  min-width: 400px;
+  max-width: 720px;
   padding: 0 24px;
   flex: 1;
+  margin-left: 8px;
 }
 @media (max-width: 1199px) {
   .header .search-bar {
@@ -449,7 +473,7 @@ h1, h2, h3, h4, h5, h6 {
 .header .search-form input:focus, .header .search-form input:hover {
   outline: none;
   background: #FFFFFF;
-  border: 1px solid #4285F4;
+  border: 1px solid #1A73E8;
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
 }
 .header .search-form button {
@@ -488,25 +512,41 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
   width: 40px;
   height: 40px;
+  cursor: pointer;
 }
 
 .header-nav .nav-icon:hover {
   background-color: #F1F3F4;
   color: #202124;
 }
+
+.header-nav .nav-icon:active {
+  background-color: #E8EAED;
+}
 .header-nav .nav-profile {
   color: #202124;
   padding: 4px 8px;
   border-radius: 50%;
   transition: background-color 0.2s;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
 }
 .header-nav .nav-profile:hover {
   background-color: #F1F3F4;
+}
+.header-nav .nav-profile:active {
+  background-color: #E8EAED;
 }
 .header-nav .nav-profile img {
   max-height: 32px;
   max-width: 32px;
   border-radius: 50%;
+  border: 2px solid transparent;
+  transition: border-color 0.2s;
+}
+.header-nav .nav-profile:hover img {
+  border-color: #DADCE0;
 }
 .header-nav .nav-profile span {
   font-size: 14px;
@@ -606,7 +646,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .header-nav .notifications .dropdown-footer a {
-  color: #4285F4;
+  color: #1A73E8;
   font-size: 14px;
   font-weight: 500;
   text-decoration: none;
@@ -643,6 +683,7 @@ h1, h2, h3, h4, h5, h6 {
   margin-right: 12px;
   width: 20px;
   text-align: center;
+  color: #5F6368;
 }
 
 .header-nav .quick-nav .dropdown-item:hover {
@@ -705,21 +746,23 @@ h1, h2, h3, h4, h5, h6 {
   font-size: 18px;
   line-height: 0;
   color: #5F6368;
+  width: 20px;
+  text-align: center;
 }
 .header-nav .profile .dropdown-item:hover {
   background-color: #F1F3F4;
 }
 
 /*--------------------------------------------------------------
-# Sidebar - Google AdMob Style
+# Sidebar - Google Firebase Console Style
 --------------------------------------------------------------*/
 .sidebar {
   position: fixed;
-  top: 64px;
+  top: var(--firebase-header-height);
   left: 0;
   bottom: 0;
-  width: 240px;
-  z-index: 996;
+  width: var(--firebase-sidebar-width);
+  z-index: 999;
   transition: all 0.3s;
   padding: 8px 0;
   overflow-y: auto;
@@ -731,21 +774,26 @@ h1, h2, h3, h4, h5, h6 {
 }
 @media (max-width: 1199px) {
   .sidebar {
-    left: -240px;
+    left: calc(-1 * var(--firebase-sidebar-width));
+    box-shadow: 2px 0 8px rgba(0,0,0,0.1);
   }
 }
 .sidebar::-webkit-scrollbar {
-  width: 5px;
+  width: 8px;
   height: 8px;
-  background-color: #fff;
+  background-color: transparent;
 }
 .sidebar::-webkit-scrollbar-thumb {
-  background-color: #aab7cf;
+  background-color: #DADCE0;
+  border-radius: 4px;
+}
+.sidebar::-webkit-scrollbar-thumb:hover {
+  background-color: #BDBDBD;
 }
 
 @media (min-width: 1200px) {
   #main, #footer {
-    margin-left: 240px;
+    margin-left: var(--firebase-sidebar-width);
   }
 }
 @media (max-width: 1199px) {
@@ -758,7 +806,7 @@ h1, h2, h3, h4, h5, h6 {
     margin-left: 0;
   }
   .toggle-sidebar .sidebar {
-    left: -240px;
+    left: calc(-1 * var(--firebase-sidebar-width));
   }
 }
 
@@ -780,9 +828,10 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: uppercase;
   color: #5F6368;
   font-weight: 500;
-  margin: 24px 0 8px 16px;
-  letter-spacing: 0.8px;
+  margin: 24px 0 8px 24px;
+  letter-spacing: 0.5px;
   padding: 8px 0;
+  font-family: "Google Sans", "Roboto", sans-serif;
 }
 .sidebar-nav .nav-link {
   display: flex;
@@ -792,17 +841,17 @@ h1, h2, h3, h4, h5, h6 {
   color: #5F6368;
   transition: all 0.2s;
   background: transparent;
-  padding: 10px 16px;
+  padding: 10px 24px;
   border-radius: 0;
-  margin: 2px 8px;
-  border-radius: 4px;
+  margin: 0;
   position: relative;
+  font-family: "Roboto", sans-serif;
 }
 .sidebar-nav .nav-link i {
   font-size: 20px;
-  margin-right: 16px;
+  margin-right: 20px;
   color: #5F6368;
-  width: 24px;
+  width: 20px;
   text-align: center;
   flex-shrink: 0;
 }
@@ -832,10 +881,9 @@ h1, h2, h3, h4, h5, h6 {
   content: '';
   position: absolute;
   left: 0;
-  top: 50%;
-  transform: translateY(-50%);
+  top: 0;
+  bottom: 0;
   width: 3px;
-  height: 24px;
   background: #1A73E8;
   border-radius: 0 2px 2px 0;
 }
@@ -919,7 +967,7 @@ h1, h2, h3, h4, h5, h6 {
   justify-content: center;
 }
 .dashboard .sales-card .card-icon {
-  color: #4285F4;
+  color: #1A73E8;
   background: #E8F0FE;
 }
 .dashboard .revenue-card .card-icon {
@@ -1290,10 +1338,10 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /*--------------------------------------------------------------
-# Buttons - Google AdMob Style
+# Buttons - Google Firebase Console Style
 --------------------------------------------------------------*/
 .btn {
-  font-family: "Roboto", sans-serif;
+  font-family: "Google Sans", "Roboto", sans-serif;
   font-weight: 500;
   font-size: 14px;
   padding: 10px 24px;
@@ -1302,15 +1350,17 @@ h1, h2, h3, h4, h5, h6 {
   text-transform: none;
   letter-spacing: 0;
   box-shadow: 0 1px 2px 0 rgba(60,64,67,.3), 0 1px 3px 1px rgba(60,64,67,.15);
+  border: none;
+  cursor: pointer;
 }
 .btn-primary {
-  background-color: #4285F4;
-  border-color: #4285F4;
+  background-color: #1A73E8;
+  border-color: #1A73E8;
   color: #FFFFFF;
 }
 .btn-primary:hover {
-  background-color: #3367D6;
-  border-color: #3367D6;
+  background-color: #1557B0;
+  border-color: #1557B0;
   box-shadow: 0 2px 4px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
 }
 .btn-secondary {
@@ -1401,7 +1451,7 @@ h1, h2, h3, h4, h5, h6 {
   letter-spacing: 0;
 }
 .badge.bg-primary {
-  background-color: #4285F4 !important;
+  background-color: #1A73E8 !important;
 }
 .badge.bg-success {
   background-color: #34A853 !important;
@@ -1430,8 +1480,8 @@ h1, h2, h3, h4, h5, h6 {
   background-color: #FFFFFF;
 }
 .form-control:focus, .form-select:focus {
-  border-color: #4285F4;
-  box-shadow: 0 0 0 2px rgba(66, 133, 244, 0.2);
+  border-color: #1A73E8;
+  box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
   outline: none;
 }
 .form-label {
@@ -1459,7 +1509,7 @@ h1, h2, h3, h4, h5, h6 {
   background: #FFFFFF;
   border-radius: 8px;
   box-shadow: 0 2px 4px 0 rgba(60,64,67,.3), 0 4px 8px 3px rgba(60,64,67,.15);
-  border-left: 4px solid #4285F4;
+  border-left: 4px solid #1A73E8;
   overflow: hidden;
   opacity: 0;
   transform: translateX(400px);
@@ -1485,7 +1535,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .toast-info {
-  border-left-color: #4285F4;
+  border-left-color: #1A73E8;
 }
 
 .toast-content {
@@ -1513,7 +1563,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .toast-info .toast-icon {
-  color: #4285F4;
+  color: #1A73E8;
 }
 
 .toast-message {
@@ -1654,7 +1704,7 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 .confirm-modal-icon-info {
-  color: #4285F4;
+  color: #1A73E8;
 }
 
 .confirm-modal-body p {
@@ -1699,7 +1749,7 @@ h1, h2, h3, h4, h5, h6 {
   width: 40px;
   height: 40px;
   border: 4px solid #F1F3F4;
-  border-top-color: #4285F4;
+  border-top-color: #1A73E8;
   border-radius: 50%;
   animation: spin 0.8s linear infinite;
   margin: 0 auto 12px;
@@ -1846,28 +1896,110 @@ h1, h2, h3, h4, h5, h6 {
 }
 
 /*--------------------------------------------------------------
-# Footer
+# Footer - Firebase Console Style
 --------------------------------------------------------------*/
 .footer {
-  padding: 24px 0;
+  padding: 24px 40px;
   font-size: 14px;
   transition: all 0.3s;
   border-top: 1px solid #DADCE0;
   background: #FFFFFF;
-  margin-left: 240px;
+  margin-left: var(--firebase-sidebar-width);
 }
 .footer .copyright {
   text-align: center;
   color: #5F6368;
+  font-family: "Roboto", sans-serif;
 }
 .footer .credits {
   padding-top: 8px;
   text-align: center;
   font-size: 13px;
   color: #5F6368;
+  font-family: "Roboto", sans-serif;
+}
+.footer .credits a {
+  color: #1A73E8;
+  text-decoration: none;
+}
+.footer .credits a:hover {
+  text-decoration: underline;
 }
 @media (max-width: 1199px) {
   .footer {
     margin-left: 0;
+    padding: 24px 16px;
   }
+}
+
+/*--------------------------------------------------------------
+# Firebase Console Additional Styles
+--------------------------------------------------------------*/
+/* Material Design Ripple Effect */
+.ripple {
+  position: relative;
+  overflow: hidden;
+}
+
+.ripple::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 0;
+  height: 0;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.5);
+  transform: translate(-50%, -50%);
+  transition: width 0.6s, height 0.6s;
+}
+
+.ripple:active::after {
+  width: 300px;
+  height: 300px;
+}
+
+/* Firebase-style focus states */
+*:focus {
+  outline: none;
+}
+
+*:focus-visible {
+  outline: 2px solid #1A73E8;
+  outline-offset: 2px;
+}
+
+/* Improved table styling for Firebase look */
+.table {
+  font-family: "Roboto", sans-serif;
+}
+
+.table thead th {
+  font-family: "Google Sans", "Roboto", sans-serif;
+}
+
+/* Card header improvements */
+.card-header {
+  font-family: "Google Sans", "Roboto", sans-serif;
+  font-weight: 500;
+}
+
+/* Better spacing for Firebase console */
+.section {
+  padding: 0;
+}
+
+/* Firebase-style input groups */
+.input-group {
+  display: flex;
+  align-items: center;
+}
+
+.input-group .form-control {
+  border-radius: 4px 0 0 4px;
+}
+
+.input-group .btn {
+  border-radius: 0 4px 4px 0;
+  margin-left: -1px;
 }

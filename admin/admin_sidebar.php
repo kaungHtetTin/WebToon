@@ -1,4 +1,4 @@
-  <!-- ======= Sidebar - Google Console Style ======= -->
+  <!-- ======= Sidebar - Firebase Console Style ======= -->
   <aside id="sidebar" class="sidebar">
 
     <ul class="sidebar-nav" id="sidebar-nav">
@@ -12,7 +12,7 @@
       </li>
 
       <!-- Content Management Section -->
-      <li class="nav-heading">Content</li>
+      <li class="nav-heading">Content Management</li>
 
       <li class="nav-item">
         <a class="nav-link" href="categories.php">
@@ -43,7 +43,7 @@
       </li>
 
       <!-- Blog Section -->
-      <li class="nav-heading">Blog</li>
+      <li class="nav-heading">Blog Management</li>
 
       <li class="nav-item">
         <a class="nav-link" href="blogs.php">
@@ -91,7 +91,7 @@
       </li>
 
       <!-- Settings Section -->
-      <li class="nav-heading">Settings</li>
+      <li class="nav-heading">Settings & Support</li>
 
       <li class="nav-item">
         <a class="nav-link" href="users_profile.php">
