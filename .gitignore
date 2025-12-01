@@ -1,0 +1,48 @@
+# Uploads folder - user uploaded files
+uploads/
+
+# PHP
+*.log
+*.cache
+.htaccess.local
+.env
+.env.local
+.env.*.local
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Dependencies
+vendor/
+node_modules/
+
+# Temporary files
+*.tmp
+*.temp
+*.bak
+*.backup
+
+# OS files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Desktop.ini
+
+# Database
+*.sql
+*.db
+*.sqlite
+
+# Configuration files with sensitive data
+config.local.php
+connect.local.php
+

@@ -38,12 +38,40 @@
   }
 
   /**
-   * Sidebar toggle
+   * Sidebar toggle with backdrop
    */
   if (select('.toggle-sidebar-btn')) {
     on('click', '.toggle-sidebar-btn', function(e) {
-      select('body').classList.toggle('toggle-sidebar')
+      const body = select('body');
+      const sidebar = select('#sidebar');
+      const backdrop = select('#sidebarBackdrop');
+      
+      body.classList.toggle('toggle-sidebar');
+      
+      // Handle backdrop on mobile
+      if (window.innerWidth < 1200) {
+        if (body.classList.contains('toggle-sidebar')) {
+          sidebar.classList.add('show');
+          if (backdrop) backdrop.classList.add('show');
+        } else {
+          sidebar.classList.remove('show');
+          if (backdrop) backdrop.classList.remove('show');
+        }
+      }
     })
+    
+    // Close sidebar when clicking backdrop
+    const backdrop = select('#sidebarBackdrop');
+    if (backdrop) {
+      on('click', '#sidebarBackdrop', function(e) {
+        const body = select('body');
+        const sidebar = select('#sidebar');
+        
+        body.classList.remove('toggle-sidebar');
+        sidebar.classList.remove('show');
+        backdrop.classList.remove('show');
+      })
+    }
   }
 
   /**

@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -126,8 +127,8 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['id']; ?></td>
                         <td><?= $fetch_products['title']; ?></td>
                         <td><?= $fetch_products['description']; ?></td>
-                        <td><img src="img/trending/<?= $fetch_products['image_url']; ?>" style="height: 50px;width: 50px;"> </td>
-                        <td><img src="img/blog/<?= $fetch_products['cover_url']; ?>" style="height: 50px;width: 50px;"></td>
+                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'blogs')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"> </td>
+                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['cover_url'] ?? '', 'blogs')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"></td>
                         <td><?= $fetch_products['date']; ?></td>
                         
                         <td> <a href="manage_blogs.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |

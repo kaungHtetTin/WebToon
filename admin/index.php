@@ -1,6 +1,7 @@
 <?php
 
   include_once('config.php');
+  require_once('includes/image_helper.php');
 
   session_start();
 
@@ -484,7 +485,7 @@
                         <th scope="row"><?= $fetch_products['id']; ?></th>
                         <td><?= $fetch_products['user_id']; ?></td>
                         <td><?= $fetch_products['point']; ?></td>
-                        <td><img src="img/screenshot_url/<?= $fetch_products['screenshot_url']; ?>" style="width: 100px;height: 100px;"></td>
+                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['screenshot_url'] ?? '', 'screenshots')); ?>" style="width: 100px;height: 100px;" onerror="this.src='../img/placeholder.jpg'"></td>
 
                         <td><?= $fetch_products['date']; ?></td>
                         <td><?= $fetch_products['verified']; ?></td>
@@ -597,6 +598,7 @@
                     <thead>
                       <tr>
                         <th scope="col">#</th>
+                        <th scope="col" style="width: 60px;">Image</th>
                         <th scope="col">name</th>
                         <th scope="col">email</th>
                         <th scope="col">phone</th>
@@ -614,6 +616,14 @@
                      ?>
                       <tr>
                         <th scope="row"><?= $fetch_products['id']; ?></th>
+                        <td>
+                          <div class="user-image-container">
+                            <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'profile')); ?>" 
+                                 alt="<?= htmlspecialchars(($fetch_products['first_name'] ?? '') . ' ' . ($fetch_products['last_name'] ?? '')); ?>" 
+                                 class="user-avatar"
+                                 onerror="this.src='../img/placeholder.jpg'">
+                          </div>
+                        </td>
                         <td><?= $fetch_products['first_name']; ?> <?= $fetch_products['last_name']; ?></td>
                         <td><?= $fetch_products['email']; ?></td>
                         <td><?= $fetch_products['phone']; ?></td>
@@ -673,7 +683,16 @@
                            while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
                      ?>
                       <tr>
-                        <th scope="row"><a href="#"><img src="img/trending/<?= $fetch_products['image_url']; ?>" alt="" style="height: 50px;width: 50px;"></a></th>
+                        <th scope="row">
+                          <div class="series-image-container-small">
+                            <a href="#">
+                              <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'series')); ?>" 
+                                   alt="<?= htmlspecialchars($fetch_products['title'] ?? ''); ?>" 
+                                   class="series-thumbnail-small"
+                                   onerror="this.src='../img/placeholder.jpg'">
+                            </a>
+                          </div>
+                        </th>
                         <td><a href="#" class="text-primary fw-bold"><?= $fetch_products['title']; ?></a></td>
                         <td><?= $fetch_products['description']; ?></td>
                         <td class="fw-bold"><?= $fetch_products['rating']; ?></td>

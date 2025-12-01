@@ -188,13 +188,9 @@ if(isset($_GET['delete'])){
                       <label for="inputText" class="col-sm-2 col-form-label">Payment Screenshot</label>
                       <div class="col-sm-10">
                         <?php if($payment['screenshot_url']): 
-                            $screenshot_path = $payment['screenshot_url'];
-                            // Handle both absolute and relative paths
-                            if(strpos($screenshot_path, '/uploads/') === 0 || strpos($screenshot_path, '/') === 0) {
-                                $screenshot_path = '..' . $screenshot_path;
-                            }
+                            $screenshot_path = getImagePath($payment['screenshot_url'], 'screenshots');
                         ?>
-                            <img src="<?= htmlspecialchars($screenshot_path); ?>" style="max-width: 400px; max-height: 400px;" class="img-thumbnail" onerror="this.src='data:image/svg+xml,%3Csvg xmlns=\'http://www.w3.org/2000/svg\' width=\'400\' height=\'300\'%3E%3Crect fill=\'%23ddd\' width=\'400\' height=\'300\'/%3E%3Ctext fill=\'%23999\' font-family=\'sans-serif\' font-size=\'18\' x=\'50%25\' y=\'50%25\' text-anchor=\'middle\' dy=\'.3em\'%3EImage not found%3C/text%3E%3C/svg%3E';">
+                            <img src="<?= htmlspecialchars($screenshot_path); ?>" style="max-width: 400px; max-height: 400px;" class="img-thumbnail" onerror="this.src='../img/placeholder.jpg'">
                         <?php else: ?>
                             <p class="text-muted">No screenshot available</p>
                         <?php endif; ?>

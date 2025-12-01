@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -119,7 +120,7 @@ if(isset($_GET['delete'])){
                         <td><?= $fetch_products['blog_id']; ?></td>
                         <td><?= $fetch_products['title']; ?></td>
                         
-                        <td><img src="img/trending/<?= $fetch_products['image']; ?>" style="height: 50px;width: 50px;"> </td>
+                        <td><img src="<?= htmlspecialchars(getImagePath($fetch_products['image'] ?? '', 'blog_feeds')); ?>" style="height: 50px;width: 50px;" onerror="this.src='../img/placeholder.jpg'"> </td>
                         <td><?= $fetch_products['body']; ?></td>
                         
                         <td> <a href="manage_blog_feeds.php?update=<?= $fetch_products['id']; ?>"><span class="badge bg-warning">Update</span></a> |

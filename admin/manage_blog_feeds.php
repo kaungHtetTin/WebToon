@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -170,7 +171,7 @@ if(isset($_POST['update_blog_feeds'])){
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">Old Image</label>
                       <div class="col-sm-10">
-                        <img src="img/trending/<?= $fetch_products['image']; ?>" alt="Profile" style="height: 100px;width: 100px;">
+                        <img src="<?= htmlspecialchars(getImagePath($fetch_products['image'] ?? '', 'blog_feeds')); ?>" alt="Profile" style="height: 100px;width: 100px;" onerror="this.src='../img/placeholder.jpg'">
                       </div>
                     </div>
 

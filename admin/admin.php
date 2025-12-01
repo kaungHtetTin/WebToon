@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -125,7 +126,7 @@ if(isset($_GET['delete'])){
                         <td>
                         <div class="post-item clearfix">
                            
-                           <img src="img/<?= $fetch_products['image_url']; ?>" alt="" style="height: 50px;width: 50px; border-radius: 50%;">
+                           <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'admin')); ?>" alt="" style="height: 50px;width: 50px; border-radius: 50%;" onerror="this.src='../img/placeholder.jpg'">
                         </div>
                         </td>
                        

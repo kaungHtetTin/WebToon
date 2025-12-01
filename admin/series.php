@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 
@@ -27,7 +28,7 @@ if(isset($_GET['delete'])){
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Tables / Data - NiceAdmin Bootstrap Template</title>
+  <title>Series Management - Admin Panel</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -99,86 +100,130 @@ if(isset($_GET['delete'])){
               </div>
 
               <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">catid</th>
-                    <th scope="col">title</th>
-                    <th scope="col">description</th>
-                    <th scope="col">short</th>
-                    <th scope="col">genre</th>
-                    <th scope="col">original_work</th>
-                    <th scope="col">upload_status</th>
-                    <th scope="col">rating</th>
-                    <th scope="col">comment</th>
-                    <th scope="col">view</th>
-                    <th scope="col">save</th>
-                    <th scope="col">active</th>
-                    <th scope="col">image</th>
-                    <th scope="col">total</th>
-                    <th scope="col">upload</th>
-                    <th scope="col">action</th>
-                    
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                        $show_products = $conn->prepare("SELECT * FROM `series`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                  <tr>
-                   
-                    <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td><?= $fetch_products['category_id']; ?></td>
-                        <td><?= $fetch_products['title']; ?></td>
-                        <td><?= substr($fetch_products['description'],0,20)."..." ?></td>
-                        <td><?= $fetch_products['short']; ?></td> 
-                        <td><?= $fetch_products['genre']; ?></td> 
-                        <td><?= $fetch_products['original_work']; ?></td> 
-                        <td><?= $fetch_products['upload_status']; ?></td> 
-                        <td><?= $fetch_products['rating']; ?></td>
-                        <td><?= $fetch_products['comment']; ?></td>
-                        <td><?= $fetch_products['view']; ?></td>
-                        <td><?= $fetch_products['save']; ?></td>
-                        <td><?= $fetch_products['is_active']; ?></td>
-                        <td><?= $fetch_products['image_url']; ?></td>
-                        <td><?= $fetch_products['total_chapter']; ?></td>
-                        <td><?= $fetch_products['uploaded_chapter']; ?></td>
-                        <td>
-                          <div class="btn-group-vertical btn-group-sm" role="group">
-                            <a href="manage_series.php?update=<?= $fetch_products['id']; ?>" 
-                               class="btn btn-warning mb-1" 
-                               data-bs-toggle="tooltip" 
-                               title="Edit series">
-                              <i class="bi bi-pencil"></i> Edit
-                            </a>
-                            <a href="chapters.php?series_id=<?= $fetch_products['id']; ?>" 
-                               class="btn btn-primary mb-1" 
-                               data-bs-toggle="tooltip" 
-                               title="View chapters">
-                              <i class="bi bi-file-text"></i> Chapters
-                            </a>
-                            <a href="series.php?delete=<?= $fetch_products['id']; ?>" 
-                               class="btn btn-danger" 
-                               data-message="Are you sure you want to delete '<?= htmlspecialchars($fetch_products['title']); ?>'? This will also delete all associated chapters."
-                               data-bs-toggle="tooltip" 
-                               title="Delete series">
-                              <i class="bi bi-trash"></i> Delete
-                            </a>
-                          </div>
-                        </td>
-                  </tr>
-                  <?php
-                          }
-                       }else{
-                          echo '<tr><td colspan="17" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No series found</h5><p class="text-muted">Get started by adding your first series.</p><a href="add_series.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Series</a></div></td></tr>';
-                       }
+              <div class="table-responsive">
+                <table class="table datatable table-hover">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 60px;">#</th>
+                      <th scope="col" style="width: 80px;">Image</th>
+                      <th scope="col">Title</th>
+                      <th scope="col" style="width: 80px;">Category</th>
+                      <th scope="col" style="width: 80px;">Rating</th>
+                      <th scope="col" style="width: 100px;">Views</th>
+                      <th scope="col" style="width: 80px;">Saves</th>
+                      <th scope="col" style="width: 80px;">Chapters</th>
+                      <th scope="col" style="width: 80px;">Uploaded</th>
+                      <th scope="col" style="width: 80px;">Status</th>
+                      <th scope="col" style="width: 180px;">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                          $show_products = $conn->prepare("SELECT * FROM `series` ORDER BY id DESC");
+                          $show_products->execute();
+                          if($show_products->rowCount() > 0){
+                             while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
+                             
+                             // Determine image path using universal function
+                             $image_path = getImagePath(
+                                 $fetch_products['image_url'] ?? '', 
+                                 'series'
+                             );
+                             
+                             // Format numbers
+                             $views = number_format($fetch_products['view'] ?? 0);
+                             $saves = number_format($fetch_products['save'] ?? 0);
+                             $rating = number_format($fetch_products['rating'] ?? 0, 1);
+                             $total_chapters = $fetch_products['total_chapter'] ?? 0;
+                             $uploaded_chapters = $fetch_products['uploaded_chapter'] ?? 0;
+                             $is_active = $fetch_products['is_active'] ?? 0;
                        ?>
-                </tbody>
-              </table>
+                    <tr>
+                      <th scope="row" class="text-muted"><?= $fetch_products['id']; ?></th>
+                      <td>
+                        <div class="series-image-container">
+                          <img src="<?= htmlspecialchars($image_path); ?>" 
+                               alt="<?= htmlspecialchars($fetch_products['title'] ?? 'Series image'); ?>" 
+                               class="series-thumbnail"
+                               onerror="this.src='../img/placeholder.jpg'">
+                        </div>
+                      </td>
+                      <td>
+                        <div class="series-title">
+                          <strong class="d-block"><?= htmlspecialchars($fetch_products['title'] ?? 'Untitled'); ?></strong>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-secondary"><?= htmlspecialchars($fetch_products['category_id'] ?? 'N/A'); ?></span>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-star-fill text-warning me-1"></i>
+                          <span class="fw-bold"><?= $rating; ?></span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-eye text-primary me-1"></i>
+                          <span><?= $views; ?></span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-bookmark text-success me-1"></i>
+                          <span><?= $saves; ?></span>
+                        </div>
+                      </td>
+                      <td>
+                        <span class="badge bg-info"><?= $total_chapters; ?></span>
+                      </td>
+                      <td>
+                        <span class="badge bg-primary"><?= $uploaded_chapters; ?></span>
+                      </td>
+                      <td>
+                        <?php if($is_active): ?>
+                          <span class="badge bg-success">
+                            <i class="bi bi-check-circle"></i> Active
+                          </span>
+                        <?php else: ?>
+                          <span class="badge bg-secondary">
+                            <i class="bi bi-x-circle"></i> Inactive
+                          </span>
+                        <?php endif; ?>
+                      </td>
+                      <td>
+                        <div class="btn-group" role="group">
+                          <a href="manage_series.php?update=<?= $fetch_products['id']; ?>" 
+                             class="btn btn-sm btn-outline-primary" 
+                             data-bs-toggle="tooltip" 
+                             title="Edit series">
+                            <i class="bi bi-pencil"></i>
+                          </a>
+                          <a href="chapters.php?series_id=<?= $fetch_products['id']; ?>" 
+                             class="btn btn-sm btn-outline-info" 
+                             data-bs-toggle="tooltip" 
+                             title="View chapters">
+                            <i class="bi bi-file-text"></i>
+                          </a>
+                          <a href="series.php?delete=<?= $fetch_products['id']; ?>" 
+                             class="btn btn-sm btn-outline-danger" 
+                             onclick="return confirm('Are you sure you want to delete \'<?= htmlspecialchars(addslashes($fetch_products['title'] ?? 'this series')); ?>\'? This will also delete all associated chapters.');"
+                             data-bs-toggle="tooltip" 
+                             title="Delete series">
+                            <i class="bi bi-trash"></i>
+                          </a>
+                        </div>
+                      </td>
+                    </tr>
+                    <?php
+                            }
+                         }else{
+                            echo '<tr><td colspan="11" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No series found</h5><p class="text-muted">Get started by adding your first series.</p><a href="add_series.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Series</a></div></td></tr>';
+                         }
+                         ?>
+                  </tbody>
+                </table>
+              </div>
               <!-- End Table with stripped rows -->
 
             </div>

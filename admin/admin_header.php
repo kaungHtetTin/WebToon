@@ -1,6 +1,7 @@
 <?php
 
   include_once('config.php');
+  require_once('includes/image_helper.php');
 
   $admin_id = $_SESSION['admin_id'];
 
@@ -85,6 +86,13 @@
             </li>
           </ul>
         </li><!-- End Quick Nav -->
+
+        <!-- Dark Mode Toggle -->
+        <li class="nav-item">
+          <a class="nav-link nav-icon" href="#" id="darkModeToggle" title="Toggle Dark Mode">
+            <i class="bi bi-moon" id="darkModeIcon"></i>
+          </a>
+        </li><!-- End Dark Mode Toggle -->
 
         <!-- Notifications -->
         <li class="nav-item dropdown">
@@ -179,7 +187,7 @@
           ?>
 
           <a class="nav-link nav-profile d-flex align-items-center pe-0" href="#" data-bs-toggle="dropdown">
-            <img src="img/<?= $fetch_profile['image_url']; ?>" alt="Profile" class="rounded-circle">
+            <img src="<?= htmlspecialchars(getImagePath($fetch_profile['image_url'] ?? '', 'admin')); ?>" alt="Profile" class="rounded-circle" onerror="this.src='../img/placeholder.jpg'">
             <span class="d-none d-md-block dropdown-toggle ps-2"></span>
           </a><!-- End Profile Iamge Icon -->
 
@@ -219,3 +227,152 @@
   </header>
 
   <!-- End Header -->
+  
+  <!-- Dark Mode Script - Load early for immediate theme application -->
+  <script>
+    (function() {
+      "use strict";
+      const DARK_MODE_KEY = 'admin_dark_mode';
+      const THEME_ATTRIBUTE = 'data-theme';
+      
+      // Initialize theme immediately (before DOM ready for faster load)
+      function initTheme() {
+        const savedTheme = localStorage.getItem(DARK_MODE_KEY);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
+      }
+      
+      // Run immediately
+      initTheme();
+      
+      // Full initialization when DOM is ready
+      function initDarkMode() {
+        const savedTheme = localStorage.getItem(DARK_MODE_KEY);
+        const prefersDark = window.matchMedia && window.matchMedia('(prefers-color-scheme: dark)').matches;
+        const theme = savedTheme || (prefersDark ? 'dark' : 'light');
+        
+        function setTheme(theme) {
+          document.documentElement.setAttribute(THEME_ATTRIBUTE, theme);
+          localStorage.setItem(DARK_MODE_KEY, theme);
+          updateIcon(theme);
+        }
+        
+        function toggleTheme() {
+          const currentTheme = document.documentElement.getAttribute(THEME_ATTRIBUTE) || 'light';
+          const newTheme = currentTheme === 'dark' ? 'light' : 'dark';
+          setTheme(newTheme);
+        }
+        
+        function updateIcon(theme) {
+          const icon = document.getElementById('darkModeIcon');
+          if (icon) {
+            if (theme === 'dark') {
+              icon.classList.remove('bi-moon');
+              icon.classList.add('bi-sun');
+            } else {
+              icon.classList.remove('bi-sun');
+              icon.classList.add('bi-moon');
+            }
+          }
+        }
+        
+        // Update icon on load
+        updateIcon(theme);
+        
+        // Add click handler
+        const toggleBtn = document.getElementById('darkModeToggle');
+        if (toggleBtn) {
+          toggleBtn.addEventListener('click', function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleTheme();
+          });
+        }
+      }
+      
+      // Initialize when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initDarkMode);
+      } else {
+        initDarkMode();
+      }
+    })();
+  </script>
+  
+  <!-- Navigation Active Indicator Script -->
+  <script>
+    (function() {
+      "use strict";
+      
+      function initNavigation() {
+        // Get current page from URL
+        const currentPath = window.location.pathname;
+        const currentPage = currentPath.split('/').pop() || 'index.php';
+        const currentPageBase = currentPage.split('?')[0];
+        
+        // Remove all active classes first
+        const navLinks = document.querySelectorAll('.sidebar-nav .nav-link');
+        navLinks.forEach(link => {
+          link.classList.remove('active');
+        });
+
+        // Comprehensive page mapping
+        const pageMap = {
+          'add_categories.php': 'categories.php',
+          'manage_categories.php': 'categories.php',
+          'add_series.php': 'series.php',
+          'manage_series.php': 'series.php',
+          'add_chapters.php': 'chapters.php',
+          'manage_chapters.php': 'chapters.php',
+          'add_blogs.php': 'blogs.php',
+          'manage_blogs.php': 'blogs.php',
+          'add_blog_feeds.php': 'blog_feeds.php',
+          'manage_blog_feeds.php': 'blog_feeds.php',
+          'add_owl_carousels.php': 'owl_carousels.php',
+          'manage_owl_carousels.php': 'owl_carousels.php',
+          'manage_users.php': 'users.php',
+          'manage_admin.php': 'admin.php',
+          'approve_payment.php': 'approve_payment.php',
+          'pending_payment.php': 'pending_payment.php',
+          'recent_payment.php': 'approve_payment.php',
+          'unapprove_payment.php': 'approve_payment.php',
+          'approved_payment.php': 'approve_payment.php',
+          'users_profile.php': 'users_profile.php',
+          'pages_contact.php': 'pages_contact.php',
+        };
+
+        // Determine target page
+        let targetPage = currentPageBase;
+        if (pageMap[currentPageBase]) {
+          targetPage = pageMap[currentPageBase];
+        }
+        
+        // Special case for index
+        if (currentPageBase === '' || currentPageBase === 'index.php' || 
+            currentPath.endsWith('/admin/') || currentPath.endsWith('/admin')) {
+          targetPage = 'index.php';
+        }
+
+        // Activate matching links
+        navLinks.forEach(link => {
+          const href = link.getAttribute('href');
+          if (href) {
+            const linkPage = href.split('/').pop().split('?')[0];
+            if (linkPage === targetPage || linkPage === currentPageBase) {
+              link.classList.add('active');
+            }
+          }
+        });
+      }
+
+      // Initialize
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', initNavigation);
+      } else {
+        initNavigation();
+      }
+      
+      window.addEventListener('popstate', initNavigation);
+    })();
+  </script>

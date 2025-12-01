@@ -53,5 +53,92 @@ Class Util{
         
         return $full_url;
     }
+
+    /**
+     * Determine the correct image resource path for admin panel use
+     * 
+     * @param string $image_url The image URL from database (can be full path, relative path, or filename)
+     * @param string $type The type of image resource (series, blogs, admin, blog_feeds, screenshots, etc.)
+     * @param string $base_path Base path for relative resolution (default: '../' for admin panel)
+     * @return string The resolved image path relative to the calling file
+     */
+    public function getImageResourcePath($image_url, $type = 'series', $base_path = '../') {
+        // Default placeholder path
+        $placeholder = $base_path . 'img/placeholder.jpg';
+        
+        // If image_url is empty, return placeholder
+        if(empty($image_url)) {
+            return $placeholder;
+        }
+        
+        // Define image type directories mapping
+        $type_directories = [
+            'series' => ['uploads/images/series/', 'img/trending/'],
+            'blogs' => ['uploads/images/blogs/', 'img/blog/'],
+            'admin' => ['uploads/images/admin/', 'img/profile/'],
+            'blog_feeds' => ['uploads/images/blog_feeds/'],
+            'screenshots' => ['uploads/images/screenshots/', 'img/screenshot_url/'],
+            'owl_carousels' => ['img/owl_carousels/'],
+            'trending' => ['img/trending/'],
+            'profile' => ['img/profile/', 'uploads/images/admin/'],
+        ];
+        
+        // Get possible directories for this type
+        $possible_dirs = isset($type_directories[$type]) ? $type_directories[$type] : ['uploads/images/' . $type . '/'];
+        
+        // Case 1: Full path starting with /uploads/
+        if(strpos($image_url, '/uploads/') === 0) {
+            $image_path = $base_path . ltrim($image_url, '/');
+            if(file_exists($image_path)) {
+                return $image_path;
+            }
+        }
+        
+        // Case 2: Path starting with uploads/ (without leading slash)
+        if(strpos($image_url, 'uploads/') === 0) {
+            $image_path = $base_path . $image_url;
+            if(file_exists($image_path)) {
+                return $image_path;
+            }
+        }
+        
+        // Case 3: Absolute path starting with /
+        if(strpos($image_url, '/') === 0 && strpos($image_url, 'http') !== 0) {
+            $image_path = $base_path . ltrim($image_url, '/');
+            if(file_exists($image_path)) {
+                return $image_path;
+            }
+        }
+        
+        // Case 4: Relative path starting with ../
+        if(strpos($image_url, '../') === 0) {
+            // Already relative, check if file exists
+            if(file_exists($image_url)) {
+                return $image_url;
+            }
+        }
+        
+        // Case 5: Just filename - try multiple possible locations
+        if(strpos($image_url, '/') === false && strpos($image_url, '\\') === false && strpos($image_url, 'http') !== 0) {
+            // Try each possible directory for this type
+            foreach($possible_dirs as $dir) {
+                $image_path = $base_path . $dir . $image_url;
+                if(file_exists($image_path)) {
+                    return $image_path;
+                }
+            }
+        }
+        
+        // Case 6: Path with img/ prefix
+        if(strpos($image_url, 'img/') === 0) {
+            $image_path = $base_path . $image_url;
+            if(file_exists($image_path)) {
+                return $image_path;
+            }
+        }
+        
+        // If nothing found, return placeholder
+        return $placeholder;
+    }
 }
 ?>

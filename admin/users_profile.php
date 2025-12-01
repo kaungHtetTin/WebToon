@@ -1,6 +1,7 @@
 <?php
 
 include('config.php');
+require_once('includes/image_helper.php');
 
 session_start();
 $admin_id = $_SESSION['admin_id'];
@@ -176,7 +177,7 @@ if(isset($_POST['update_password'])){
                   $fetch_profile = $select_profile->fetch(PDO::FETCH_ASSOC);
                ?>   
 
-              <img src="img/<?= $fetch_profile['image_url']; ?>" alt="Profile">
+              <img src="<?= htmlspecialchars(getImagePath($fetch_profile['image_url'] ?? '', 'admin')); ?>" alt="Profile" onerror="this.src='../img/placeholder.jpg'">
               <h2><?= $fetch_profile['username']; ?></h2>
               <br>
               <h3><?= $fetch_profile['email']; ?></h3>
@@ -274,7 +275,7 @@ if(isset($_POST['update_password'])){
                     <div class="row mb-3">
                       <label for="profileImage" class="col-md-4 col-lg-3 col-form-label">Profile Image</label>
                       <div class="col-md-8 col-lg-9">
-                        <img src="img/<?= $fetch_profile['image_url']; ?>" alt="Profile">
+                        <img src="<?= htmlspecialchars(getImagePath($fetch_profile['image_url'] ?? '', 'admin')); ?>" alt="Profile" onerror="this.src='../img/placeholder.jpg'">
                         
                       </div>
                     </div>
