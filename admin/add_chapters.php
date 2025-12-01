@@ -4,47 +4,101 @@ include('config.php');
 
 session_start();
 
-$series_id=$_GET['series_id'];
+// Initialize message array
+$message = [];
+
+// Validate and sanitize series_id from URL
+$series_id = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;
+
+// Verify series exists
+$series_title = '';
+$series_exists = false;
+if($series_id && is_numeric($series_id)){
+    $get_series = $conn->prepare("SELECT title FROM `series` WHERE id = ?");
+    $get_series->execute([$series_id]);
+    if($get_series->rowCount() > 0){
+        $series_data = $get_series->fetch(PDO::FETCH_ASSOC);
+        $series_title = $series_data['title'] ?? '';
+        $series_exists = true;
+    }
+}
 
 if(isset($_POST['add_chapter'])){
 
-   $series_id = $_POST['series_id'];
-   $series_id = filter_var($series_id, FILTER_SANITIZE_STRING);
+   // Validate series_id
+   $series_id_post = isset($_POST['series_id']) ? filter_var($_POST['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;
+   if(!$series_id_post || !is_numeric($series_id_post)){
+       $message[] = 'Invalid series ID!';
+   } else {
+       // Verify series exists
+       $check_series = $conn->prepare("SELECT id FROM `series` WHERE id = ?");
+       $check_series->execute([$series_id_post]);
+       if($check_series->rowCount() == 0){
+           $message[] = 'Series does not exist!';
+       }
+   }
 
-   $title = $_POST['title'];
-   $title = filter_var($title, FILTER_SANITIZE_STRING);
+   // Validate title (required)
+   $title = isset($_POST['title']) ? trim($_POST['title']) : '';
+   if(empty($title)){
+       $message[] = 'Chapter title is required!';
+   } else {
+       $title = filter_var($title, FILTER_SANITIZE_STRING);
+       if(strlen($title) < 2){
+           $message[] = 'Chapter title must be at least 2 characters long!';
+       }
+   }
 
-   $description = $_POST['description'];
-   $description = filter_var($description, FILTER_SANITIZE_STRING);
+   // Validate description (optional but sanitize if provided)
+   $description = isset($_POST['description']) ? trim($_POST['description']) : '';
+   if(!empty($description)){
+       $description = filter_var($description, FILTER_SANITIZE_STRING);
+   }
 
-   $date = $_POST['date'];
-   $date = filter_var($date, FILTER_SANITIZE_STRING);
-
+   // Validate date (required)
+   $date = isset($_POST['date']) ? trim($_POST['date']) : '';
+   if(empty($date)){
+       $message[] = 'Chapter date is required!';
+   } else {
+       $date = filter_var($date, FILTER_SANITIZE_STRING);
+       // Validate date format (YYYY-MM-DD)
+       if(!preg_match('/^\d{4}-\d{2}-\d{2}$/', $date)){
+           $message[] = 'Invalid date format! Please use YYYY-MM-DD format.';
+       }
+   }
 
    // Handle checkbox - if checked, value is 1, otherwise 0
    $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
    $is_free = isset($_POST['is_free']) && $_POST['is_free'] == 'on' ? 1 : 0;
 
-  
-   $select_products = $conn->prepare("SELECT * FROM `chapters` WHERE title = ?");
-   $select_products->execute([$title]);
+   // Only proceed if no validation errors
+   if(empty($message)){
+       // Check if chapter title already exists in this series (not globally)
+       $select_products = $conn->prepare("SELECT * FROM `chapters` WHERE title = ? AND series_id = ?");
+       $select_products->execute([$title, $series_id_post]);
 
-   if($select_products->rowCount() > 0){
-      $message[] = 'chapters name already exist!';
-   }else{
+       if($select_products->rowCount() > 0){
+          $message[] = 'Chapter title already exists in this series!';
+       } else {
+          try {
+              $insert_products = $conn->prepare("INSERT INTO `chapters`(series_id, title, description, date, is_active, is_free) VALUES(?,?,?,?,?,?)");
+              $insert_products->execute([$series_id_post, $title, $description, $date, $is_active, $is_free]);
 
-      $insert_products = $conn->prepare("INSERT INTO `chapters`(series_id, title, description, date, is_active, is_free) VALUES(?,?,?,?,?,?)");
-      $insert_products->execute([$series_id, $title, $description, $date, $is_active, $is_free]);
-
-
-      if($insert_products){
-            $message[] = 'registered successfully!';
-            header("location:chapters.php?series_id=$series_id");
-         }
-
+              if($insert_products){
+                  $message[] = 'Chapter added successfully!';
+                  // Redirect after 1 second to show success message
+                  header("refresh:1;url=chapters.php?series_id=$series_id_post");
+                  exit;
+              } else {
+                  $message[] = 'Failed to add chapter. Please try again.';
+              }
+          } catch(PDOException $e){
+              $message[] = 'Database error: ' . $e->getMessage();
+          }
+       }
    }
 
-};
+}
 
 
 
@@ -57,7 +111,7 @@ if(isset($_POST['add_chapter'])){
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
+  <title>Admin | Add Chapter</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -98,9 +152,19 @@ if(isset($_POST['add_chapter'])){
 
   <main id="main" class="main">
 
+    <div class="pagetitle">
+      <h1>Add Chapter</h1>
+      <nav>
+        <ol class="breadcrumb">
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
+          <li class="breadcrumb-item"><a href="series.php">Series</a></li>
+          <li class="breadcrumb-item"><a href="chapters.php?series_id=<?= htmlspecialchars($series_id); ?>">Chapters</a></li>
+          <li class="breadcrumb-item active">Add Chapter</li>
+        </ol>
+      </nav>
+    </div><!-- End Page Title -->
 
-
-    <section class="section dashboard">
+    <section class="section">
       <div class="row">
 
         
@@ -111,30 +175,64 @@ if(isset($_POST['add_chapter'])){
 
               <div class="card">
                 <div class="card-body">
-                  <h5 class="card-title">Add New Chapter by Admin</h5>
+                  <h5 class="card-title">Add New Chapter</h5>
 
-                  
-                  <form action="" method="POST">
+                  <?php
+                  // Display error/success messages
+                  if(isset($message) && !empty($message)){
+                     foreach($message as $msg){
+                        $alert_type = (strpos(strtolower($msg), 'success') !== false) ? 'success' : 'warning';
+                        echo '
+                        <div class="alert alert-'.$alert_type.' alert-dismissible fade show" role="alert">
+                          '.htmlspecialchars($msg).'
+                          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                        </div>
+                        ';
+                     }
+                  }
+                  ?>
+
+                  <?php if(!$series_exists): ?>
+                    <div class="alert alert-danger">
+                      <i class="bi bi-exclamation-triangle me-2"></i>
+                      Invalid or missing series ID. <a href="series.php">Go back to Series</a>
+                    </div>
+                  <?php else: ?>
+
+                  <?php if(!empty($series_title)): ?>
+                    <div class="alert alert-info mb-3">
+                      <i class="bi bi-book me-2"></i>
+                      <strong>Series:</strong> <?= htmlspecialchars($series_title); ?>
+                    </div>
+                  <?php endif; ?>
+
+                  <form action="" method="POST" id="addChapterForm">
                     
-                    <input type="hidden" name="series_id" value="<?= $series_id ?>">
+                    <input type="hidden" name="series_id" value="<?= htmlspecialchars($series_id); ?>">
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">title</label>
+                      <label for="title" class="col-sm-2 col-form-label">Title <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="text" name="title" class="form-control">
+                        <input type="text" name="title" id="title" class="form-control" required minlength="2" value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>">
+                        <small class="form-text text-muted">Chapter title (required, minimum 2 characters)</small>
+                        <div class="invalid-feedback">Please provide a valid chapter title (at least 2 characters).</div>
                       </div>
                     </div>
+
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">description</label>
+                      <label for="description" class="col-sm-2 col-form-label">Description</label>
                       <div class="col-sm-10">
-                        <input type="text" name="description" class="form-control">
+                        <textarea name="description" id="description" class="form-control" rows="3"><?= isset($_POST['description']) ? htmlspecialchars($_POST['description']) : ''; ?></textarea>
+                        <small class="form-text text-muted">Optional chapter description</small>
                       </div>
                     </div>
                    
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">date</label>
+                      <label for="date" class="col-sm-2 col-form-label">Date <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="date" name="date" class="form-control">
+                        <input type="date" name="date" id="date" class="form-control" required value="<?= isset($_POST['date']) ? htmlspecialchars($_POST['date']) : date('Y-m-d'); ?>">
+                        <small class="form-text text-muted">Chapter publication date (required)</small>
+                        <div class="invalid-feedback">Please select a valid date.</div>
                       </div>
                     </div>
 
@@ -165,13 +263,19 @@ if(isset($_POST['add_chapter'])){
                     </div>
 
                     <div class="row mb-3">
-                      <label class="col-sm-2 col-form-label">Add Category</label>
-                      <div class="col-sm-10">
-                        <button type="submit" name="add_chapter" class="btn btn-primary">Add chapter</button>
+                      <div class="col-sm-10 offset-sm-2">
+                        <button type="submit" name="add_chapter" class="btn btn-primary">
+                          <i class="bi bi-plus-circle me-1"></i> Add Chapter
+                        </button>
+                        <a href="chapters.php?series_id=<?= htmlspecialchars($series_id); ?>" class="btn btn-secondary">
+                          <i class="bi bi-arrow-left me-1"></i> Cancel
+                        </a>
                       </div>
                     </div>
 
                   </form>
+
+                  <?php endif; ?>
 
                 </div>
               </div>
@@ -199,6 +303,27 @@ if(isset($_POST['add_chapter'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+  <!-- Navigation Enhancement -->
+  <script src="assets/js/navigation.js"></script>
+  <!-- UX Enhancements -->
+  <script src="assets/js/ux-enhancements.js"></script>
+
+  <script>
+    // Form validation
+    (function() {
+      'use strict';
+      const form = document.getElementById('addChapterForm');
+      if(form) {
+        form.addEventListener('submit', function(event) {
+          if (!form.checkValidity()) {
+            event.preventDefault();
+            event.stopPropagation();
+          }
+          form.classList.add('was-validated');
+        }, false);
+      }
+    })();
+  </script>
 
 </body>
 
