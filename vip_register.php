@@ -74,40 +74,76 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                 <h3 class="fcolor">Point ဝယ်ယူမယ်</h3>
                 <p class="fcolor"> Series များဝင်ရောက် ကြည့်ရှုရန် Webtoon Point များကို အသုံးပြုရမည်ဖြစ်ပြီး အောက်ပါ Plan များအတိုင်း ဝယ်ယူ နိုင်ပါသည်။</p>
 
-                <table class="table">
-                    <thead>
-                        <th class="fcolor">Point</th>
-                        <th class="fcolor">ကျသင့်ငွေ</th>
-                        <th class="fcolor">မှတ်ချက်</th>
-                    </thead>
-                    <tr>
-                        <td class="fcolor">1</td>
-                        <td class="fcolor">1 kyats</td>
-                        <td class="fcolor"> </td>
-                    </tr>
-                    <tr>
-                        <td class="fcolor">1000</td>
-                        <td class="fcolor">950 kyats</td>
-                        <td class="fcolor"> </td>
-                    </tr>
+                <?php
+                    // Fetch dynamic point prices from admin-defined table
+                    $DB = new Database();
+                    $pointPrices = $DB->read("SELECT * FROM point_prices ORDER BY point ASC");
+                ?>
 
-                    <tr>
-                        <td class="fcolor">10000</td>
-                        <td class="fcolor">9000 kyats</td>
-                        <td class="fcolor"> Just for example </td>
-                    </tr>
-                </table>
+                <?php if (!empty($pointPrices)) : ?>
+                    <table class="table">
+                        <thead>
+                            <tr>
+                                <th class="fcolor">Point</th>
+                                <th class="fcolor">ကျသင့်ငွေ</th>
+                                <th class="fcolor">မှတ်ချက်</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php foreach ($pointPrices as $pp) : ?>
+                                <tr>
+                                    <td class="fcolor"><?= htmlspecialchars($pp['point']); ?></td>
+                                    <td class="fcolor"><?= htmlspecialchars($pp['amount']); ?> kyats</td>
+                                    <td class="fcolor"></td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                <?php else : ?>
+                    <p class="fcolor">လောလောဆယ် point price မရှိသေးပါ။ Admin မှ ပြင်ဆင်ပါမည်။</p>
+                <?php endif; ?>
                 <br><br>
 
                 <h4 class="fcolor">ငွေပေးချေနိုင်သော နည်းလမ်းများ</h4>
                 <p class="fcolor">အောက်ပါနည်းလမ်းများအတိုင်း‌ငွေပေးချေနိုင်ပါသည်။</p>
 
+                <?php
+                    // Fetch dynamic payment methods from admin-defined table
+                    $paymentMethods = $DB->read("SELECT * FROM payment_methods ORDER BY id ASC");
+                ?>
 
-                <ul>
-                    <li>Kpay - 09675526045 (Zon Phoo Paing)</li>
-                    <li>Wave pay - 09675526045 (Zon Phoo Paing)</li>
-                    <li>AYA Pay - 09675526045(Zon Phoo Paing)</li>
-                </ul>
+                <?php if (!empty($paymentMethods)) : ?>
+                    <div class="table-responsive">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th class="fcolor">Payment Type</th>
+                                    <th class="fcolor">Account Name</th>
+                                    <th class="fcolor">Payment Number</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php foreach ($paymentMethods as $pm) : ?>
+                                    <tr>
+                                        <td class="fcolor"><?= htmlspecialchars($pm['payment_type']); ?></td>
+                                        <td class="fcolor"><?= htmlspecialchars($pm['account_name']); ?></td>
+                                        <td class="fcolor">
+                                            <span class="payment-number"><?= htmlspecialchars($pm['payment_number']); ?></span>
+                                            <button type="button"
+                                                    class="btn btn-sm btn-outline-light ms-2"
+                                                    onclick='copyPaymentNumber(<?= json_encode($pm["payment_number"]); ?>)'
+                                                    title="Copy number">
+                                                <i class="fa fa-clone"></i>
+                                            </button>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                <?php else : ?>
+                    <p class="fcolor">လောလောဆယ် payment method မရှိသေးပါ။ Adminမှ ပြင်ဆင်ပါမည်။</p>
+                <?php endif; ?>
 
                 <br><br>
                 <?php if(isset($_SESSION['webtoon_userid'])){ ?>
@@ -185,7 +221,30 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
         <script src="js/owl.carousel.min.js"></script>
         <script src="js/main.js"></script>
 
+        <script>
+            function copyPaymentNumber(number) {
+                if (navigator.clipboard && navigator.clipboard.writeText) {
+                    navigator.clipboard.writeText(number).then(function () {
+                        alert('Copied: ' + number);
+                    }).catch(function () {
+                        alert('Copy failed. Please copy manually.');
+                    });
+                } else {
+                    var tempInput = document.createElement('input');
+                    tempInput.value = number;
+                    document.body.appendChild(tempInput);
+                    tempInput.select();
+                    try {
+                        document.execCommand('copy');
+                        alert('Copied: ' + number);
+                    } catch (e) {
+                        alert('Copy failed. Please copy manually.');
+                    }
+                    document.body.removeChild(tempInput);
+                }
+            }
+        </script>
 
-    </body>
+        </body>
 
-    </html>
+        </html>

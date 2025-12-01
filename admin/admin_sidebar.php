@@ -71,6 +71,13 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="point_prices.php" data-page="point_prices">
+          <i class="bi bi-coin"></i>
+          <span>Point Prices</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="approve_payment.php" data-page="approve_payment">
           <i class="bi bi-credit-card"></i>
           <span>Payments</span>
