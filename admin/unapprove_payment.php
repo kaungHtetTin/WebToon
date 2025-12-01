@@ -10,11 +10,17 @@ if(isset($_POST['approve'])){
 
    $payment_id = $_POST['payment_id'] ?? null;
    $user_id = $_POST['user_id'] ?? null;
+   $amount_paid = $_POST['amount_paid'] ?? null;
    $points_to_add = $_POST['points_to_add'] ?? 0;
    $points_to_add = (int)filter_var($points_to_add, FILTER_SANITIZE_NUMBER_INT);
+   $amount_paid = $amount_paid !== null
+       ? (float)filter_var($amount_paid, FILTER_SANITIZE_NUMBER_FLOAT, FILTER_FLAG_ALLOW_FRACTION)
+       : 0;
 
    if(!$payment_id || !$user_id){
        $message[] = 'Invalid payment or user ID!';
+   } elseif($amount_paid <= 0){
+       $message[] = 'Please enter a valid paid amount!';
    } elseif($points_to_add <= 0){
        $message[] = 'Please enter a valid number of points to add!';
    } else {
@@ -37,20 +43,72 @@ if(isset($_POST['approve'])){
                $update_user = $conn->prepare("UPDATE `users` SET point = ? WHERE id = ?");
                $update_user_success = $update_user->execute([$new_points, $user_id]);
                
-               // Update payment_histories to mark as verified/approved
-               $update_payment = $conn->prepare("UPDATE `payment_histories` SET point = ?, points_added = ?, verified = 1, confirm = 1, status = 'approved', date = CURDATE() WHERE id = ?");
-               $update_payment_success = $update_payment->execute([$points_to_add, $points_to_add, $payment_id]);
+               // Update payment_histories to mark as verified/approved and save amount
+               $update_payment = $conn->prepare("UPDATE `payment_histories` SET amount = ?, point = ?, points_added = ?, verified = 1, confirm = 1, status = 'approved', date = CURDATE() WHERE id = ?");
+               $update_payment_success = $update_payment->execute([$amount_paid, $points_to_add, $points_to_add, $payment_id]);
 
                if($update_user_success && $update_payment_success){
-                   $_SESSION['success_message'] = 'Payment approved successfully! ' . $points_to_add . ' points added to user account.';
-                   header('location:index.php');
-                   exit();
+                   $message[] = 'Payment approved successfully! ' . $points_to_add . ' points added to user account.';
                } else {
                    $message[] = 'Error updating payment. Please try again.';
                }
            } catch(Exception $e) {
                $message[] = 'Error: ' . $e->getMessage();
            }
+       }
+   }
+}
+
+if(isset($_POST['unapprove'])){
+
+   $payment_id = $_POST['payment_id'] ?? null;
+   $user_id = $_POST['user_id'] ?? null;
+
+   if(!$payment_id || !$user_id){
+       $message[] = 'Invalid payment or user ID for revert!';
+   } else {
+       try {
+           // Get payment record to know how many points were added
+           $select_payment = $conn->prepare("SELECT point, points_added FROM `payment_histories` WHERE id = ?");
+           $select_payment->execute([$payment_id]);
+           $payment_row = $select_payment->fetch(PDO::FETCH_ASSOC);
+
+           if(!$payment_row){
+               $message[] = 'Payment record not found for revert!';
+           } else {
+               $points_added = (int)($payment_row['points_added'] ?? $payment_row['point'] ?? 0);
+
+               // Get current user points
+               $select_user = $conn->prepare("SELECT point FROM `users` WHERE id = ?");
+               $select_user->execute([$user_id]);
+               $user_data = $select_user->fetch(PDO::FETCH_ASSOC);
+
+               if(!$user_data){
+                   $message[] = 'User not found for revert!';
+               } else {
+                   $current_points = (int)($user_data['point'] ?? 0);
+                   $new_points = $current_points - $points_added;
+                   if ($new_points < 0) {
+                       $new_points = 0;
+                   }
+
+                   // Update user points (subtract previously added points)
+                   $update_user = $conn->prepare("UPDATE `users` SET point = ? WHERE id = ?");
+                   $update_user_success = $update_user->execute([$new_points, $user_id]);
+
+                   // Mark payment as unapproved / pending again
+                   $update_payment = $conn->prepare("UPDATE `payment_histories` SET verified = 0, confirm = 0, status = 'pending' WHERE id = ?");
+                   $update_payment_success = $update_payment->execute([$payment_id]);
+
+                   if($update_user_success && $update_payment_success){
+                       $message[] = 'Payment reverted successfully. ' . $points_added . ' points removed from user account.';
+                   } else {
+                       $message[] = 'Error reverting payment. Please try again.';
+                   }
+               }
+           }
+       } catch(Exception $e) {
+           $message[] = 'Error: ' . $e->getMessage();
        }
    }
 }
@@ -101,6 +159,57 @@ if(isset($_GET['delete'])){
   <!-- Template Main CSS File -->
   <link href="assets/css/style.css" rel="stylesheet">
 
+  <!-- Dark / Light Mode Compatible Form Styling (uses theme CSS variables) -->
+  <style>
+    .payment-approve-card {
+      background: var(--card-bg);
+      color: var(--text-primary);
+      border-radius: 16px;
+      box-shadow: 0 8px 25px rgba(0, 0, 0, 0.08);
+      border: 1px solid var(--card-border);
+      transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
+    }
+
+    .payment-approve-card .card-title {
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      color: var(--text-primary);
+    }
+
+    .payment-approve-card .card-title i {
+      color: #0d6efd;
+    }
+
+    .payment-approve-card label {
+      color: var(--text-primary);
+    }
+
+    .payment-approve-card .form-control {
+      background-color: var(--input-bg);
+      border-color: var(--input-border);
+      color: var(--text-primary);
+    }
+
+    .payment-approve-card .form-control:focus {
+      border-color: #1A73E8;
+      box-shadow: 0 0 0 2px rgba(26, 115, 232, 0.2);
+      background-color: var(--card-bg);
+      color: var(--text-primary);
+    }
+
+    .payment-approve-card .form-control[readonly] {
+      background-color: var(--bg-tertiary);
+      color: var(--text-secondary);
+    }
+
+    .payment-approve-card .img-thumbnail {
+      background-color: var(--bg-secondary);
+      border-color: var(--border-color);
+    }
+  </style>
+
   <!-- =======================================================
   * Template Name: NiceAdmin - v2.2.2
   * Template URL: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/
@@ -134,10 +243,12 @@ if(isset($_GET['delete'])){
             
 
             <div class="col-lg-12">
-
-              <div class="card">
+              <div class="card payment-approve-card">
                 <div class="card-body">
-                  <h5 class="card-title">Approve Payment Request</h5>
+                  <h5 class="card-title">
+                    <i class="bi bi-credit-card-2-front"></i>
+                    Approve Payment Request
+                  </h5>
                   
                   <?php if(isset($message) && !empty($message)): ?>
                     <?php foreach($message as $msg): ?>
@@ -198,9 +309,19 @@ if(isset($_GET['delete'])){
                     </div>
                     
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">Amount Paid</label>
+                      <label for="amount_paid" class="col-sm-2 col-form-label">Amount Paid (Kyats)</label>
                       <div class="col-sm-10">
-                        <input type="text" class="form-control" value="<?= $payment['amount'] ?? '0.00'; ?>" readonly>
+                        <input
+                          type="number"
+                          step="0.01"
+                          min="0"
+                          id="amount_paid"
+                          name="amount_paid"
+                          class="form-control"
+                          value="<?= htmlspecialchars($payment['amount'] ?? '0'); ?>"
+                          required
+                        >
+                        <small class="form-text text-muted">Enter or adjust the paid amount in Kyats for this payment.</small>
                       </div>
                     </div>
                     
@@ -231,9 +352,13 @@ if(isset($_GET['delete'])){
 
                     <div class="row mb-3">
                       <label class="col-sm-2 col-form-label">Actions</label>
-                      <div class="col-sm-10">
-                        <button type="submit" name="approve" class="btn btn-success">Approve Payment</button>
-                        <a href="index.php" class="btn btn-secondary">Cancel</a>
+                      <div class="col-sm-10 d-flex gap-2">
+                        <?php if(!$payment['verified']): ?>
+                          <button type="submit" name="approve" class="btn btn-success">Approve Payment</button>
+                        <?php else: ?>
+                          <button type="submit" name="unapprove" class="btn btn-outline-warning">Unapprove / Revert</button>
+                        <?php endif; ?>
+                        <a href="pending_payment.php" class="btn btn-secondary">Back to Pending</a>
                       </div>
                     </div>
 

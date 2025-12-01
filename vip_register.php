@@ -171,27 +171,46 @@ if($_SERVER['REQUEST_METHOD']=="POST"){
                 
                  <h4 class="fcolor">Payment Histories</h4>
                  <br>
-                    <?php if($payments){ ?>
+                 <?php
+                    // Re-fetch payment histories directly to avoid any issues with previous state
+                    $userIdForHistory = isset($user['id']) ? (int)$user['id'] : 0;
+                    $paymentHistories = [];
+                    if ($userIdForHistory > 0) {
+                        $paymentHistories = $DB->read("SELECT * FROM payment_histories WHERE user_id = {$userIdForHistory} ORDER BY id DESC");
+                    }
+                 ?>
+                 <?php if (!empty($paymentHistories)) : ?>
                         <table class="table">
                             <thead>
-                                <th class="fcolor">Date</th>
-                                <th class="fcolor">Amount</th>
-                                <th class="fcolor">Point Received</th>
-                                <th class="fcolor">Status</th>
-                            </thead>
-                            <?php foreach($payments as $payment){ ?>
                                 <tr>
-                                    <td class="fcolor"><?= date('d M , Y',  strtotime( $payment['date'])) ; ?></td>
-                                    <td class="fcolor"><?= $payment['amount']==0? '':$payment['amount']  ?> </td>
-                                    <td class="fcolor"><?= $payment['point']==0? '':$payment['point']  ?> </td>
-                                    <td class="fcolor"><?= $payment['verified']==1? '':'Requesting'  ?> </td>
+                                    <th class="fcolor">Date</th>
+                                    <th class="fcolor">Amount</th>
+                                    <th class="fcolor">Point Received</th>
+                                    <th class="fcolor">Status</th>
                                 </tr>
-                            <?php }?>
-                             
+                            </thead>
+                            <tbody>
+                                <?php foreach ($paymentHistories as $payment) : ?>
+                                    <tr>
+                                        <td class="fcolor">
+                                            <?= isset($payment['date']) ? date('d M , Y', strtotime($payment['date'])) : ''; ?>
+                                        </td>
+                                        <td class="fcolor">
+                                            <?= isset($payment['amount']) && $payment['amount'] != 0 ? htmlspecialchars($payment['amount']) : ''; ?>
+                                        </td>
+                                        <td class="fcolor">
+                                            <?= isset($payment['point']) && $payment['point'] != 0 ? htmlspecialchars($payment['point']) : ''; ?>
+                                        </td>
+                                        <td class="fcolor">
+                                            <?= isset($payment['verified']) && $payment['verified'] == 1 ? 'Approved' : 'Requesting'; ?>
+                                        </td>
+                                    </tr>
+                                <?php endforeach; ?>
+                            </tbody>
                         </table>
-                    <?php }else {?>
+                 <?php else : ?>
                         <div>No payment history</div>
-                    <?php }?>
+                 <?php endif; ?>
                 
                 <?php }else {?>
 

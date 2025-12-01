@@ -1,10 +1,15 @@
 <?php
 
   include('config.php');
+  require_once('includes/image_helper.php');
 
   session_start();
 
-  
+  // Ensure admin is logged in
+  if (!isset($_SESSION['admin_id'])) {
+    header('location:login.php');
+    exit;
+  }
 
 ?>
 
@@ -15,7 +20,7 @@
   <meta charset="utf-8">
   <meta content="width=device-width, initial-scale=1.0" name="viewport">
 
-  <title>Dashboard - NiceAdmin Bootstrap Template</title>
+  <title>Approved Payments - Admin</title>
   <meta content="" name="description">
   <meta content="" name="keywords">
 
@@ -59,11 +64,11 @@
   <main id="main" class="main">
 
     <div class="pagetitle">
-      <h1>Dashboard</h1>
+      <h1>Approved Payments</h1>
       <nav>
         <ol class="breadcrumb">
           <li class="breadcrumb-item"><a href="index.php">Home</a></li>
-          <li class="breadcrumb-item active">Dashboard</li>
+          <li class="breadcrumb-item active">Approved Payments</li>
         </ol>
       </nav>
     </div><!-- End Page Title -->
@@ -81,63 +86,106 @@
             <div class="col-12">
               <div class="card recent-sales overflow-auto">
 
-                <div class="filter">
-                  <a class="icon" href="#" data-bs-toggle="dropdown"><i class="bi bi-three-dots"></i></a>
-                  <ul class="dropdown-menu dropdown-menu-end dropdown-menu-arrow">
-                    <li class="dropdown-header text-start">
-                      <h6>Filter</h6>
-                    </li>
-
-                    <li><a class="dropdown-item" href="#">Today</a></li>
-                    <li><a class="dropdown-item" href="#">This Month</a></li>
-                    <li><a class="dropdown-item" href="#">This Year</a></li>
-                  </ul>
-                </div>
-
                 <div class="card-body">
-                  <h5 class="card-title">Approve Payment Histories <span>| Collection</span></h5>
+                  <h5 class="card-title">Approved Payment Histories</h5>
 
-                  <table class="table table-borderless datatable">
-                    <thead>
-                      <tr>
-                        <th scope="col">#</th>
-                        <th scope="col">name</th>
-                        <th scope="col">email</th>
-                        <th scope="col">phone</th>
-                        <th scope="col">vip</th>
-                        <th scope="col">point</th>
-
-                      </tr>
-                    </thead>
-                    <tbody>
-                      <?php
-                        $show_products = $conn->prepare("SELECT * FROM `users`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
-                     ?>
-                      <tr>
-                        <th scope="row"><?= $fetch_products['id']; ?></th>
-                        <td><?= $fetch_products['first_name']; ?> <?= $fetch_products['last_name']; ?></td>
-                        <td><?= $fetch_products['email']; ?></td>
-                        <td><?= $fetch_products['phone']; ?></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['is_vip']; ?></span></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['point']; ?></span></td>
-
-                      </tr>
-                      <?php
+                  <div class="table-responsive">
+                    <table class="table table-borderless datatable align-middle">
+                      <thead>
+                        <tr>
+                          <th scope="col">#</th>
+                          <th scope="col">User</th>
+                          <th scope="col">Email</th>
+                          <th scope="col">Screenshot</th>
+                          <th scope="col">Amount</th>
+                          <th scope="col">Points</th>
+                          <th scope="col">Status</th>
+                          <th scope="col">Actions</th>
+                        </tr>
+                      </thead>
+                      <tbody>
+                        <?php
+                          // Load only approved payment histories
+                          $payments_stmt = $conn->prepare("
+                            SELECT ph.*, u.first_name, u.last_name, u.email 
+                            FROM `payment_histories` ph 
+                            LEFT JOIN `users` u ON ph.user_id = u.id 
+                            WHERE ph.verified = 1 AND ph.confirm = 1 AND ph.status = 'approved'
+                            ORDER BY ph.id DESC
+                          ");
+                          $payments_stmt->execute();
+                          if($payments_stmt->rowCount() > 0){
+                            while($payment = $payments_stmt->fetch(PDO::FETCH_ASSOC)){
+                              $full_name = trim(($payment['first_name'] ?? '') . ' ' . ($payment['last_name'] ?? ''));
+                              $screenshot_path = !empty($payment['screenshot_url'])
+                                ? getImagePath($payment['screenshot_url'], 'screenshots')
+                                : '';
+                              
+                              $isApproved = !empty($payment['verified']) && !empty($payment['confirm']) && ($payment['status'] === 'approved');
+                        ?>
+                        <tr>
+                          <th scope="row" class="text-muted"><?= htmlspecialchars($payment['id']); ?></th>
+                          <td>
+                            <div class="fw-semibold"><?= htmlspecialchars($full_name ?: 'Unknown User'); ?></div>
+                          </td>
+                          <td><?= htmlspecialchars($payment['email'] ?? ''); ?></td>
+                          <td>
+                            <?php if($screenshot_path): ?>
+                              <a href="<?= htmlspecialchars($screenshot_path); ?>" target="_blank">
+                                <img src="<?= htmlspecialchars($screenshot_path); ?>"
+                                     alt="Screenshot"
+                                     style="width: 60px; height: 60px; object-fit: cover; border-radius: 4px;"
+                                     onerror="this.src='../img/placeholder.jpg'">
+                              </a>
+                            <?php else: ?>
+                              <span class="text-muted">No screenshot</span>
+                            <?php endif; ?>
+                          </td>
+                          <td>
+                            <span class="badge bg-success">
+                              <?= htmlspecialchars($payment['amount'] ?? '0'); ?> Ks
+                            </span>
+                          </td>
+                          <td>
+                            <span class="badge bg-info">
+                              <?= htmlspecialchars($payment['point'] ?? $payment['points_added'] ?? 0); ?> pts
+                            </span>
+                          </td>
+                          <td>
+                            <span class="badge bg-success">
+                              <i class="bi bi-check-circle"></i> Approved
+                            </span>
+                          </td>
+                          <td>
+                            <div class="btn-group" role="group">
+                              <a href="unapprove_payment.php?update=<?= $payment['id']; ?>"
+                                 class="btn btn-sm btn-outline-secondary"
+                                 title="View details">
+                                <i class="bi bi-eye"></i>
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                        <?php
+                            }
+                          } else {
+                            echo '<tr><td colspan="8" class="text-center py-5">
+                                    <div class="empty-state">
+                                      <i class="bi bi-inbox empty-state-icon"></i>
+                                      <h5>No approved payments yet</h5>
+                                      <p class="text-muted mb-0">Once you approve requests, they will be listed here.</p>
+                                    </div>
+                                  </td></tr>';
                           }
-                       }else{
-                          echo '<p class="empty">now books added yet!</p>';
-                       }
-                       ?>
-                    </tbody>
-                  </table>
+                        ?>
+                      </tbody>
+                    </table>
+                  </div>
 
                 </div>
 
               </div>
-            </div><!-- End Recent Sales -->
+            </div><!-- End Payments Table -->
 
      
           </div>
