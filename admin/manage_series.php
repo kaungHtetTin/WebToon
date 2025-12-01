@@ -48,10 +48,14 @@ if(isset($_POST['update_series'])){
    $save = $_POST['save'];
    $save = filter_var($save, FILTER_SANITIZE_STRING);
 
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
 
-   
+   $point = $_POST['point'];
+   $point = filter_var($point, FILTER_SANITIZE_NUMBER_INT);
+   if(empty($point) || !is_numeric($point)) {
+       $point = 0;
+   }
 
    $total_chapter = $_POST['total_chapter'];
    $total_chapter = filter_var($total_chapter, FILTER_SANITIZE_STRING);
@@ -108,8 +112,8 @@ if(isset($_POST['update_series'])){
        }
 
        // Update database
-       $update_product = $conn->prepare("UPDATE `series` SET title = ?, description = ?, short = ?, genre = ?, original_work = ?, upload_status = ?, date = ?, updated_date = ?, rating = ?, comment = ?, view = ?, save = ?, is_active = ?, image_url = ?, total_chapter = ?, uploaded_chapter = ? WHERE id = ?");
-       $update_product->execute([$title, $description, $short, $genre, $original_work, $upload_status, $date, $updated_date, $rating, $comment, $view, $save, $is_active, $final_image_url, $total_chapter, $uploaded_chapter, $pid]);
+       $update_product = $conn->prepare("UPDATE `series` SET title = ?, description = ?, short = ?, genre = ?, original_work = ?, upload_status = ?, date = ?, updated_date = ?, rating = ?, comment = ?, view = ?, save = ?, is_active = ?, point = ?, image_url = ?, total_chapter = ?, uploaded_chapter = ? WHERE id = ?");
+       $update_product->execute([$title, $description, $short, $genre, $original_work, $upload_status, $date, $updated_date, $rating, $comment, $view, $save, $is_active, $point, $final_image_url, $total_chapter, $uploaded_chapter, $pid]);
 
        if($update_product){
            $message[] = 'updated successfully!';
@@ -295,9 +299,23 @@ if(isset($_POST['update_series'])){
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active </label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control" value="<?= isset($fetch_products['is_active']) ? htmlspecialchars($fetch_products['is_active']) : ''; ?>">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" <?= isset($fetch_products['is_active']) && $fetch_products['is_active'] == 1 ? 'checked' : ''; ?>>
+                          <label class="form-check-label" for="is_active">
+                            Active (Series will be visible to users)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to make this series inactive/hidden</small>
+                      </div>
+                    </div>
+
+                    <div class="row mb-3">
+                      <label for="inputNumber" class="col-sm-2 col-form-label">Point</label>
+                      <div class="col-sm-10">
+                        <input type="number" name="point" class="form-control" min="0" value="<?= isset($fetch_products['point']) ? htmlspecialchars($fetch_products['point']) : '0'; ?>">
+                        <small class="form-text text-muted">Points required to purchase/access this series</small>
                       </div>
                     </div>
 

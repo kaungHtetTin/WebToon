@@ -1,7 +1,7 @@
 <?php
 Class Chapter {
     public function get($series_id){
-        $query="SELECT id,series_id,title,description,is_active FROM chapters WHERE series_id=$series_id";
+        $query="SELECT id,series_id,title,description,is_active,is_free FROM chapters WHERE series_id=$series_id";
         $DB=new Database();
         $result=$DB->read($query);
         return $result;

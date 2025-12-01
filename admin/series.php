@@ -111,6 +111,7 @@ if(isset($_GET['delete'])){
                       <th scope="col" style="width: 80px;">Rating</th>
                       <th scope="col" style="width: 100px;">Views</th>
                       <th scope="col" style="width: 80px;">Saves</th>
+                      <th scope="col" style="width: 80px;">Point</th>
                       <th scope="col" style="width: 80px;">Chapters</th>
                       <th scope="col" style="width: 80px;">Uploaded</th>
                       <th scope="col" style="width: 80px;">Status</th>
@@ -134,6 +135,7 @@ if(isset($_GET['delete'])){
                              $views = number_format($fetch_products['view'] ?? 0);
                              $saves = number_format($fetch_products['save'] ?? 0);
                              $rating = number_format($fetch_products['rating'] ?? 0, 1);
+                             $point = number_format($fetch_products['point'] ?? 0);
                              $total_chapters = $fetch_products['total_chapter'] ?? 0;
                              $uploaded_chapters = $fetch_products['uploaded_chapter'] ?? 0;
                              $is_active = $fetch_products['is_active'] ?? 0;
@@ -172,6 +174,12 @@ if(isset($_GET['delete'])){
                         <div class="d-flex align-items-center">
                           <i class="bi bi-bookmark text-success me-1"></i>
                           <span><?= $saves; ?></span>
+                        </div>
+                      </td>
+                      <td>
+                        <div class="d-flex align-items-center">
+                          <i class="bi bi-coin text-warning me-1"></i>
+                          <span class="fw-bold"><?= $point; ?></span>
                         </div>
                       </td>
                       <td>
@@ -218,7 +226,7 @@ if(isset($_GET['delete'])){
                     <?php
                             }
                          }else{
-                            echo '<tr><td colspan="11" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No series found</h5><p class="text-muted">Get started by adding your first series.</p><a href="add_series.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Series</a></div></td></tr>';
+                            echo '<tr><td colspan="12" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No series found</h5><p class="text-muted">Get started by adding your first series.</p><a href="add_series.php" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Series</a></div></td></tr>';
                          }
                          ?>
                   </tbody>

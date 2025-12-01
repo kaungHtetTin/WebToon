@@ -162,6 +162,7 @@ if($series_id && is_numeric($series_id)){
                     <th scope="col">Description</th>
                     <th scope="col">Date</th>
                     <th scope="col">Status</th>
+                    <th scope="col">Free</th>
                     <th scope="col">Actions</th>
                     
                   </tr>
@@ -192,7 +193,17 @@ if($series_id && is_numeric($series_id)){
                             <span class="badge bg-secondary">Inactive</span>
                           <?php endif; ?>
                         </td>
-                        
+                        <td>
+                          <?php if(isset($fetch_products['is_free']) && $fetch_products['is_free'] == 1): ?>
+                            <span class="badge bg-info">
+                              <i class="bi bi-check-circle"></i> Free
+                            </span>
+                          <?php else: ?>
+                            <span class="badge bg-warning">
+                              <i class="bi bi-lock"></i> Paid
+                            </span>
+                          <?php endif; ?>
+                        </td>
                         <td>
                           <div class="btn-group" role="group">
                             <a href="add_content.php?chapter_id=<?= $fetch_products['id']; ?>&series_id=<?= htmlspecialchars($series_id) ?>" 

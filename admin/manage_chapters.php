@@ -19,50 +19,21 @@ if(isset($_POST['update_chapters'])){
    $date = $_POST['date'];
    $date = filter_var($date, FILTER_SANITIZE_STRING);
 
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
+   $is_free = isset($_POST['is_free']) && $_POST['is_free'] == 'on' ? 1 : 0;
    
-   $download_url = $_FILES['download_url']['name'];
-   $download_url = filter_var($download_url, FILTER_SANITIZE_STRING);
-   $download_url_size = $_FILES['download_url']['size'];
-   $download_url_tmp_name = $_FILES['download_url']['tmp_name'];
-   $download_url_folder = '../uploads/pdfs/';
-   
-   // Create directory if it doesn't exist
-   if (!file_exists($download_url_folder)) {
-       mkdir($download_url_folder, 0755, true);
-   }
-   
-   // Generate unique filename to prevent overwrites (only if file is uploaded)
-   $unique_file = $download_url;
-   if(!empty($download_url)){
-       $time = time();
-       $file_extension = pathinfo($download_url, PATHINFO_EXTENSION);
-       $file_name = pathinfo($download_url, PATHINFO_FILENAME);
-       $unique_file = $file_name . "_" . $time . "." . $file_extension;
-   }
-   
+   $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ?, is_free = ? WHERE id = ?");
+   $update_product->execute([$title, $description, $date, $is_active, $is_free, $pid]);
 
-   // Only update download_url if a new file is uploaded
-   if(!empty($download_url)){
-       $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ?, download_url = ? WHERE id = ?");
-       $update_product->execute([$title, $description, $date, $is_active, $unique_file, $pid]);
-   }else{
-       $update_product = $conn->prepare("UPDATE `chapters` SET title = ?, description = ?, date = ?, is_active = ? WHERE id = ?");
-       $update_product->execute([$title, $description, $date, $is_active, $pid]);
-   }
-
+   // Get series_id for redirect
+   $series_id_param = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : '';
+   
    if($update_product){
-      if(!empty($download_url)){
-          if($download_url_size > 12000000){
-             $message[] = 'download_url size is too large!';
-          }else{
-             move_uploaded_file($download_url_tmp_name, $download_url_folder.$unique_file);
-             $message[] = 'updated successfully!';
-             header('location:chapters.php');
-          }
-      }else{
-          $message[] = 'updated successfully!';
+      $message[] = 'updated successfully!';
+      if($series_id_param){
+          header("location:chapters.php?series_id=$series_id_param");
+      } else {
           header('location:chapters.php');
       }
    }
@@ -148,7 +119,7 @@ if(isset($_POST['update_chapters'])){
                          while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
                    ?>
                   
-                  <form action="" method="POST" enctype="multipart/form-data">
+                  <form action="" method="POST">
                     <input type="hidden" name="pid" class="form-control" value="<?= $fetch_products['id']; ?>">
 
 
@@ -173,23 +144,28 @@ if(isset($_POST['update_chapters'])){
                       </div>
                     </div>
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active </label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control" value="<?= $fetch_products['is_active']; ?>">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" <?= isset($fetch_products['is_active']) && $fetch_products['is_active'] == 1 ? 'checked' : ''; ?>>
+                          <label class="form-check-label" for="is_active">
+                            Active (Chapter will be visible to users)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to make this chapter inactive/hidden</small>
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">download_url</label>
+                      <label class="col-sm-2 col-form-label">Free Access</label>
                       <div class="col-sm-10">
-                        <?= $fetch_products['download_url']; ?>
-                      </div>
-                    </div>
-
-                    <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">download_url</label>
-                      <div class="col-sm-10">
-                        <input type="file" name="download_url" class="form-control">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_free" name="is_free" <?= isset($fetch_products['is_free']) && $fetch_products['is_free'] == 1 ? 'checked' : ''; ?>>
+                          <label class="form-check-label" for="is_free">
+                            Free (Chapter is free to access)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Check to make this chapter free, uncheck if it requires payment</small>
                       </div>
                     </div>
                     

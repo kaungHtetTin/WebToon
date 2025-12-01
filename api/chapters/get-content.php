@@ -26,7 +26,11 @@
         $isSaved=$Series->isSaved($user_id,$series_id);
     }
 
-    if($series['point']==0||$chapter['is_active']==0||$isSaved){
+    // Check if chapter is free
+    $is_free_chapter = isset($chapter['is_free']) && $chapter['is_free'] == 1;
+    
+    // Allow access if: series is free (point==0), chapter is inactive (is_active==0), series is saved/purchased, OR chapter is free
+    if($series['point']==0||$chapter['is_active']==0||$isSaved||$is_free_chapter){
         $response['status']="success";
         $response['contents']=$contents;
     }else{

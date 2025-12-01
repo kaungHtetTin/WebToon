@@ -209,14 +209,20 @@ $chapters=$Chapter->get($series_id);
                                 foreach($chapters as $key=>$chapter){ 
                                 
                                 $url="contents.php?series_id=$series_id&c_chapter_id=".$chapter['id'];
+                                $is_free = isset($chapter['is_free']) && $chapter['is_free'] == 1;
                                 
                                 ?>
                                 <a href="<?=$url ?>">
                                     <div class="anime__review__item" style="width:100%">
                                         <div class="anime__review__item__text" style="width:100%;">
-                                            <div style="display:flex;justify-content: space-between;">
-                                                <div style="width:45%">
-                                                    <h6><?php echo $chapter['title'] ?></h6>
+                                            <div style="display:flex;justify-content: space-between;align-items: center;">
+                                                <div style="flex:1;">
+                                                    <h6 style="margin:0;display:inline-block;"><?php echo $chapter['title'] ?></h6>
+                                                    <?php if($is_free): ?>
+                                                        <span style="margin-left:10px;display:inline-block;background:#4CAF50;color:white;padding:2px 8px;border-radius:3px;font-size:11px;font-weight:bold;">
+                                                            <i class="fa fa-unlock" style="margin-right:3px;"></i>FREE
+                                                        </span>
+                                                    <?php endif; ?>
                                                 </div>
                                             </div>
                                             

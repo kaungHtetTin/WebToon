@@ -40,7 +40,11 @@ function getCurrentChapter($chapters,$current_chapter_id){
 
 $contents = $Chapter->getContent($currentChapter['id']);
 
-if($currentChapter['is_active']==1){  // not free chapter
+// Check if chapter is free
+$is_free_chapter = isset($currentChapter['is_free']) && $currentChapter['is_free'] == 1;
+
+// Only check access restrictions if chapter is not free
+if(!$is_free_chapter && $currentChapter['is_active']==1){  // not free chapter
     if(isset($user)){ 
         if($series['point']>0){
             if(!$isSaved) header("location:get_now.php?id=$series_id");

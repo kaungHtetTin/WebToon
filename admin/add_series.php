@@ -22,8 +22,8 @@ if(isset($_POST['add_series'])){
    $date = filter_var($date, FILTER_SANITIZE_STRING);
 
    
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
 
 
    $total_chapter = $_POST['total_chapter'];
@@ -222,9 +222,15 @@ if(isset($_POST['add_series'])){
                     </div> -->
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active</label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="text" name="is_active" class="form-control">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                          <label class="form-check-label" for="is_active">
+                            Active (Series will be visible to users)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to make this series inactive/hidden</small>
                       </div>
                     </div>
 

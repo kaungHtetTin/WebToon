@@ -21,28 +21,9 @@ if(isset($_POST['add_chapter'])){
    $date = filter_var($date, FILTER_SANITIZE_STRING);
 
 
-   $is_active = $_POST['is_active'];
-   $is_active = filter_var($is_active, FILTER_SANITIZE_STRING);
-
-   $download_url = $_FILES['download_url']['name'];
-   $download_url = filter_var($download_url, FILTER_SANITIZE_STRING);
-   $download_url_size = $_FILES['download_url']['size'];
-   $download_url_tmp_name = $_FILES['download_url']['tmp_name'];
-   $download_url_folder = '../uploads/pdfs/';
-   
-   // Create directory if it doesn't exist
-   if (!file_exists($download_url_folder)) {
-       mkdir($download_url_folder, 0755, true);
-   }
-   
-   // Generate unique filename to prevent overwrites (only if file is uploaded)
-   $unique_file = $download_url;
-   if(!empty($download_url)){
-       $time = time();
-       $file_extension = pathinfo($download_url, PATHINFO_EXTENSION);
-       $file_name = pathinfo($download_url, PATHINFO_FILENAME);
-       $unique_file = $file_name . "_" . $time . "." . $file_extension;
-   }
+   // Handle checkbox - if checked, value is 1, otherwise 0
+   $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
+   $is_free = isset($_POST['is_free']) && $_POST['is_free'] == 'on' ? 1 : 0;
 
   
    $select_products = $conn->prepare("SELECT * FROM `chapters` WHERE title = ?");
@@ -52,23 +33,13 @@ if(isset($_POST['add_chapter'])){
       $message[] = 'chapters name already exist!';
    }else{
 
-      $insert_products = $conn->prepare("INSERT INTO `chapters`(series_id, title, description, date, is_active, download_url) VALUES(?,?,?,?,?,?)");
-      $insert_products->execute([$series_id, $title, $description, $date, $is_active, $unique_file]);
+      $insert_products = $conn->prepare("INSERT INTO `chapters`(series_id, title, description, date, is_active, is_free) VALUES(?,?,?,?,?,?)");
+      $insert_products->execute([$series_id, $title, $description, $date, $is_active, $is_free]);
 
 
       if($insert_products){
-            if(!empty($download_url)){
-                if($download_url_size > 12000000){
-                   $message[] = 'download_url size is too large!';
-                }else{
-                   move_uploaded_file($download_url_tmp_name, $download_url_folder.$unique_file);
-                   $message[] = 'registered successfully!';
-                   header("location:chapters.php?series_id=$series_id");
-                }
-            }else{
-                $message[] = 'registered successfully!';
-                header("location:chapters.php?series_id=$series_id");
-            }
+            $message[] = 'registered successfully!';
+            header("location:chapters.php?series_id=$series_id");
          }
 
    }
@@ -143,7 +114,7 @@ if(isset($_POST['add_chapter'])){
                   <h5 class="card-title">Add New Chapter by Admin</h5>
 
                   
-                  <form action="" method="POST" enctype="multipart/form-data">
+                  <form action="" method="POST">
                     
                     <input type="hidden" name="series_id" value="<?= $series_id ?>">
 
@@ -159,12 +130,6 @@ if(isset($_POST['add_chapter'])){
                         <input type="text" name="description" class="form-control">
                       </div>
                     </div>
-                    <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">download_url</label>
-                      <div class="col-sm-10">
-                        <input type="file" name="download_url" class="form-control">
-                      </div>
-                    </div>
                    
                     <div class="row mb-3">
                       <label for="inputText" class="col-sm-2 col-form-label">date</label>
@@ -174,12 +139,30 @@ if(isset($_POST['add_chapter'])){
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">is_active</label>
+                      <label class="col-sm-2 col-form-label">Status</label>
                       <div class="col-sm-10">
-                        <input type="number" name="is_active" class="form-control">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_active" name="is_active" checked>
+                          <label class="form-check-label" for="is_active">
+                            Active (Chapter will be visible to users)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Uncheck to make this chapter inactive/hidden</small>
                       </div>
                     </div>
 
+                    <div class="row mb-3">
+                      <label class="col-sm-2 col-form-label">Free Access</label>
+                      <div class="col-sm-10">
+                        <div class="form-check form-switch">
+                          <input class="form-check-input" type="checkbox" id="is_free" name="is_free">
+                          <label class="form-check-label" for="is_free">
+                            Free (Chapter is free to access)
+                          </label>
+                        </div>
+                        <small class="form-text text-muted">Check to make this chapter free, uncheck if it requires payment</small>
+                      </div>
+                    </div>
 
                     <div class="row mb-3">
                       <label class="col-sm-2 col-form-label">Add Category</label>
