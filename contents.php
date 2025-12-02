@@ -109,142 +109,84 @@ function getContentUrl($content_url, $content_type = 'image') {
             background:#333;
         }
         
-        /* Content Display Styles */
-        .content-item {
-            margin-bottom: 5px;
+        /* Newsfeed Style Content Display */
+        .content-feed {
+            width: 100%;
         }
         
-        .content-item.image-content img {
+        .content-feed-item {
+            margin-bottom: 20px;
+            background: #1d1e39;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+        }
+        
+        .content-feed-item.image-content {
+            background: transparent;
+            box-shadow: none;
+        }
+        
+        .content-feed-item.image-content img {
             width: 100%;
-            border-radius: 3px;
             display: block;
             max-width: 100%;
             height: auto;
-            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
-            transition: transform 0.3s ease;
+            border-radius: 0;
+            cursor: pointer;
+            transition: opacity 0.3s ease;
         }
         
-        .content-item.image-content img:hover {
-            transform: scale(1.01);
+        .content-feed-item.image-content img:hover {
+            opacity: 0.95;
         }
         
-        .content-item.pdf-content {
-            margin-bottom: 20px;
-            padding: 30px;
-            background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-            border-radius: 8px;
-            border: 2px dashed #dee2e6;
+        .content-feed-item.pdf-content {
+            padding: 40px 30px;
             text-align: center;
-            transition: all 0.3s ease;
+            background: linear-gradient(135deg, #1d1e39 0%, #252642 100%);
         }
         
-        .content-item.pdf-content:hover {
-            border-color: #dc3545;
-            background: linear-gradient(135deg, #fff5f5 0%, #ffe0e0 100%);
-            transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(220, 53, 69, 0.2);
-        }
-        
-        .content-item.pdf-content i.fa-file-pdf-o {
+        .content-feed-item.pdf-content i.fa-file-pdf-o {
             font-size: 64px;
             color: #dc3545;
+            margin-bottom: 20px;
+            display: block;
+        }
+        
+        .content-feed-item.pdf-content h5 {
+            color: #ffffff;
+            font-weight: 600;
             margin-bottom: 15px;
-            animation: pulse 2s infinite;
         }
         
-        @keyframes pulse {
-            0%, 100% {
-                transform: scale(1);
-            }
-            50% {
-                transform: scale(1.05);
-            }
-        }
-        
-        .content-item.pdf-content .btn {
+        .content-feed-item.pdf-content .download-btn {
+            font-size: 14px;
+            color: #ffffff;
+            background: #dc3545;
+            display: inline-block;
+            font-weight: 600;
             padding: 12px 30px;
             border-radius: 5px;
             text-decoration: none;
-            color: white;
-            background: #dc3545;
-            border: none;
-            font-weight: 500;
             transition: all 0.3s ease;
-            display: inline-block;
         }
         
-        .content-item.pdf-content .btn:hover {
+        .content-feed-item.pdf-content .download-btn:hover {
             background: #c82333;
             transform: translateY(-2px);
             box-shadow: 0 4px 8px rgba(220, 53, 69, 0.3);
-        }
-        
-        .content-item.pdf-content h5 {
-            margin-bottom: 10px;
-            color: #333;
-            font-weight: 600;
-        }
-        
-        .content-item.pdf-content p {
-            color: #666;
-            margin-bottom: 15px;
-            font-size: 14px;
-        }
-        
-        /* Content List Styles - Matching anime__review__item theme */
-        .content-list {
-            width: 100%;
-        }
-        
-        .content-list .anime__review__item {
-            overflow: hidden;
-            margin-bottom: 15px;
-        }
-        
-        .content-list .anime__review__item__text {
-            overflow: hidden;
-            background: #1d1e39;
-            border-radius: 10px;
-            transition: all 0.3s ease;
-        }
-        
-        .content-list .anime__review__item__text:hover {
-            background: #252642;
-            transform: translateX(5px);
-        }
-        
-        .content-list .download-btn {
-            font-size: 13px;
-            color: #ffffff;
-            background: #ff5b00;
-            display: inline-block;
-            font-weight: 700;
-            letter-spacing: 1px;
-            text-transform: uppercase;
-            padding: 10px 20px;
-            border-radius: 4px;
-            text-decoration: none;
-            transition: all 0.3s ease;
-        }
-        
-        .content-list .download-btn:hover {
-            background: #e65200;
-            transform: translateY(-2px);
-            box-shadow: 0 4px 8px rgba(255, 91, 0, 0.3);
             color: #ffffff;
             text-decoration: none;
         }
         
         @media (max-width: 768px) {
-            .content-list .anime__review__item__text {
-                flex-direction: column;
-                align-items: flex-start !important;
-                gap: 15px;
+            .content-feed-item {
+                margin-bottom: 15px;
             }
             
-            .content-list .download-btn {
-                width: 100%;
-                text-align: center;
+            .content-feed-item.pdf-content {
+                padding: 30px 20px;
             }
         }
     </style>
@@ -286,7 +228,7 @@ function getContentUrl($content_url, $content_type = 'image') {
                 <div class="row">
                     <div class="col-lg-8 col-md-8">
                         <?php if($contents && count($contents) > 0){ ?>
-                            <div class="content-list">
+                            <div class="content-feed">
                                 <?php 
                                 $episode_index = 0;
                                 foreach($contents as $content){ 
@@ -294,42 +236,32 @@ function getContentUrl($content_url, $content_type = 'image') {
                                     $content_url = isset($content['content_url']) ? $content['content_url'] : (isset($content['url']) ? $content['url'] : '');
                                     $content_path = getContentUrl($content_url, $content_type);
                                     $order_index = isset($content['order_index']) ? intval($content['order_index']) : $episode_index;
-                                    $episode_number = $order_index + 1;
                                     $episode_index++;
                                 ?>
-                                    <div class="anime__review__item" style="margin-bottom: 15px;">
-                                        <div class="anime__review__item__text" style="display: flex; justify-content: space-between; align-items: center; padding: 18px 30px 16px 20px;">
-                                            <div style="flex: 1;">
-                                                <h6 style="color: #ffffff; font-weight: 700; margin-bottom: 5px; font-size: 16px;">
-                                                    <i class="fa fa-play-circle" style="margin-right: 8px; color: #ff5b00;"></i>
-                                                    Episode <?= $episode_number ?>
-                                                    <?php if($content_type == 'pdf'): ?>
-                                                        <span style="color: #b7b7b7; font-weight: 400; font-size: 14px; margin-left: 10px;">
-                                                            <i class="fa fa-file-pdf-o" style="color: #dc3545; margin-right: 5px;"></i>PDF
-                                                        </span>
-                                                    <?php else: ?>
-                                                        <span style="color: #b7b7b7; font-weight: 400; font-size: 14px; margin-left: 10px;">
-                                                            <i class="fa fa-image" style="color: #34a853; margin-right: 5px;"></i>Image
-                                                        </span>
-                                                    <?php endif; ?>
-                                                </h6>
-                                            </div>
-                                            <div>
-                                                <a href="<?= htmlspecialchars($content_path) ?>" 
-                                                   download 
-                                                   class="download-btn" 
-                                                   style="font-size: 13px; color: #ffffff; background: #ff5b00; display: inline-block; font-weight: 700; letter-spacing: 1px; text-transform: uppercase; padding: 10px 20px; border-radius: 4px; text-decoration: none; transition: all 0.3s ease;">
-                                                    <i class="fa fa-download"></i> Download
-                                                </a>
-                                            </div>
+                                    <?php if($content_type == 'image'): ?>
+                                        <div class="content-feed-item image-content">
+                                            <img src="<?= htmlspecialchars($content_path) ?>" 
+                                                 alt="Content Image" 
+                                                 loading="lazy"
+                                                 onclick="window.open('<?= htmlspecialchars($content_path) ?>', '_blank')">
                                         </div>
-                                    </div>
+                                    <?php else: ?>
+                                        <div class="content-feed-item pdf-content">
+                                            <i class="fa fa-file-pdf-o"></i>
+                                            <h5>PDF Document</h5>
+                                            <a href="<?= htmlspecialchars($content_path) ?>" 
+                                               download 
+                                               class="download-btn">
+                                                <i class="fa fa-download"></i> Download PDF
+                                            </a>
+                                        </div>
+                                    <?php endif; ?>
                                 <?php }?>
                             </div>
                         <?php } else{?>
-                            <div class="anime__review__item__text" style="text-align: center; padding: 40px;">
+                            <div class="anime__review__item__text" style="text-align: center; padding: 40px; background: #1d1e39; border-radius: 10px;">
                                 <i class="fa fa-inbox" style="font-size: 48px; color: #ccc; margin-bottom: 15px;"></i>
-                                <p style="color: #666; font-size: 16px;">No Content Available</p>
+                                <p style="color: #b7b7b7; font-size: 16px;">No Content Available</p>
                             </div>
                         <?php }?>
                     </div>
