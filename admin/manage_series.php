@@ -177,6 +177,17 @@ if(isset($_POST['update_series'])){
        }
    }
 
+   // Handle multiple categories
+   $category_ids = [];
+   if(isset($_POST['category_ids']) && is_array($_POST['category_ids'])){
+       foreach($_POST['category_ids'] as $cat_id){
+           $cat_id = filter_var($cat_id, FILTER_SANITIZE_NUMBER_INT);
+           if($cat_id && is_numeric($cat_id)){
+               $category_ids[] = $cat_id;
+           }
+       }
+   }
+   
    // Only proceed with database update if upload was successful or no file was uploaded
    if($upload_success){
        // Get current image_url from database if no new image was uploaded
@@ -192,6 +203,24 @@ if(isset($_POST['update_series'])){
        $update_product->execute([$title, $description, $short, $genre, $original_work, $upload_status, $date, $updated_date, $rating, $comment, $view, $save, $is_active, $point, $final_image_url, $total_chapter, $uploaded_chapter, $pid]);
 
        if($update_product){
+           // Update categories in junction table
+           // First, delete existing category associations
+           $delete_categories = $conn->prepare("DELETE FROM `series_categories` WHERE series_id = ?");
+           $delete_categories->execute([$pid]);
+           
+           // Then insert new category associations
+           if(!empty($category_ids)){
+               $insert_category = $conn->prepare("INSERT INTO `series_categories`(series_id, category_id) VALUES(?, ?)");
+               foreach($category_ids as $cat_id){
+                   $insert_category->execute([$pid, $cat_id]);
+               }
+               
+               // Update category_id in series table for backward compatibility (use first category)
+               $first_category_id = $category_ids[0];
+               $update_category = $conn->prepare("UPDATE `series` SET category_id = ? WHERE id = ?");
+               $update_category->execute([$first_category_id, $pid]);
+           }
+           
            $message[] = 'updated successfully!';
            header('location:series.php');
        }
@@ -291,6 +320,48 @@ if(isset($_POST['update_series'])){
                         <input type="text" name="title" class="form-control" value="<?= isset($fetch_products['title']) ? htmlspecialchars($fetch_products['title']) : ''; ?>">
                         
 
+                      </div>
+                    </div>
+
+                    <?php
+                    // Get current categories for this series
+                    $current_categories = [];
+                    $get_current_categories = $conn->prepare("SELECT category_id FROM `series_categories` WHERE series_id = ?");
+                    $get_current_categories->execute([$fetch_products['id']]);
+                    while($cat_row = $get_current_categories->fetch(PDO::FETCH_ASSOC)){
+                        $current_categories[] = $cat_row['category_id'];
+                    }
+                    // Fallback to category_id if no junction table entries exist
+                    if(empty($current_categories) && isset($fetch_products['category_id']) && $fetch_products['category_id'] > 0){
+                        $current_categories[] = $fetch_products['category_id'];
+                    }
+                    ?>
+
+                    <div class="row mb-3">
+                      <label class="col-sm-2 col-form-label">Categories</label>
+                      <div class="col-sm-10">
+                        <div class="form-check-group" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
+                          <?php
+                            $show_categories = $conn->prepare("SELECT * FROM `categories` ORDER BY `title` ASC");
+                            $show_categories->execute();
+                            if($show_categories->rowCount() > 0){
+                               while($fetch_category = $show_categories->fetch(PDO::FETCH_ASSOC)){  
+                                $is_checked = in_array($fetch_category['id'], $current_categories);
+                         ?>
+                          <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="category_ids[]" value="<?= $fetch_category['id']; ?>" id="category_<?= $fetch_category['id']; ?>" <?= $is_checked ? 'checked' : ''; ?>>
+                            <label class="form-check-label" for="category_<?= $fetch_category['id']; ?>">
+                              <?= htmlspecialchars($fetch_category['title']); ?>
+                            </label>
+                          </div>
+                         <?php
+                              }
+                           }else{
+                              echo '<p class="empty">No categories available yet!</p>';
+                           }
+                           ?>
+                        </div>
+                        <small class="form-text text-muted">Select one or more categories for this series</small>
                       </div>
                     </div>
 

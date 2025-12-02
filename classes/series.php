@@ -1,6 +1,51 @@
 <?php
 Class Series {
 
+    // Helper method to get categories for a series
+    private function getSeriesCategories($series_id){
+        $DB = new Database();
+        $series_id = intval($series_id);
+        
+        // Get categories from junction table
+        $query = "SELECT c.id, c.title 
+                  FROM series_categories sc 
+                  JOIN categories c ON sc.category_id = c.id 
+                  WHERE sc.series_id = $series_id 
+                  ORDER BY c.title ASC";
+        $result = $DB->read($query);
+        
+        // Fallback to category_id if no junction table entries
+        if(empty($result)){
+            $query = "SELECT c.id, c.title 
+                      FROM categories c 
+                      WHERE c.id = (SELECT category_id FROM series WHERE id = $series_id LIMIT 1)";
+            $fallback = $DB->read($query);
+            if($fallback && !empty($fallback)){
+                return $fallback;
+            }
+        }
+        
+        return $result ? $result : [];
+    }
+
+    // Helper method to add categories to series array/object
+    private function addCategoriesToSeries($series_data){
+        if(is_array($series_data)){
+            // If it's an array of series
+            if(isset($series_data[0]) && is_array($series_data[0])){
+                foreach($series_data as &$series){
+                    $series['categories'] = $this->getSeriesCategories($series['id']);
+                }
+            } else {
+                // Single series object
+                if(isset($series_data['id'])){
+                    $series_data['categories'] = $this->getSeriesCategories($series_data['id']);
+                }
+            }
+        }
+        return $series_data;
+    }
+
     public function index($data){
  
         if(isset($data['user_id'])){
@@ -51,6 +96,20 @@ Class Series {
         $owl_carousels=$DB->read($query);
         $result['owl_carousel']=$owl_carousels;
 
+        // Add categories to all series arrays
+        if(isset($result['trending'])){
+            $result['trending'] = $this->addCategoriesToSeries($result['trending']);
+        }
+        if(isset($result['popular'])){
+            $result['popular'] = $this->addCategoriesToSeries($result['popular']);
+        }
+        if(isset($result['newadded'])){
+            $result['newadded'] = $this->addCategoriesToSeries($result['newadded']);
+        }
+        if(isset($result['owl_carousel'])){
+            $result['owl_carousel'] = $this->addCategoriesToSeries($result['owl_carousel']);
+        }
+
         return $result;
 
     }
@@ -69,6 +128,11 @@ Class Series {
         $query="SELECT count(*) as total_series FROM series";
         $count=$DB->read($query);
         $result['total_series']=$count[0]['total_series'];
+
+        // Add categories to series
+        if(isset($result['series'])){
+            $result['series'] = $this->addCategoriesToSeries($result['series']);
+        }
 
         return $result;
     }
@@ -100,6 +164,12 @@ Class Series {
         $query="SELECT count(*) as total_series FROM series";
         $count=$DB->read($query);
         $result['total_series']=$count[0]['total_series'];
+        
+        // Add categories to series
+        if(isset($result['series'])){
+            $result['series'] = $this->addCategoriesToSeries($result['series']);
+        }
+        
         return $result;
     }
 
@@ -159,6 +229,12 @@ Class Series {
         $query="SELECT count(*) as total_series FROM series";
         $count=$DB->read($query);
         $result['total_series']=$count[0]['total_series'];
+        
+        // Add categories to series
+        if(isset($result['series'])){
+            $result['series'] = $this->addCategoriesToSeries($result['series']);
+        }
+        
         return $result;
     }
 
@@ -181,29 +257,40 @@ Class Series {
         $offset=30;
         $count=$page*$offset;
 
-        $query="SELECT
+        // Use junction table to find series with this category
+        $query="SELECT DISTINCT
         s.*,
         CASE 
             WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
             ELSE '0'
         END AS visited
-        FROM series s WHERE category_id=$category_id ORDER BY id DESC LIMIT $count,$offset";
+        FROM series s 
+        INNER JOIN series_categories sc ON s.id = sc.series_id
+        WHERE sc.category_id = $category_id 
+        ORDER BY s.id DESC LIMIT $count,$offset";
         $DB=new Database();
         $series=$DB->read($query);
         $result['series']=$series;
 
-        $query="SELECT count(*) as total_series FROM series WHERE category_id=$category_id";
+        $query="SELECT COUNT(DISTINCT s.id) as total_series 
+                FROM series s 
+                INNER JOIN series_categories sc ON s.id = sc.series_id 
+                WHERE sc.category_id = $category_id";
         $count=$DB->read($query);
         $result['total_series']=$count[0]['total_series'];
+        
+        // Add categories to series
+        if(isset($result['series'])){
+            $result['series'] = $this->addCategoriesToSeries($result['series']);
+        }
+        
         return $result;
     }
 
     public function getMySeries($user_id){
         $query =" SELECT 
-            series.*,
-            categories.title as category_title
+            series.*
         FROM series
-        JOIN categories ON categories.id = series.category_id
         JOIN saves ON series.id=saves.series_id WHERE saves.user_id=$user_id
         ORDER BY saves.date DESC";
 
@@ -215,26 +302,47 @@ Class Series {
 
         $result['total_series']=$total[0]['total_series'];
         $result['series']=$series;
-        return $result;
-
         
-
+        // Add categories to series
+        if(isset($result['series'])){
+            $result['series'] = $this->addCategoriesToSeries($result['series']);
+        }
+        
+        return $result;
     }
 
     public function getSeriesYouMayLike($category_id){
-        $query="SELECT * FROM series WHERE category_id=$category_id ORDER BY view DESC limit 5";
+        // Use junction table to find series with this category
+        $query="SELECT DISTINCT s.* 
+                FROM series s 
+                INNER JOIN series_categories sc ON s.id = sc.series_id 
+                WHERE sc.category_id = $category_id 
+                ORDER BY s.view DESC 
+                LIMIT 5";
         $DB=new Database();
         $result=$DB->read($query);
+        
+        // Add categories to series
+        if($result){
+            $result = $this->addCategoriesToSeries($result);
+        }
+        
         return $result;
     }
 
     public function newCommentSeries(){
-        $query ="SELECT * FROM series
+        $query ="SELECT DISTINCT series.* FROM series
         JOIN comments ON series.id=comments.series_id
         ORDER BY comments.date DESC LIMIT 4
         ";
         $DB=new Database();
         $result=$DB->read($query);
+        
+        // Add categories to series
+        if($result){
+            $result = $this->addCategoriesToSeries($result);
+        }
+        
         return $result;
     }
 
@@ -251,7 +359,10 @@ Class Series {
         $DB->save($query);
 
         if($result){
-            return $result[0];
+            $series = $result[0];
+            // Add categories to series
+            $series = $this->addCategoriesToSeries($series);
+            return $series;
         }else{
             return false;
         }
@@ -362,19 +473,22 @@ Class Series {
         $searching = $data['search'];
 
         $DB = new Database();
-        $query="SELECT 
+        $query="SELECT DISTINCT
             s.*,
-            c.title as category_title,
             CASE 
                 WHEN (SELECT 1 FROM visits v WHERE v.series_id = s.id AND v.user_id = $user_id) IS NOT NULL THEN '1'
                 ELSE '0'
             END AS visited
             FROM series s
-            JOIN categories c ON c.id = s.category_id
             WHERE s.title LIKE '%$searching%' OR s.description LIKE '%$searching%'  OR s.genre LIKE '%$searching%' 
             ORDER BY s.rating";
 
         $result = $DB->read($query);
+        
+        // Add categories to series
+        if($result){
+            $result = $this->addCategoriesToSeries($result);
+        }
 
         return $result;
     }

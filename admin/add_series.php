@@ -9,8 +9,21 @@ session_start();
 
 if(isset($_POST['add_series'])){
 
-   $category_id = $_POST['category_id'];
-   $category_id = filter_var($category_id, FILTER_SANITIZE_STRING);
+   // Handle multiple categories
+   $category_ids = [];
+   if(isset($_POST['category_ids']) && is_array($_POST['category_ids'])){
+       foreach($_POST['category_ids'] as $cat_id){
+           $cat_id = filter_var($cat_id, FILTER_SANITIZE_NUMBER_INT);
+           if($cat_id && is_numeric($cat_id)){
+               $category_ids[] = $cat_id;
+           }
+       }
+   }
+   
+   // Validate at least one category is selected
+   if(empty($category_ids)){
+       $message[] = 'Please select at least one category!';
+   }
 
    $title = $_POST['title'];
    $title = filter_var($title, FILTER_SANITIZE_STRING);
@@ -149,17 +162,28 @@ if(isset($_POST['add_series'])){
 
    if($select_products->rowCount() > 0){
       $message[] = 'book title already exist!';
+   }else if(empty($category_ids)){
+      $message[] = 'Please select at least one category!';
    }else{
 
+      // Insert series (without category_id, or use first category for backward compatibility)
       $insert_products = $conn->prepare("INSERT INTO `series`(category_id, title, description, date,  is_active, total_chapter, uploaded_chapter, image_url ) VALUES(?,?,?,?,?,?,?,?)");
-      $insert_products->execute([$category_id, $title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url]);
+      $first_category_id = $category_ids[0]; // Keep first category for backward compatibility
+      $insert_products->execute([$first_category_id, $title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url]);
       
-
       if($insert_products && empty($upload_error)){
-           $message[] = 'registered successfully!';
-           header('location:series.php');
-           exit;
-         }
+          $series_id = $conn->lastInsertId();
+          
+          // Insert all selected categories into junction table
+          $insert_category = $conn->prepare("INSERT INTO `series_categories`(series_id, category_id) VALUES(?, ?)");
+          foreach($category_ids as $cat_id){
+              $insert_category->execute([$series_id, $cat_id]);
+          }
+          
+          $message[] = 'registered successfully!';
+          header('location:series.php');
+          exit;
+      }
 
    }
 
@@ -239,25 +263,29 @@ if(isset($_POST['add_series'])){
               <!-- General Form Elements -->
               <form action="" method="POST" enctype="multipart/form-data">
                 <div class="row mb-3">
-                  <label class="col-sm-2 col-form-label">category_id</label>
+                  <label class="col-sm-2 col-form-label">Categories</label>
                   <div class="col-sm-10">
-                    <select name="category_id" class="form-select" aria-label="Default select example">
-                      <option selected>Open this select menu</option>
+                    <div class="form-check-group" style="max-height: 200px; overflow-y: auto; border: 1px solid #dee2e6; padding: 15px; border-radius: 5px;">
                       <?php
-                        $show_products = $conn->prepare("SELECT * FROM `categories`");
-                        $show_products->execute();
-                        if($show_products->rowCount() > 0){
-                           while($fetch_products = $show_products->fetch(PDO::FETCH_ASSOC)){  
+                        $show_categories = $conn->prepare("SELECT * FROM `categories` ORDER BY `title` ASC");
+                        $show_categories->execute();
+                        if($show_categories->rowCount() > 0){
+                           while($fetch_category = $show_categories->fetch(PDO::FETCH_ASSOC)){  
                      ?>
-                      
-                      <option value="<?= $fetch_products['id']; ?>" ><?= $fetch_products['title']; ?></option>
+                      <div class="form-check">
+                        <input class="form-check-input" type="checkbox" name="category_ids[]" value="<?= $fetch_category['id']; ?>" id="category_<?= $fetch_category['id']; ?>">
+                        <label class="form-check-label" for="category_<?= $fetch_category['id']; ?>">
+                          <?= htmlspecialchars($fetch_category['title']); ?>
+                        </label>
+                      </div>
                      <?php
                           }
                        }else{
-                          echo '<p class="empty">now books added yet!</p>';
+                          echo '<p class="empty">No categories available yet!</p>';
                        }
                        ?>
-                    </select>
+                    </div>
+                    <small class="form-text text-muted">Select one or more categories for this series</small>
                   </div>
                 </div> 
 
