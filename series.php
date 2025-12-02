@@ -49,6 +49,20 @@ $weekViews = $ViewHistory->topViewWeek();
 $monthViews = $ViewHistory->topViewMonth();
 $yearViews = $ViewHistory->topViewYear();
 $newCommentSeries = $Series->newCommentSeries();
+
+// Helper function to get all category titles from series categories array
+function getAllCategoryTitles($series){
+    if(isset($series['categories']) && !empty($series['categories'])){
+        $titles = [];
+        foreach($series['categories'] as $category){
+            if(isset($category['title'])){
+                $titles[] = $category['title'];
+            }
+        }
+        return !empty($titles) ? implode(', ', $titles) : 'Uncategorized';
+    }
+    return 'Uncategorized';
+}
  
 ?>
 
@@ -141,7 +155,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
-                                                    <li><?php echo $Category->filterCategory($ser['category_id'],$categories) ?></li>
+                                                    <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                                                         <?php if(!$Visit->visited($_SESSION['webtoon_userid'],$ser['id'])) {?>
                                                             <li style="background:red">new</li>
@@ -305,32 +319,6 @@ $newCommentSeries = $Series->newCommentSeries();
 
                         </div>
                     </div>
-    <div class="product__sidebar__comment">
-
-        <div class="section-title">
-            <h5>New Comment</h5>
-        </div>
-        
-        <?php foreach($newCommentSeries as $ser){ ?>
-            <div class="product__sidebar__comment__item">
-                <div class="product__sidebar__comment__item__pic">
-                    <img style="width:100px;" src="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>" alt="">
-                </div>
-                <div class="product__sidebar__comment__item__text">
-                    <ul>
-                        <li>Active</li>
-                        <?php if($ser['point']==0){?>
-                            <li>Free</li>
-                        <?php }?>
-                        <li><?php echo $Category->filterCategory($ser['category_id'],$categories) ?></li>
-                    </ul>
-                    <h5><a href="details.php?id=<?php echo $ser['series_id']?>"><?php echo $ser['title']; ?></a></h5>
-                    <span><i class="fa fa-eye"></i> <?php echo $ser['view']; if($ser['view']>1) echo " Views"; else echo " View"; ?> </span>
-                </div>
-            </div>
-        <?php }?>
-
-    </div>
 </div>
 </div>
 </div>

@@ -39,6 +39,20 @@ $dayViews = $ViewHistory->topViewDay();
 $weekViews = $ViewHistory->topViewWeek();
 $monthViews = $ViewHistory->topViewMonth();
 $yearViews = $ViewHistory->topViewYear();
+
+// Helper function to get all category titles from series categories array
+function getAllCategoryTitles($series){
+    if(isset($series['categories']) && !empty($series['categories'])){
+        $titles = [];
+        foreach($series['categories'] as $category){
+            if(isset($category['title'])){
+                $titles[] = $category['title'];
+            }
+        }
+        return !empty($titles) ? implode(', ', $titles) : 'Uncategorized';
+    }
+    return 'Uncategorized';
+}
  
 ?>
 
@@ -113,7 +127,7 @@ $yearViews = $ViewHistory->topViewYear();
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
-                                                    <li><?php echo $Category->filterCategory($ser['category_id'],$categories) ?></li>
+                                                    <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                 </ul>
                                                 <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
                                             </div>

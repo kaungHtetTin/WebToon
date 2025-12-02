@@ -38,6 +38,28 @@ function filterCategory($id,$categories){
     }
 }
 
+// Helper function to get first category title from series categories array
+function getFirstCategoryTitle($series){
+    if(isset($series['categories']) && !empty($series['categories']) && isset($series['categories'][0]['title'])){
+        return $series['categories'][0]['title'];
+    }
+    return 'Uncategorized';
+}
+
+// Helper function to get all category titles from series categories array
+function getAllCategoryTitles($series){
+    if(isset($series['categories']) && !empty($series['categories'])){
+        $titles = [];
+        foreach($series['categories'] as $category){
+            if(isset($category['title'])){
+                $titles[] = $category['title'];
+            }
+        }
+        return !empty($titles) ? implode(', ', $titles) : 'Uncategorized';
+    }
+    return 'Uncategorized';
+}
+
 $ViewHistory = new ViewHistory();
 
 $dayViews = $ViewHistory->topViewDay();
@@ -101,7 +123,7 @@ $newCommentSeries = $Series->newCommentSeries();
                     <div class="row">
                         <div class="col-lg-6">
                             <div class="hero__text">
-                                <div class="label"><?php echo filterCategory($owl['category_id'],$categories) ?></div>
+                                <div class="label"><?php echo getFirstCategoryTitle($owl) ?></div>
                                 <h2 class="stroked-text"><?php echo $owl['title'] ?></h2>
                                 <p class="stroked-text"><?php echo $description ?>...</p>
                                 <a href="details.php?id=<?php echo $owl['series_id']?>"><span>Watch Now</span> <i class="fa fa-angle-right"></i></a>
@@ -160,7 +182,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
-                                                    <li><?php echo filterCategory($ser['category_id'],$categories) ?></li>
+                                                    <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                                                         <?php if(!$Visit->visited($_SESSION['webtoon_userid'],$ser['id'])) {?>
                                                             <li style="background:red">new</li>
@@ -221,7 +243,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
-                                                    <li><?php echo filterCategory($ser['category_id'],$categories) ?></li>
+                                                    <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                                                         <?php if(!$Visit->visited($_SESSION['webtoon_userid'],$ser['id'])) {?>
                                                             <li style="background:red">new</li>
@@ -279,7 +301,7 @@ $newCommentSeries = $Series->newCommentSeries();
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
-                                                    <li><?php echo filterCategory($ser['category_id'],$categories) ?></li>
+                                                    <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                     <?php  if(isset($_SESSION['webtoon_userid'])){?>
                                                         <?php if(!$Visit->visited($_SESSION['webtoon_userid'],$ser['id'])) {?>
                                                             <li style="background:red">new</li>

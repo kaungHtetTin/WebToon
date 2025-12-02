@@ -14,17 +14,6 @@ Class Series {
                   ORDER BY c.title ASC";
         $result = $DB->read($query);
         
-        // Fallback to category_id if no junction table entries
-        if(empty($result)){
-            $query = "SELECT c.id, c.title 
-                      FROM categories c 
-                      WHERE c.id = (SELECT category_id FROM series WHERE id = $series_id LIMIT 1)";
-            $fallback = $DB->read($query);
-            if($fallback && !empty($fallback)){
-                return $fallback;
-            }
-        }
-        
         return $result ? $result : [];
     }
 

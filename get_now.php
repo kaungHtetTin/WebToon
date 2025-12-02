@@ -35,7 +35,9 @@ $Util=new Util();
 $Comment=new Comment();
 
 $series=$Series->details($_GET);
-$series_you_like=$Series->getSeriesYouMayLike($series['category_id']);
+// Get first category from categories array for "you may like" recommendations
+$first_category_id = !empty($series['categories']) && isset($series['categories'][0]['id']) ? $series['categories'][0]['id'] : null;
+$series_you_like = $first_category_id ? $Series->getSeriesYouMayLike($first_category_id) : [];
 $seriesRating=$Series->getRating($series_id);
  
 

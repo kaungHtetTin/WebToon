@@ -214,11 +214,6 @@ if(isset($_POST['update_series'])){
                foreach($category_ids as $cat_id){
                    $insert_category->execute([$pid, $cat_id]);
                }
-               
-               // Update category_id in series table for backward compatibility (use first category)
-               $first_category_id = $category_ids[0];
-               $update_category = $conn->prepare("UPDATE `series` SET category_id = ? WHERE id = ?");
-               $update_category->execute([$first_category_id, $pid]);
            }
            
            $message[] = 'updated successfully!';
@@ -330,10 +325,6 @@ if(isset($_POST['update_series'])){
                     $get_current_categories->execute([$fetch_products['id']]);
                     while($cat_row = $get_current_categories->fetch(PDO::FETCH_ASSOC)){
                         $current_categories[] = $cat_row['category_id'];
-                    }
-                    // Fallback to category_id if no junction table entries exist
-                    if(empty($current_categories) && isset($fetch_products['category_id']) && $fetch_products['category_id'] > 0){
-                        $current_categories[] = $fetch_products['category_id'];
                     }
                     ?>
 

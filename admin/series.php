@@ -135,15 +135,6 @@ if(isset($_GET['delete'])){
                              $get_categories = $conn->prepare("SELECT c.id, c.title FROM `series_categories` sc JOIN `categories` c ON sc.category_id = c.id WHERE sc.series_id = ? ORDER BY c.title ASC");
                              $get_categories->execute([$fetch_products['id']]);
                              $series_categories = $get_categories->fetchAll(PDO::FETCH_ASSOC);
-                             // Fallback to category_id if no junction table entries
-                             if(empty($series_categories) && isset($fetch_products['category_id']) && $fetch_products['category_id'] > 0){
-                                 $get_fallback = $conn->prepare("SELECT id, title FROM `categories` WHERE id = ?");
-                                 $get_fallback->execute([$fetch_products['category_id']]);
-                                 $fallback_cat = $get_fallback->fetch(PDO::FETCH_ASSOC);
-                                 if($fallback_cat){
-                                     $series_categories[] = $fallback_cat;
-                                 }
-                             }
                              
                              // Format numbers
                              $views = number_format($fetch_products['view'] ?? 0);

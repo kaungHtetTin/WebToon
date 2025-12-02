@@ -166,10 +166,9 @@ if(isset($_POST['add_series'])){
       $message[] = 'Please select at least one category!';
    }else{
 
-      // Insert series (without category_id, or use first category for backward compatibility)
-      $insert_products = $conn->prepare("INSERT INTO `series`(category_id, title, description, date,  is_active, total_chapter, uploaded_chapter, image_url ) VALUES(?,?,?,?,?,?,?,?)");
-      $first_category_id = $category_ids[0]; // Keep first category for backward compatibility
-      $insert_products->execute([$first_category_id, $title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url]);
+      // Insert series (without category_id)
+      $insert_products = $conn->prepare("INSERT INTO `series`(title, description, date,  is_active, total_chapter, uploaded_chapter, image_url ) VALUES(?,?,?,?,?,?,?)");
+      $insert_products->execute([$title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url]);
       
       if($insert_products && empty($upload_error)){
           $series_id = $conn->lastInsertId();
