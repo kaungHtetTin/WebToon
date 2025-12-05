@@ -339,6 +339,7 @@
           'unapprove_payment.php': 'approve_payment.php',
           'approved_payment.php': 'approve_payment.php',
           'users_profile.php': 'users_profile.php',
+          'api_documentation.php': 'api_documentation.php',
           'pages_contact.php': 'pages_contact.php',
         };
 

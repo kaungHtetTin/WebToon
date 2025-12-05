@@ -102,6 +102,13 @@
       </li>
 
       <li class="nav-item">
+        <a class="nav-link" href="api_documentation.php" data-page="api_documentation">
+          <i class="bi bi-code-slash"></i>
+          <span>API Documentation</span>
+        </a>
+      </li>
+
+      <li class="nav-item">
         <a class="nav-link" href="pages_contact.php" data-page="pages_contact">
           <i class="bi bi-envelope"></i>
           <span>Contact Messages</span>
