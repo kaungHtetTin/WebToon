@@ -108,7 +108,6 @@
                         <th scope="col">name</th>
                         <th scope="col">email</th>
                         <th scope="col">phone</th>
-                        <th scope="col">vip</th>
                         <th scope="col">point</th>
 
                       </tr>
@@ -125,7 +124,6 @@
                         <td><?= $fetch_products['first_name']; ?> <?= $fetch_products['last_name']; ?></td>
                         <td><?= $fetch_products['email']; ?></td>
                         <td><?= $fetch_products['phone']; ?></td>
-                        <td><span class="badge bg-success"><?= $fetch_products['is_vip']; ?></span></td>
                         <td><span class="badge bg-success"><?= $fetch_products['point']; ?></span></td>
 
                       </tr>

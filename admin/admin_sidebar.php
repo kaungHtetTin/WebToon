@@ -115,13 +115,6 @@
         </a>
       </li>
 
-      <li class="nav-item">
-        <a class="nav-link" href="pages_contact.php" data-page="pages_contact">
-          <i class="bi bi-envelope"></i>
-          <span>Contact Messages</span>
-        </a>
-      </li>
-
     </ul>
 
   </aside>

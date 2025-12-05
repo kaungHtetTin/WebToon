@@ -50,11 +50,14 @@ if ($user_id > 0) {
     $ss_stmt = $conn->prepare("
       SELECT 
         s.*,
-        c.title AS category_title,
+        (SELECT c.title FROM series_categories sc 
+         JOIN categories c ON c.id = sc.category_id 
+         WHERE sc.series_id = s.id 
+         ORDER BY c.title ASC 
+         LIMIT 1) AS category_title,
         sv.date AS saved_date
       FROM saves sv
       JOIN series s ON s.id = sv.series_id
-      LEFT JOIN categories c ON c.id = s.category_id
       WHERE sv.user_id = ?
       ORDER BY sv.date DESC, sv.id DESC
     ");
@@ -164,10 +167,6 @@ if ($user_id > 0) {
               </p>
 
               <div class="d-flex justify-content-center gap-2 mb-3">
-                <span class="badge <?= !empty($user['is_vip']) ? 'bg-success' : 'bg-secondary'; ?>">
-                  <i class="bi bi-star-fill me-1"></i>
-                  <?= !empty($user['is_vip']) ? 'VIP' : 'Normal'; ?>
-                </span>
                 <span class="badge bg-info">
                   <i class="bi bi-coin me-1"></i>
                   <?= htmlspecialchars($user['point'] ?? 0); ?> points

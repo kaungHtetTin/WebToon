@@ -103,7 +103,6 @@ if(isset($_GET['delete'])){
                     <th scope="col">Email</th>
                     <th scope="col">Phone</th>
                     <th scope="col">Avatar</th>
-                    <th scope="col">VIP</th>
                     <th scope="col">Point</th>
                     <th scope="col">Action</th>
                   </tr>
@@ -128,7 +127,6 @@ if(isset($_GET['delete'])){
                         </div>
                         </td>
                        
-                        <td><?= $fetch_products['is_vip']; ?></td>
                         <td><?= $fetch_products['point']; ?></td>
                         
                         <td>
