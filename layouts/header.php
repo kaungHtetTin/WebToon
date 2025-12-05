@@ -1,5 +1,38 @@
 
 <!-- Header Section Begin -->
+<style>
+  /* Navigation spacing tweaks */
+  .header__logo {
+    padding: 15px 0;
+  }
+
+  .header__logo img {
+    height: 48px;
+    margin-top: 0;
+  }
+
+  /* Only affect top-level navigation, not dropdowns */
+  .header__menu > ul {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .header__menu > ul > li > a {
+    padding: 14px 18px;
+  }
+
+  .header__right {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 12px;
+  }
+
+  .header__right a {
+    margin-right: 0;
+  }
+</style>
 <header class="header">
     <div class="container">
         <div class="row">

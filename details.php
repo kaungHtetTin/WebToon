@@ -42,6 +42,20 @@ $series=$Series->details($_GET);
 $first_category_id = !empty($series['categories']) && isset($series['categories'][0]['id']) ? $series['categories'][0]['id'] : null;
 $series_you_like = $first_category_id ? $Series->getSeriesYouMayLike($first_category_id) : [];
 
+// Helper function to get all category titles from series categories array
+function getAllCategoryTitles($series){
+    if(isset($series['categories']) && !empty($series['categories'])){
+        $titles = [];
+        foreach($series['categories'] as $category){
+            if(isset($category['title'])){
+                $titles[] = $category['title'];
+            }
+        }
+        return !empty($titles) ? implode(', ', $titles) : 'Uncategorized';
+    }
+    return 'Uncategorized';
+}
+
  
 
 if($_SERVER['REQUEST_METHOD']=="POST"){
@@ -168,6 +182,7 @@ $chapters=$Chapter->get($series_id);
                                             <li><span>Original Work:</span> <?php echo $series['original_work'] ?></li>
                                             <li><span>Upload Status</span> <?php echo $series['upload_status'] ?></li>
                                             <li><span>Genre:</span> <?php echo $series['genre'] ?></li>
+                                            <li><span>Categories:</span> <?php echo getAllCategoryTitles($series) ?></li>
                                         </ul>
                                     </div>
                                     <div class="col-lg-6 col-md-6">

@@ -232,10 +232,10 @@ function getAllCategoryTitles($series){
                             <div class="filter__gallery">
                                 <div id="top_view_container" style="display:none">
                                     
-                                        <?php foreach($yearViews as $view){
+                                    <?php foreach($yearViews as $view){
                                             $id=$view['series_id'];
                                             $ser = $Series->topViewDetail($id);
-                                        ?>
+                                            ?>
                                             <a href="details.php?id=<?php echo $ser['id']?>">
                                             <div class="product__sidebar__view__item set-bg mix years"
                                             data-setbg="<?php echo $Util->normalizeImageUrl($ser['image_url']) ?>">
