@@ -6,21 +6,10 @@ session_start();
 
 
 
-if(isset($_GET['delete'])){
-
-   $delete_id = $_GET['delete'];
-   
-   $delete_products = $conn->prepare("DELETE FROM `categories` WHERE id = ?");
-   $result = $delete_products->execute([$delete_id]);
-   
-   if($result){
-      header('location:categories.php?success=' . urlencode('Category deleted successfully!'));
-   } else {
-      header('location:categories.php?error=' . urlencode('Failed to delete category. Please try again.'));
-   }
-   exit();
-
-}
+// Category deletion is disabled for data integrity
+// if(isset($_GET['delete'])){
+//    // Deletion functionality removed to prevent accidental data loss
+// }
 
 ?>
 
@@ -136,13 +125,11 @@ if(isset($_GET['delete'])){
                            title="Edit category">
                           <i class="bi bi-pencil"></i> Edit
                         </a>
-                        <a href="categories.php?delete=<?= $fetch_products['id']; ?>" 
-                           class="btn btn-sm btn-danger" 
-                           data-message="Are you sure you want to delete '<?= htmlspecialchars($fetch_products['title']); ?>'? This action cannot be undone."
-                           data-bs-toggle="tooltip" 
-                           title="Delete category">
-                          <i class="bi bi-trash"></i> Delete
-                        </a>
+                        <span class="btn btn-sm btn-secondary" 
+                              data-bs-toggle="tooltip" 
+                              title="Category deletion is disabled">
+                          <i class="bi bi-lock"></i> Delete Disabled
+                        </span>
                       </div>
                     </td>
                   </tr>
@@ -171,14 +158,10 @@ if(isset($_GET['delete'])){
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>worldofwebtoonmmsub</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      Designed by maxmadmm
     </div>
   </footer><!-- End Footer -->
 

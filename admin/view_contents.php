@@ -218,10 +218,10 @@ require_once('includes/image_helper.php');
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>worldofwebtoonmmsub</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      Designed by <a href="#">Aung Kyaw Thant</a>
+      Designed by maxmadmm
     </div>
   </footer><!-- End Footer -->
 

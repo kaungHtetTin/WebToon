@@ -228,6 +228,134 @@
               </div>
             </div><!-- End Admins Card -->
 
+            <!-- Analytics Section -->
+            <div class="col-12 mt-3">
+              <div class="card">
+                <div class="card-body">
+                  <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="card-title mb-0"><i class="bi bi-graph-up-arrow"></i> Key Analytics</h5>
+                    <a href="analytics.php" class="btn btn-sm btn-primary">
+                      <i class="bi bi-arrow-right"></i> View Full Analytics
+                    </a>
+                  </div>
+
+                  <div class="row">
+                    <!-- Total Revenue This Month -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="card info-card revenue-card border-0 shadow-sm">
+                        <div class="card-body">
+                          <h5 class="card-title">Revenue <span>| This Month</span></h5>
+                          <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-cash-stack"></i>
+                            </div>
+                            <a href="analytics.php" class="text-decoration-none flex-grow-1">
+                              <div class="ps-3">
+                                <?php
+                                  $current_month_start = date('Y-m-01');
+                                  $current_month_end = date('Y-m-t');
+                                  $stmt = $conn->prepare("SELECT SUM(amount) as total FROM `payment_histories` WHERE date >= ? AND date <= ? AND verified = 1 AND confirm = 1 AND date IS NOT NULL");
+                                  $stmt->execute([$current_month_start, $current_month_end]);
+                                  $revenue_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                  $monthly_revenue = $revenue_data['total'] ?? 0;
+                                ?>
+                                <h6><?= number_format($monthly_revenue, 2); ?> MMK</h6>
+                                <span class="text-success small pt-1 fw-bold">This Month</span>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- New Users This Month -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="card info-card sales-card border-0 shadow-sm">
+                        <div class="card-body">
+                          <h5 class="card-title">New Users <span>| This Month</span></h5>
+                          <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-person-plus"></i>
+                            </div>
+                            <a href="analytics.php" class="text-decoration-none flex-grow-1">
+                              <div class="ps-3">
+                                <?php
+                                  $stmt = $conn->prepare("SELECT COUNT(*) as count FROM `users` WHERE created_at >= ? AND created_at <= ? AND created_at IS NOT NULL");
+                                  $stmt->execute([$current_month_start, $current_month_end]);
+                                  $new_users_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                  $new_users_month = $new_users_data['count'] ?? 0;
+                                ?>
+                                <h6><?= number_format($new_users_month); ?></h6>
+                                <span class="text-success small pt-1 fw-bold">New Users</span>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Total Points Purchased -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="card info-card customers-card border-0 shadow-sm">
+                        <div class="card-body">
+                          <h5 class="card-title">Points Purchased <span>| All Time</span></h5>
+                          <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-coin"></i>
+                            </div>
+                            <a href="analytics.php" class="text-decoration-none flex-grow-1">
+                              <div class="ps-3">
+                                <?php
+                                  $stmt = $conn->prepare("SELECT SUM(points_added) as total FROM `payment_histories` WHERE verified = 1 AND confirm = 1");
+                                  $stmt->execute();
+                                  $points_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                  $total_points = $points_data['total'] ?? 0;
+                                  if (!$total_points || $total_points == 0) {
+                                    $stmt = $conn->prepare("SELECT SUM(point) as total FROM `payment_histories` WHERE verified = 1 AND confirm = 1");
+                                    $stmt->execute();
+                                    $points_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                    $total_points = $points_data['total'] ?? 0;
+                                  }
+                                ?>
+                                <h6><?= number_format($total_points); ?></h6>
+                                <span class="text-info small pt-1 fw-bold">Points</span>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+
+                    <!-- Total Series Views -->
+                    <div class="col-lg-3 col-md-6 mb-3">
+                      <div class="card info-card revenue-card border-0 shadow-sm">
+                        <div class="card-body">
+                          <h5 class="card-title">Total Views <span>| All Time</span></h5>
+                          <div class="d-flex align-items-center">
+                            <div class="card-icon rounded-circle d-flex align-items-center justify-content-center">
+                              <i class="bi bi-eye"></i>
+                            </div>
+                            <a href="analytics.php" class="text-decoration-none flex-grow-1">
+                              <div class="ps-3">
+                                <?php
+                                  $stmt = $conn->prepare("SELECT SUM(view) as total FROM `series`");
+                                  $stmt->execute();
+                                  $views_data = $stmt->fetch(PDO::FETCH_ASSOC);
+                                  $total_views = $views_data['total'] ?? 0;
+                                ?>
+                                <h6><?= number_format($total_views); ?></h6>
+                                <span class="text-primary small pt-1 fw-bold">Views</span>
+                              </div>
+                            </a>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+            <!-- End Analytics Section -->
 
             
             <!-- Payment Histories Table -->
@@ -410,14 +538,10 @@
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>worldofwebtoonmmsub</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      Designed by maxmadmm
     </div>
   </footer><!-- End Footer -->
 

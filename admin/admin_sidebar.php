@@ -12,6 +12,13 @@
         </a>
       </li>
 
+      <li class="nav-item">
+        <a class="nav-link" href="analytics.php" data-page="analytics">
+          <i class="bi bi-graph-up-arrow"></i>
+          <span>Analytics</span>
+        </a>
+      </li>
+
       <!-- Content Management Section -->
       <li class="nav-heading">Content Management</li>
 

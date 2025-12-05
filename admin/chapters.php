@@ -13,8 +13,21 @@ if(isset($_GET['delete'])){
    $delete_id = filter_var($_GET['delete'], FILTER_SANITIZE_NUMBER_INT);
    $series_id_param = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : '';
    
+   // Get series_id from the chapter before deleting
+   $get_chapter = $conn->prepare("SELECT series_id FROM `chapters` WHERE id = ?");
+   $get_chapter->execute([$delete_id]);
+   $chapter_data = $get_chapter->fetch(PDO::FETCH_ASSOC);
+   $chapter_series_id = $chapter_data['series_id'] ?? null;
+   
+   // Delete the chapter
    $delete_products = $conn->prepare("DELETE FROM `chapters` WHERE id = ?");
    $delete_products->execute([$delete_id]);
+   
+   // Update uploaded_chapter count in series table (decrement)
+   if($delete_products && $chapter_series_id){
+       $update_series = $conn->prepare("UPDATE `series` SET uploaded_chapter = GREATEST(0, uploaded_chapter - 1) WHERE id = ?");
+       $update_series->execute([$chapter_series_id]);
+   }
    
    if($series_id_param){
        header('location:chapters.php?series_id=' . $series_id_param);
@@ -255,14 +268,10 @@ if($series_id && is_numeric($series_id)){
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>worldofwebtoonmmsub</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      Designed by maxmadmm
     </div>
   </footer><!-- End Footer -->
 

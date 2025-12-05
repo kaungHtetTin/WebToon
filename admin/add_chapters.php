@@ -85,6 +85,10 @@ if(isset($_POST['add_chapter'])){
               $insert_products->execute([$series_id_post, $title, $description, $date, $is_active, $is_free]);
 
               if($insert_products){
+                  // Update uploaded_chapter count in series table
+                  $update_series = $conn->prepare("UPDATE `series` SET uploaded_chapter = uploaded_chapter + 1 WHERE id = ?");
+                  $update_series->execute([$series_id_post]);
+                  
                   $message[] = 'Chapter added successfully!';
                   // Redirect after 1 second to show success message
                   header("refresh:1;url=chapters.php?series_id=$series_id_post");

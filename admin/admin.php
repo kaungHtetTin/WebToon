@@ -79,7 +79,7 @@ if(isset($_GET['delete'])){
       <h1>Admin</h1>
       <nav>
         <ol class="breadcrumb">
-          <li class="breadcrumb-item"><a href="index.html">Home</a></li>
+          <li class="breadcrumb-item"><a href="index.php">Home</a></li>
           <li class="breadcrumb-item">Admin</li>
           <li class="breadcrumb-item active">View Admin</li>
         </ol>
@@ -92,7 +92,12 @@ if(isset($_GET['delete'])){
 
           <div class="card">
             <div class="card-body">
-              <h5 class="card-title">View Admin</h5>
+              <div class="d-flex justify-content-between align-items-center mb-3">
+                <h5 class="card-title mb-0">View Admin</h5>
+                <a href="manage_admin.php" class="btn btn-primary">
+                  <i class="bi bi-plus-circle"></i> Add Admin
+                </a>
+              </div>
               <!-- <p>Add lightweight datatables to your project with using the class name to any table you wish to conver to a datatable</p>-->
               
               <!-- Table with stripped rows -->
@@ -162,14 +167,10 @@ if(isset($_GET['delete'])){
   <!-- ======= Footer ======= -->
   <footer id="footer" class="footer">
     <div class="copyright">
-      &copy; Copyright <strong><span>NiceAdmin</span></strong>. All Rights Reserved
+      &copy; Copyright <strong><span>worldofwebtoonmmsub</span></strong>. All Rights Reserved
     </div>
     <div class="credits">
-      <!-- All the links in the footer should remain intact. -->
-      <!-- You can delete the links only if you purchased the pro version. -->
-      <!-- Licensing information: https://bootstrapmade.com/license/ -->
-      <!-- Purchase the pro version with working PHP/AJAX contact form: https://bootstrapmade.com/nice-admin-bootstrap-admin-html-template/ -->
-      Designed by <a href="https://bootstrapmade.com/">BootstrapMade</a>
+      Designed by maxmadmm
     </div>
   </footer><!-- End Footer -->
 

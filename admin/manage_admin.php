@@ -7,10 +7,13 @@ session_start();
 
 
 
-if(isset($_POST['update_users'])){
+$message = [];
+$is_edit_mode = isset($_GET['update']) && !empty($_GET['update']);
 
-   $pid = $_POST['pid'];
+// Handle form submission for both add and update
+if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
 
+   $pid = isset($_POST['pid']) ? $_POST['pid'] : null;
 
    $username = $_POST['username'];
    $username = filter_var($username, FILTER_SANITIZE_STRING);
@@ -21,8 +24,18 @@ if(isset($_POST['update_users'])){
    $phone = $_POST['phone'];
    $phone = filter_var($phone, FILTER_SANITIZE_STRING);
 
-   $password = md5($_POST['password']);
-   $password = filter_var($password, FILTER_SANITIZE_STRING);
+   // Handle password - if updating and password is empty, keep old password
+   $password = '';
+   if($is_edit_mode && $pid && empty($_POST['password'])){
+       // Get current password from database
+       $select_current = $conn->prepare("SELECT password FROM `admin` WHERE id = ?");
+       $select_current->execute([$pid]);
+       $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+       $password = $current_data['password'] ?? '';
+   } else {
+       $password = md5($_POST['password']);
+       $password = filter_var($password, FILTER_SANITIZE_STRING);
+   }
    
    // Handle checkbox - if checked, value is 1, otherwise 0
    $is_active = isset($_POST['is_active']) && $_POST['is_active'] == 'on' ? 1 : 0;
@@ -37,7 +50,7 @@ if(isset($_POST['update_users'])){
        mkdir($image_url_folder, 0755, true);
    }
    
-   // Get current image_url from database if no new file uploaded
+   // Get current image_url from database if no new file uploaded (only for update)
    if(isset($_FILES['image_url']['name']) && !empty($_FILES['image_url']['name']) && isset($_FILES['image_url']['error']) && $_FILES['image_url']['error'] == UPLOAD_ERR_OK){
        $image_url = $_FILES['image_url']['name'];
        $image_url_size = $_FILES['image_url']['size'];
@@ -60,21 +73,37 @@ if(isset($_POST['update_users'])){
            }
        }
    }else{
-       // Get current image_url from database
-       $select_current = $conn->prepare("SELECT image_url FROM `admin` WHERE id = ?");
-       $select_current->execute([$pid]);
-       $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
-       $final_image_url = $current_data['image_url'] ?? '';
+       // Get current image_url from database (only for update mode)
+       if($is_edit_mode && $pid){
+           $select_current = $conn->prepare("SELECT image_url FROM `admin` WHERE id = ?");
+           $select_current->execute([$pid]);
+           $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
+           $final_image_url = $current_data['image_url'] ?? '';
+       }
    }
 
-   // Only proceed with database update if upload was successful or no file was uploaded
+   // Only proceed with database operation if upload was successful or no file was uploaded
    if($upload_success){
-       $update_product = $conn->prepare("UPDATE `admin` SET username = ?,  email = ?, phone = ?, password = ?,  is_active = ?,  image_url = ? WHERE id = ?");
-       $update_product->execute([$username, $email, $phone, $password, $is_active, $final_image_url, $pid]);
+       if($is_edit_mode && $pid){
+           // Update existing admin
+           $update_product = $conn->prepare("UPDATE `admin` SET username = ?,  email = ?, phone = ?, password = ?,  is_active = ?,  image_url = ? WHERE id = ?");
+           $update_product->execute([$username, $email, $phone, $password, $is_active, $final_image_url, $pid]);
 
-       if($update_product){
-           $message[] = 'updated successfully!';
-           header('location:admin.php');
+           if($update_product){
+               $message[] = 'updated successfully!';
+               header('location:admin.php');
+               exit;
+           }
+       } else {
+           // Add new admin
+           $add_admin = $conn->prepare("INSERT INTO `admin` (username, email, phone, password, is_active, image_url) VALUES (?, ?, ?, ?, ?, ?)");
+           $add_admin->execute([$username, $email, $phone, $password, $is_active, $final_image_url]);
+
+           if($add_admin){
+               $message[] = 'Admin added successfully!';
+               header('location:admin.php');
+               exit;
+           }
        }
    }
    
@@ -150,42 +179,63 @@ if(isset($_POST['update_users'])){
 
               <div class="card">
                 <div class="card-body">
-                  <h5 class="card-title">Update Details by Admin</h5>
-                  <?php
-                      $update_id = $_GET['update'];
-                      $select_products = $conn->prepare("SELECT * FROM `admin` WHERE id = ?");
-                      $select_products->execute([$update_id]);
-                      if($select_products->rowCount() > 0){
-                         while($fetch_products = $select_products->fetch(PDO::FETCH_ASSOC)){ 
-                   ?>
+                  <h5 class="card-title"><?= $is_edit_mode ? 'Update Admin Details' : 'Add New Admin'; ?></h5>
                   
+                  <?php if (!empty($message)): ?>
+                    <div class="alert alert-<?= strpos($message[0], 'success') !== false ? 'success' : 'danger'; ?>">
+                      <?php foreach ($message as $msg): ?>
+                        <div><?= htmlspecialchars($msg); ?></div>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php endif; ?>
+                  
+                  <?php
+                      $fetch_products = null;
+                      if($is_edit_mode){
+                          $update_id = $_GET['update'];
+                          $select_products = $conn->prepare("SELECT * FROM `admin` WHERE id = ?");
+                          $select_products->execute([$update_id]);
+                          if($select_products->rowCount() > 0){
+                             $fetch_products = $select_products->fetch(PDO::FETCH_ASSOC);
+                          } else {
+                              echo '<div class="alert alert-danger">Admin not found!</div>';
+                              $is_edit_mode = false;
+                          }
+                      }
+                   ?>
+                   
                   <form action="" method="POST" enctype="multipart/form-data">
-                    <input type="hidden" name="pid" class="form-control" value="<?= $fetch_products['id']; ?>">
+                    <?php if($is_edit_mode && $fetch_products): ?>
+                      <input type="hidden" name="pid" class="form-control" value="<?= $fetch_products['id']; ?>">
+                    <?php endif; ?>
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">username</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Username <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="text" name="username" class="form-control" value="<?= $fetch_products['username']; ?>">
+                        <input type="text" name="username" class="form-control" value="<?= $fetch_products['username'] ?? ''; ?>" required>
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">phone</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Phone</label>
                       <div class="col-sm-10">
-                        <input type="number" name="phone" class="form-control" value="<?= $fetch_products['phone']; ?>">
+                        <input type="number" name="phone" class="form-control" value="<?= $fetch_products['phone'] ?? ''; ?>">
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">email</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Email <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="email" name="email" class="form-control" value="<?= $fetch_products['email']; ?>">
+                        <input type="email" name="email" class="form-control" value="<?= $fetch_products['email'] ?? ''; ?>" required>
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">password</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Password <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="password" name="password" class="form-control" value="<?= $fetch_products['password']; ?>">
+                        <input type="password" name="password" class="form-control" value="" <?= $is_edit_mode ? '' : 'required'; ?>>
+                        <?php if($is_edit_mode): ?>
+                          <small class="form-text text-muted">Leave blank to keep current password</small>
+                        <?php endif; ?>
                       </div>
                     </div>
 
@@ -202,36 +252,42 @@ if(isset($_POST['update_users'])){
                       </div>
                     </div>
 
+                    <?php if($is_edit_mode && $fetch_products && !empty($fetch_products['image_url'])): ?>
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">Old Profile </label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Current Profile</label>
                       <div class="col-sm-10">
-                        <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'admin')); ?>" alt="Profile" style="height: 100px;width: 100px;" onerror="this.src='../img/placeholder.jpg'">
+                        <img src="<?= htmlspecialchars(getImagePath($fetch_products['image_url'] ?? '', 'admin')); ?>" alt="Profile" style="height: 100px;width: 100px; border-radius: 8px; object-fit: cover;" onerror="this.src='../img/placeholder.jpg'">
                       </div>
                     </div>
-
-                   
+                    <?php endif; ?>
                     
                     <div class="row mb-3">
-                      <label for="inputText" class="col-sm-2 col-form-label">image_url</label>
+                      <label for="inputText" class="col-sm-2 col-form-label">Profile Image</label>
                       <div class="col-sm-10">
-                        <input type="file" name="image_url" class="form-control">
+                        <input type="file" name="image_url" class="form-control" accept="image/*">
+                        <small class="form-text text-muted">Upload a profile image (optional)</small>
                       </div>
                     </div>
 
                     <div class="row mb-3">
-                      <label class="col-sm-2 col-form-label">Update Admin</label>
+                      <label class="col-sm-2 col-form-label"></label>
                       <div class="col-sm-10">
-                        <button type="submit" name="update_users" class="btn btn-primary">Update Admin</button>
+                        <?php if($is_edit_mode): ?>
+                          <button type="submit" name="update_users" class="btn btn-primary">
+                            <i class="bi bi-save"></i> Update Admin
+                          </button>
+                        <?php else: ?>
+                          <button type="submit" name="add_admin" class="btn btn-primary">
+                            <i class="bi bi-plus-circle"></i> Add Admin
+                          </button>
+                        <?php endif; ?>
+                        <a href="admin.php" class="btn btn-outline-secondary ms-2">
+                          <i class="bi bi-arrow-left"></i> Back
+                        </a>
                       </div>
                     </div>
 
                   </form>
-                  <?php
-                       }
-                    }else{
-                       echo '<p class="empty">no products found!</p>';
-                    }
-                 ?>
                 </div>
               </div>
 
