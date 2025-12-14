@@ -29,9 +29,9 @@ rel="stylesheet">
     .stroked-text {
         color: white; /* Text fill color */
         text-shadow: 
-            -1px -1px 0 #000,  
-             1px -1px 0 #000,
-            -1px  1px 0 #000,
-             1px  1px 0 #000;
+            -1px -1px 0 #ff5b00,  
+             1px -1px 0 #ff5b00,
+            -1px  1px 0 #ff5b00,
+             1px  1px 0 #ff5b00;
     }
 </style>

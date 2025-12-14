@@ -7,6 +7,40 @@ session_start();
 $chapter_id = isset($_GET['chapter_id']) ? filter_var($_GET['chapter_id'], FILTER_SANITIZE_NUMBER_INT) : null;
 $series_id = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;
 
+// Handle bulk delete
+if(isset($_POST['delete_selected']) && isset($_POST['selected_contents']) && is_array($_POST['selected_contents']) && count($_POST['selected_contents']) > 0){
+    $selected_ids = array_map('intval', $_POST['selected_contents']);
+    $placeholders = implode(',', array_fill(0, count($selected_ids), '?'));
+    
+    // Delete selected contents
+    $delete_contents = $conn->prepare("DELETE FROM `contents` WHERE id IN ($placeholders)");
+    $delete_contents->execute($selected_ids);
+    
+    // Redirect back to view_contents.php
+    $redirect_url = "view_contents.php?chapter_id=" . htmlspecialchars($chapter_id);
+    if($series_id){
+        $redirect_url .= "&series_id=" . htmlspecialchars($series_id);
+    }
+    header('location:' . $redirect_url);
+    exit;
+}
+
+// Handle single delete (for backward compatibility)
+if(isset($_GET['delete_content'])){
+    $delete_content_id = filter_var($_GET['delete_content'], FILTER_SANITIZE_NUMBER_INT);
+    
+    $delete_content = $conn->prepare("DELETE FROM `contents` WHERE id = ?");
+    $delete_content->execute([$delete_content_id]);
+    
+    // Redirect back to view_contents.php
+    $redirect_url = "view_contents.php?chapter_id=" . htmlspecialchars($chapter_id);
+    if($series_id){
+        $redirect_url .= "&series_id=" . htmlspecialchars($series_id);
+    }
+    header('location:' . $redirect_url);
+    exit;
+}
+
 // Get chapter and series info
 $chapter_title = '';
 $series_title = '';
@@ -115,38 +149,51 @@ require_once('includes/image_helper.php');
               
               <div class="d-flex justify-content-between align-items-center mb-3">
                 <h5 class="card-title mb-0">Contents</h5>
-                <?php if($chapter_id && is_numeric($chapter_id)): ?>
-                  <a href="add_content.php?chapter_id=<?= htmlspecialchars($chapter_id); ?>&series_id=<?= htmlspecialchars($series_id) ?>" class="btn btn-primary">
-                    <i class="bi bi-plus-circle"></i> Add Content
-                  </a>
-                <?php endif; ?>
+                <div class="d-flex gap-2">
+                  <button type="button" id="deleteSelectedBtn" class="btn btn-danger d-none">
+                    <i class="bi bi-trash"></i> Delete Selected (<span id="selectedCount">0</span>)
+                  </button>
+                  <?php if($chapter_id && is_numeric($chapter_id)): ?>
+                    <a href="add_content.php?chapter_id=<?= htmlspecialchars($chapter_id); ?>&series_id=<?= htmlspecialchars($series_id) ?>" class="btn btn-primary">
+                      <i class="bi bi-plus-circle"></i> Add Content
+                    </a>
+                  <?php endif; ?>
+                </div>
               </div>
 
               <?php if(!$chapter_id || !is_numeric($chapter_id)): ?>
                 <div class="alert alert-danger">Invalid chapter ID. <a href="series.php">Go back to Series</a></div>
               <?php else: ?>
 
-              <!-- Table with stripped rows -->
-              <table class="table datatable">
-                <thead>
-                  <tr>
-                    <th scope="col">#</th>
-                    <th scope="col">Order</th>
-                    <th scope="col">Content</th>
-                    <th scope="col">Type</th>
-                    <th scope="col">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <?php
-                    $show_contents = $conn->prepare("SELECT * FROM `contents` WHERE chapter_id = ? ORDER BY order_index ASC, id ASC");
-                    $show_contents->execute([$chapter_id]);
-                    if($show_contents->rowCount() > 0){
-                       while($fetch_content = $show_contents->fetch(PDO::FETCH_ASSOC)){  
-                         $image_path = getImagePath($fetch_content['content_url'] ?? '', 'contents');
-                  ?>
-                      <tr>
-                        <td><?= $fetch_content['id']; ?></td>
+              <!-- Bulk Delete Form -->
+              <form id="bulkDeleteForm" method="POST" action="" onsubmit="return confirm('Are you sure you want to delete the selected contents? This action cannot be undone.');">
+                <!-- Table with stripped rows -->
+                <table class="table datatable">
+                  <thead>
+                    <tr>
+                      <th scope="col" style="width: 50px;">
+                        <input type="checkbox" id="selectAll" title="Select All">
+                      </th>
+                      <th scope="col">#</th>
+                      <th scope="col">Order</th>
+                      <th scope="col">Content</th>
+                      <th scope="col">Type</th>
+                      <th scope="col">Actions</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                      $show_contents = $conn->prepare("SELECT * FROM `contents` WHERE chapter_id = ? ORDER BY order_index ASC, id ASC");
+                      $show_contents->execute([$chapter_id]);
+                      if($show_contents->rowCount() > 0){
+                         while($fetch_content = $show_contents->fetch(PDO::FETCH_ASSOC)){  
+                           $image_path = getImagePath($fetch_content['content_url'] ?? '', 'contents');
+                    ?>
+                        <tr>
+                          <td>
+                            <input type="checkbox" name="selected_contents[]" value="<?= $fetch_content['id']; ?>" class="content-checkbox">
+                          </td>
+                          <td><?= $fetch_content['id']; ?></td>
                         <td><?= $fetch_content['order_index']; ?></td>
                         <td>
                           <?php if(!empty($fetch_content['content_url'])): ?>
@@ -185,7 +232,7 @@ require_once('includes/image_helper.php');
                                title="Edit Content">
                               <i class="bi bi-pencil"></i>
                             </a>
-                            <a href="chapters.php?delete_content=<?= $fetch_content['id']; ?>&chapter_id=<?= htmlspecialchars($chapter_id); ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
+                            <a href="view_contents.php?delete_content=<?= $fetch_content['id']; ?>&chapter_id=<?= htmlspecialchars($chapter_id); ?>&series_id=<?= htmlspecialchars($series_id) ?>" 
                                onclick="return confirm('Are you sure you want to delete this content?');" 
                                class="btn btn-sm btn-danger" 
                                title="Delete Content">
@@ -197,12 +244,14 @@ require_once('includes/image_helper.php');
                       <?php
                           }
                        }else{
-                          echo '<tr><td colspan="5" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No contents found</h5><p class="text-muted">Get started by adding your first content.</p><a href="add_content.php?chapter_id=' . htmlspecialchars($chapter_id) . '&series_id=' . htmlspecialchars($series_id) . '" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Content</a></div></td></tr>';
+                          echo '<tr><td colspan="6" class="text-center py-5"><div class="empty-state"><i class="bi bi-inbox empty-state-icon"></i><h5>No contents found</h5><p class="text-muted">Get started by adding your first content.</p><a href="add_content.php?chapter_id=' . htmlspecialchars($chapter_id) . '&series_id=' . htmlspecialchars($series_id) . '" class="btn btn-primary mt-3"><i class="bi bi-plus-circle"></i> Add Content</a></div></td></tr>';
                        }
                        ?>
-                </tbody>
-              </table>
-              <!-- End Table with stripped rows -->
+                  </tbody>
+                </table>
+                <!-- End Table with stripped rows -->
+                <input type="hidden" name="delete_selected" value="1">
+              </form>
 
               <?php endif; ?>
 
@@ -243,6 +292,112 @@ require_once('includes/image_helper.php');
   <script src="assets/js/navigation.js"></script>
   <!-- UX Enhancements -->
   <script src="assets/js/ux-enhancements.js"></script>
+
+  <script>
+    // Bulk delete functionality
+    (function() {
+      'use strict';
+      
+      const deleteSelectedBtn = document.getElementById('deleteSelectedBtn');
+      const selectedCountSpan = document.getElementById('selectedCount');
+      const bulkDeleteForm = document.getElementById('bulkDeleteForm');
+      
+      if (!bulkDeleteForm || !deleteSelectedBtn) {
+        console.error('Bulk delete elements not found');
+        return;
+      }
+
+      // Update selected count and button visibility
+      function updateSelection() {
+        const selected = document.querySelectorAll('.content-checkbox:checked');
+        const count = selected.length;
+        
+        if (selectedCountSpan) {
+          selectedCountSpan.textContent = count;
+        }
+        
+        if (count > 0) {
+          deleteSelectedBtn.classList.remove('d-none');
+          deleteSelectedBtn.style.display = 'inline-block';
+          deleteSelectedBtn.style.visibility = 'visible';
+        } else {
+          deleteSelectedBtn.classList.add('d-none');
+          deleteSelectedBtn.style.display = 'none';
+        }
+        
+        // Update select all checkbox state
+        const selectAllCheckbox = document.getElementById('selectAll');
+        const allCheckboxes = document.querySelectorAll('.content-checkbox');
+        if (selectAllCheckbox && allCheckboxes.length > 0) {
+          selectAllCheckbox.checked = count === allCheckboxes.length;
+          selectAllCheckbox.indeterminate = count > 0 && count < allCheckboxes.length;
+        }
+      }
+
+      // Initialize function
+      function init() {
+        // Event delegation on the form (works with dynamically rendered content)
+        bulkDeleteForm.addEventListener('change', function(e) {
+          const target = e.target;
+          
+          if (target.classList.contains('content-checkbox')) {
+            updateSelection();
+          } else if (target.id === 'selectAll') {
+            const allCheckboxes = document.querySelectorAll('.content-checkbox');
+            allCheckboxes.forEach(function(checkbox) {
+              checkbox.checked = target.checked;
+            });
+            updateSelection();
+          }
+        });
+
+        // Delete button click handler
+        deleteSelectedBtn.addEventListener('click', function(e) {
+          e.preventDefault();
+          const selected = document.querySelectorAll('.content-checkbox:checked');
+          if (selected.length === 0) {
+            alert('Please select at least one content to delete.');
+            return;
+          }
+          
+          if (confirm('Are you sure you want to delete ' + selected.length + ' selected content(s)? This action cannot be undone.')) {
+            bulkDeleteForm.submit();
+          }
+        });
+
+        // Initial update
+        updateSelection();
+      }
+
+      // Run when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', init);
+      } else {
+        init();
+      }
+      
+      // Also run after a short delay to catch any late-loading elements
+      setTimeout(init, 300);
+    })();
+  </script>
+
+  <style>
+    .content-checkbox {
+      cursor: pointer;
+    }
+    #selectAll {
+      cursor: pointer;
+    }
+    #deleteSelectedBtn {
+      transition: all 0.3s ease;
+    }
+    #deleteSelectedBtn[style*="display: none"] {
+      display: none !important;
+    }
+    #deleteSelectedBtn:not([style*="display: none"]) {
+      display: inline-block !important;
+    }
+  </style>
 
 </body>
 
