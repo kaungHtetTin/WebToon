@@ -34,7 +34,7 @@ Class Chapter {
         }
 
         // check if purchased
-        $query = "SELECT * FROM saves WHERE user_id=$user_id AND series_id=$series_id LIMIT 1";
+        $query = "SELECT * FROM saves WHERE user_id=$user_id AND series_id=$series_id AND expire_date >= NOW() LIMIT 1";
         $purchased = $DB->read($query);
 
         if(!$purchased){

@@ -278,15 +278,18 @@ Class Series {
 
     public function getMySeries($user_id){
         $query =" SELECT 
-            series.*
+            series.*,
+            saves.expire_date,
+            DATE_FORMAT(saves.expire_date, '%d %b %Y') AS expire_date_readable
         FROM series
-        JOIN saves ON series.id=saves.series_id WHERE saves.user_id=$user_id
+        JOIN saves ON series.id=saves.series_id 
+        WHERE saves.user_id=$user_id AND saves.expire_date >= NOW()
         ORDER BY saves.date DESC";
 
         $DB=new Database();
         $series=$DB->read($query);
 
-        $query="SELECT count(*) as total_series FROM saves WHERE user_id=$user_id";
+        $query="SELECT count(*) as total_series FROM saves WHERE user_id=$user_id AND expire_date >= NOW()";
         $total=$DB->read($query);
 
         $result['total_series']=$total[0]['total_series'];
@@ -365,7 +368,7 @@ Class Series {
     }
 
     public function isSaved($user_id,$series_id){
-        $query="SELECT * FROM saves WHERE user_id=$user_id and series_id=$series_id limit 1";
+        $query="SELECT * FROM saves WHERE user_id=$user_id and series_id=$series_id and expire_date >= NOW() limit 1";
         $DB=new Database();
         $result=$DB->read($query);
         return $result;
@@ -390,11 +393,27 @@ Class Series {
 
         $remaining_point=$user['point']-$series['point'];
 
-        $query="INSERT INTO saves (user_id,series_id) VALUE ($user_id,$series_id)";
+        $query="SELECT * FROM saves WHERE user_id=$user_id and series_id=$series_id ORDER BY id DESC LIMIT 1";
+        $existing_save=$DB->read($query);
+
+        if($existing_save){
+            $existing_save = $existing_save[0];
+            $save_query="UPDATE saves SET
+            date=NOW(),
+            expire_date=DATE_ADD(
+                IF(expire_date IS NOT NULL AND expire_date > NOW(), expire_date, NOW()),
+                INTERVAL 6 MONTH
+            )
+            WHERE id=".$existing_save['id'];
+        }else{
+            $save_query="INSERT INTO saves (user_id,series_id,date,expire_date) 
+            VALUES ($user_id,$series_id,NOW(),DATE_ADD(NOW(), INTERVAL 6 MONTH))";
+        }
+
         $save_count="UPDATE series SET save=save+1 WHERE id=$series_id";
         $user_query="UPDATE users SET point=$remaining_point WHERE id=$user_id";
 
-        $DB->save($query);
+        $DB->save($save_query);
         $DB->save($save_count);
         $DB->save($user_query);
 
