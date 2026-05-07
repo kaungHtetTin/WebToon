@@ -2519,3 +2519,57 @@ h1, h2, h3, h4, h5, h6 {
   border-radius: 0 4px 4px 0;
   margin-left: -1px;
 }
+
+/*--------------------------------------------------------------
+# DataTable Pagination - Dark Mode Support
+--------------------------------------------------------------*/
+/* Dark mode pagination button colors */
+[data-theme="dark"] .dataTable-pagination a {
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dataTable-pagination a:hover {
+  background-color: var(--hover-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dataTable-pagination .active a,
+[data-theme="dark"] .dataTable-pagination .active a:focus,
+[data-theme="dark"] .dataTable-pagination .active a:hover {
+  background-color: var(--active-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .dataTable-pagination .disabled a,
+[data-theme="dark"] .dataTable-pagination .disabled a:focus,
+[data-theme="dark"] .dataTable-pagination .disabled a:hover {
+  color: var(--text-secondary) !important;
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+[data-theme="dark"] .dataTable-pagination .ellipsis a {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode pagination info text */
+[data-theme="dark"] .dataTable-info {
+  color: var(--text-secondary) !important;
+}
+
+/* Dark mode pagination input and select */
+[data-theme="dark"] .dataTable-input,
+[data-theme="dark"] .dataTable-selector {
+  background-color: var(--input-bg) !important;
+  color: var(--text-primary) !important;
+  border-color: var(--input-border) !important;
+}
+
+[data-theme="dark"] .dataTable-input:focus,
+[data-theme="dark"] .dataTable-selector:focus {
+  border-color: var(--firebase-blue) !important;
+  outline: none;
+}

@@ -46,6 +46,13 @@ if(isset($_POST['add_series'])){
    $uploaded_chapter = $_POST['uploaded_chapter'];
    $uploaded_chapter = filter_var($uploaded_chapter, FILTER_SANITIZE_STRING);
 
+   // Optional fields with default empty string
+   $short = isset($_POST['short']) ? filter_var($_POST['short'], FILTER_SANITIZE_STRING) : '';
+   $genre = isset($_POST['genre']) ? filter_var($_POST['genre'], FILTER_SANITIZE_STRING) : '';
+   $original_work = isset($_POST['original_work']) ? filter_var($_POST['original_work'], FILTER_SANITIZE_STRING) : '';
+   $upload_status = isset($_POST['upload_status']) ? filter_var($_POST['upload_status'], FILTER_SANITIZE_STRING) : '';
+   $point = isset($_POST['point']) ? filter_var($_POST['point'], FILTER_SANITIZE_STRING) : '';
+
    // Handle image upload with validation
    $image_url_folder = '../uploads/images/series/';
    $final_image_url = '';
@@ -167,8 +174,8 @@ if(isset($_POST['add_series'])){
    }else{
 
       // Insert series (without category_id)
-      $insert_products = $conn->prepare("INSERT INTO `series`(title, description, date,  is_active, total_chapter, uploaded_chapter, image_url ) VALUES(?,?,?,?,?,?,?)");
-      $insert_products->execute([$title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url]);
+      $insert_products = $conn->prepare("INSERT INTO `series`(title, description, date,  is_active, total_chapter, uploaded_chapter, image_url, short, genre, original_work, upload_status, point ) VALUES(?,?,?,?,?,?,?,?,?,?,?,?)");
+      $insert_products->execute([$title, $description, $date, $is_active, $total_chapter, $uploaded_chapter, $final_image_url, $short, $genre, $original_work, $upload_status, $point]);
       
       if($insert_products && empty($upload_error)){
           $series_id = $conn->lastInsertId();
@@ -301,6 +308,47 @@ if(isset($_POST['add_series'])){
                     <input type="text" class="form-control" name="description">
                   </div>
                 </div>
+
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Short</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="short" class="form-control" value="">
+                    <small class="form-text text-muted">Optional: Short description or summary</small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Genre</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="genre" class="form-control" value="">
+                    <small class="form-text text-muted">Optional: Genre of the series</small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Original Work</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="original_work" class="form-control" value="">
+                    <small class="form-text text-muted">Optional: Original work information</small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Upload Status</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="upload_status" class="form-control" value="">
+                    <small class="form-text text-muted">Optional: Upload status information</small>
+                  </div>
+                </div>
+
+                <div class="row mb-3">
+                  <label for="inputText" class="col-sm-2 col-form-label">Point</label>
+                  <div class="col-sm-10">
+                    <input type="text" name="point" class="form-control" value="">
+                    <small class="form-text text-muted">Optional: Point value for the series</small>
+                  </div>
+                </div>
+
                 <div class="row mb-3">
                   <label for="inputDate" class="col-sm-2 col-form-label">date</label>
                   <div class="col-sm-10">
