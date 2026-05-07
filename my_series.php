@@ -40,6 +40,12 @@ $weekViews = $ViewHistory->topViewWeek();
 $monthViews = $ViewHistory->topViewMonth();
 $yearViews = $ViewHistory->topViewYear();
 
+// Ensure foreach always receives iterable data.
+$dayViews = is_array($dayViews) ? $dayViews : [];
+$weekViews = is_array($weekViews) ? $weekViews : [];
+$monthViews = is_array($monthViews) ? $monthViews : [];
+$yearViews = is_array($yearViews) ? $yearViews : [];
+
 // Helper function to get all category titles from series categories array
 function getAllCategoryTitles($series){
     if(isset($series['categories']) && !empty($series['categories'])){
@@ -127,6 +133,18 @@ function getAllCategoryTitles($series){
                                             <div class="product__item__text">
                                                 <ul>
                                                     <li>Active</li>
+                                                    <li>
+                                                        Expire: 
+                                                        <?php 
+                                                            if(isset($ser['expire_date_readable']) && !empty($ser['expire_date_readable'])){
+                                                                echo $ser['expire_date_readable'];
+                                                            }else if(isset($ser['expire_date']) && !empty($ser['expire_date'])){
+                                                                echo date('d M Y', strtotime($ser['expire_date']));
+                                                            }else{
+                                                                echo 'N/A';
+                                                            }
+                                                        ?>
+                                                    </li>
                                                     <li><?php echo getAllCategoryTitles($ser) ?></li>
                                                 </ul>
                                                 <h5><a href="details.php?id=<?php echo $ser['id']?>"><?php echo $ser['title'] ?></a></h5>
