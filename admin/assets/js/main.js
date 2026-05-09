@@ -41,6 +41,32 @@
    * Sidebar toggle with backdrop
    */
   if (select('.toggle-sidebar-btn')) {
+    const syncSidebarByViewport = () => {
+      const body = select('body');
+      const sidebar = select('#sidebar');
+      const backdrop = select('#sidebarBackdrop');
+      const isDesktop = window.innerWidth >= 1200;
+
+      if (!body || !sidebar) return;
+
+      if (isDesktop) {
+        // Always keep desktop layout in desktop mode.
+        body.classList.remove('toggle-sidebar');
+        sidebar.classList.remove('show');
+        if (backdrop) backdrop.classList.remove('show');
+        return;
+      }
+
+      // Mobile/tablet mode: reflect current toggle state.
+      if (body.classList.contains('toggle-sidebar')) {
+        sidebar.classList.add('show');
+        if (backdrop) backdrop.classList.add('show');
+      } else {
+        sidebar.classList.remove('show');
+        if (backdrop) backdrop.classList.remove('show');
+      }
+    }
+
     on('click', '.toggle-sidebar-btn', function(e) {
       const body = select('body');
       const sidebar = select('#sidebar');
@@ -59,6 +85,10 @@
         }
       }
     })
+
+    // Critical: keep sidebar state consistent with viewport.
+    window.addEventListener('load', syncSidebarByViewport);
+    window.addEventListener('resize', syncSidebarByViewport);
     
     // Close sidebar when clicking backdrop
     const backdrop = select('#sidebarBackdrop');

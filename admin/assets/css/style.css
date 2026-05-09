@@ -2574,6 +2574,26 @@ h1, h2, h3, h4, h5, h6 {
   outline: none;
 }
 
+/* Dark mode table header compatibility */
+[data-theme="dark"] .table thead,
+[data-theme="dark"] .dashboard .recent-sales .table thead,
+[data-theme="dark"] .dashboard .top-selling .table thead {
+  background: var(--bg-tertiary) !important;
+  border-bottom: 1px solid var(--border-color) !important;
+}
+
+[data-theme="dark"] .table thead th,
+[data-theme="dark"] .dashboard .recent-sales .table thead th,
+[data-theme="dark"] .dashboard .top-selling .table thead th {
+  color: var(--text-secondary) !important;
+  border-color: var(--border-color) !important;
+}
+
+[data-theme="dark"] .table.datatable,
+[data-theme="dark"] .table-responsive {
+  border-color: var(--border-color) !important;
+}
+
 /*--------------------------------------------------------------
 # Compact Dashboard Mode (index.php only)
 --------------------------------------------------------------*/
@@ -2656,4 +2676,203 @@ h1, h2, h3, h4, h5, h6 {
   height: 40px;
   min-width: 40px;
   min-height: 40px;
+}
+
+/*--------------------------------------------------------------
+# Global Compact Admin Mode (all admin pages)
+--------------------------------------------------------------*/
+#main {
+  padding: 20px 24px;
+}
+
+@media (max-width: 1199px) {
+  #main {
+    padding: 14px 12px;
+  }
+}
+
+.pagetitle {
+  margin-bottom: 14px;
+}
+
+.pagetitle h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.breadcrumb {
+  font-size: 12px;
+}
+
+.section {
+  padding: 0;
+}
+
+.card {
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+
+.card-header,
+.card-footer {
+  padding: 10px 12px;
+}
+
+.card-title {
+  padding: 12px 12px 8px 12px;
+  font-size: 14px;
+  line-height: 1.25;
+}
+
+.card-title span {
+  font-size: 11px;
+}
+
+.card-body {
+  padding: 0 12px 12px 12px;
+}
+
+.btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.btn-sm {
+  padding: 4px 10px;
+  font-size: 11px;
+}
+
+.form-control,
+.form-select {
+  padding: 7px 10px;
+  font-size: 13px;
+}
+
+.form-label {
+  font-size: 12px;
+  margin-bottom: 6px;
+}
+
+.form-text {
+  font-size: 11px;
+}
+
+.row {
+  --bs-gutter-y: 0.75rem;
+}
+
+.table thead th {
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.table tbody td,
+.table tbody th {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.badge {
+  font-size: 11px;
+  padding: 3px 8px;
+}
+
+.header-nav .nav-icon {
+  width: 34px;
+  height: 34px;
+  font-size: 17px;
+}
+
+.header-nav .nav-profile img {
+  max-height: 28px;
+  max-width: 28px;
+}
+
+.sidebar {
+  padding: 10px 0;
+}
+
+.sidebar-nav .nav-heading {
+  margin: 14px 0 8px 16px;
+  font-size: 11px;
+  padding: 4px 0;
+}
+
+.sidebar-nav .nav-link {
+  padding: 9px 12px;
+  margin: 0 6px;
+  font-size: 13px;
+}
+
+.sidebar-nav .nav-link i {
+  font-size: 18px;
+  margin-right: 10px;
+  width: 18px;
+}
+
+.dashboard .info-card h6 {
+  font-size: 22px;
+}
+
+.dashboard .card-icon {
+  width: 38px;
+  height: 38px;
+  font-size: 18px;
+}
+
+.dashboard .recent-sales .table thead th,
+.dashboard .top-selling .table thead th {
+  padding: 8px 10px;
+}
+
+.dashboard .recent-sales .table tbody td,
+.dashboard .top-selling .table tbody td {
+  padding: 8px 10px;
+}
+
+/*--------------------------------------------------------------
+# Desktop Layout Fix (prevent medium-like layout on large screens)
+--------------------------------------------------------------*/
+@media (min-width: 1200px) {
+  /* Always disable mobile drawer/backdrop behavior on desktop. */
+  .sidebar-backdrop,
+  .sidebar-backdrop.show {
+    display: none !important;
+    opacity: 0 !important;
+    pointer-events: none !important;
+  }
+
+  body {
+    overflow: auto !important;
+  }
+
+  body:not(.toggle-sidebar) .sidebar {
+    left: 0 !important;
+  }
+
+  body:not(.toggle-sidebar) #main,
+  body:not(.toggle-sidebar) #footer {
+    margin-left: var(--firebase-sidebar-width) !important;
+  }
+
+  body:not(.toggle-sidebar) .header .search-bar {
+    position: static !important;
+    visibility: visible !important;
+    opacity: 1 !important;
+    box-shadow: none !important;
+    top: auto !important;
+    left: auto !important;
+    right: auto !important;
+  }
+
+  /* Ignore toggle-sidebar class on desktop so layout never falls back to tablet/mobile mode. */
+  body.toggle-sidebar .sidebar {
+    left: 0 !important;
+  }
+
+  body.toggle-sidebar #main,
+  body.toggle-sidebar #footer {
+    margin-left: var(--firebase-sidebar-width) !important;
+  }
 }
