@@ -2,12 +2,12 @@
 
   include_once('config.php');
   require_once('includes/image_helper.php');
+  require_once('includes/admin_auth.php');
+
+  requireAdminLogin();
+  loadAdminPermissions();
 
   $admin_id = $_SESSION['admin_id'];
-
-  if(!isset($admin_id)){
-     header('location:login.php');
-  }
 
 ?>
   <!-- ======= Header - Firebase Console Style ======= -->

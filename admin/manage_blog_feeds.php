@@ -2,9 +2,11 @@
 
 include('config.php');
 require_once('includes/image_helper.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
+requirePermission('blog_feeds');
 
 if(isset($_POST['update_blog_feeds'])){
 

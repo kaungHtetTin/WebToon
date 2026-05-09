@@ -1,14 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-// Simple auth guard in case this page is accessed directly
-if (!isset($_SESSION['admin_id'])) {
-  header('location:login.php');
-  exit;
-}
+requirePermission('payment_methods');
 
 // Delete logic
 if (isset($_GET['delete'])) {

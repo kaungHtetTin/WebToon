@@ -1,28 +1,8 @@
 <?php
-session_start();
-include('config.php');
-include('connect.php');
-
-if($_SERVER['REQUEST_METHOD']=="POST"){
-    $email = $_POST['email'];
-    $password = $_POST['password'];
-    $password = hash("md5", $password);
-
-    $DB = new Database();
-    $query = "SELECT * FROM admin WHERE email='$email'";
-    $result = $DB->read($query);
-    if($result){
-      $user = $result[0];
-        if($password==$user['password']){
-          $_SESSION['webtoon_admin_id']= $user['id'];
-          header("location:index.php");
-        }
-    }
-
-
-}
-
-
+// Legacy login entry point. Redirects to the canonical login flow which
+// uses bcrypt-based password verification and permission loading.
+header('location: login.php');
+exit;
 ?>
 
 <!DOCTYPE html>

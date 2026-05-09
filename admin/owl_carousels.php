@@ -2,10 +2,11 @@
 
 include('config.php');
 require_once('includes/image_helper.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-
+requirePermission('owl_carousels');
 
 if(isset($_GET['delete'])){
 

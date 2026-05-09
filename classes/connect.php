@@ -1,54 +1,96 @@
 <?php
+include_once(__DIR__ . '/env.php');
 
-class Database {
+class Database
+{
+	private static $mysqliConnection = null;
+	private static $pdoConnection = null;
 
-	// private $host="localhost";
-	// private $username="u148234809_webtoon";
-	// private $password="Webtoon5241@@";
-	// private $db="u148234809_webtoon";
+	private static function getConfig()
+	{
+		Env::load(dirname(__DIR__) . '/.env');
 
-	private $host="localhost";
-	private $username="root";
-	private $password="";
-	private $db="webtoon2";
-
-	//this is git ignore file
-	// I want to ignore this file
-
-	function connect(){
-		$connection=mysqli_connect($this->host,$this->username,$this->password,$this->db);
-		return $connection;
+		return [
+			'host' => Env::get('DB_HOST', 'localhost'),
+			'port' => (int)Env::get('DB_PORT', 3306),
+			'database' => Env::get('DB_DATABASE', 'webtoon2'),
+			'username' => Env::get('DB_USERNAME', 'root'),
+			'password' => Env::get('DB_PASSWORD', ''),
+			'charset' => Env::get('DB_CHARSET', 'utf8mb4'),
+		];
 	}
 
-	function read($query){
-		$conn=$this->connect();
-
-		$result=mysqli_query($conn,$query);
-
-		if(!$result){
-			return false;
-		}else{
-
-			$data=false;
-			 while ($row=mysqli_fetch_assoc($result)) {
-					 
-					$data[]=$row;
-			}
-
-			return $data;
-
+	function connect()
+	{
+		if (self::$mysqliConnection !== null) {
+			return self::$mysqliConnection;
 		}
-	}
 
-	function save($query){
-		$conn=$this->connect();
-		$result=mysqli_query($conn,$query);
+		$config = self::getConfig();
+		self::$mysqliConnection = mysqli_connect(
+			$config['host'],
+			$config['username'],
+			$config['password'],
+			$config['database'],
+			$config['port']
+		);
 
-		if(!$result){
-			return false;
-		}else{
-			return true;
+		if (self::$mysqliConnection) {
+			mysqli_set_charset(self::$mysqliConnection, $config['charset']);
 		}
+
+		return self::$mysqliConnection;
 	}
 
+	public static function getPdoConnection()
+	{
+		if (self::$pdoConnection !== null) {
+			return self::$pdoConnection;
+		}
+
+		$config = self::getConfig();
+		$dsn = sprintf(
+			'mysql:host=%s;port=%d;dbname=%s;charset=%s',
+			$config['host'],
+			$config['port'],
+			$config['database'],
+			$config['charset']
+		);
+
+		self::$pdoConnection = new PDO(
+			$dsn,
+			$config['username'],
+			$config['password'],
+			[
+				PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION,
+				PDO::ATTR_DEFAULT_FETCH_MODE => PDO::FETCH_ASSOC,
+			]
+		);
+
+		return self::$pdoConnection;
+	}
+
+	function read($query)
+	{
+		$conn = $this->connect();
+		$result = mysqli_query($conn, $query);
+
+		if (!$result) {
+			return false;
+		}
+
+		$data = false;
+		while ($row = mysqli_fetch_assoc($result)) {
+			$data[] = $row;
+		}
+
+		return $data;
+	}
+
+	function save($query)
+	{
+		$conn = $this->connect();
+		$result = mysqli_query($conn, $query);
+		return (bool)$result;
+	}
 }

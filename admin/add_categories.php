@@ -2,8 +2,11 @@
 
 include('config.php');
 /*include('connect.php');*/
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('categories');
 
 /*$DB=new Database();
 $query ="SELECT * FROM categories ";

@@ -1,9 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
+requirePermission('chapters');
 
 if(isset($_POST['update_chapters'])){
 

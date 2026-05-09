@@ -2,8 +2,12 @@
 
   include_once('config.php');
   require_once('includes/image_helper.php');
+  require_once('includes/admin_auth.php');
 
   session_start();
+
+  // Dashboard should be accessible to every authenticated admin.
+  requireAdminLogin();
 
   
 
@@ -57,7 +61,7 @@
 
 
 
-  <main id="main" class="main">
+  <main id="main" class="main compact-dashboard">
 
     <div class="pagetitle">
       <h1>Dashboard</h1>

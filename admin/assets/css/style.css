@@ -2573,3 +2573,87 @@ h1, h2, h3, h4, h5, h6 {
   border-color: var(--firebase-blue) !important;
   outline: none;
 }
+
+/*--------------------------------------------------------------
+# Compact Dashboard Mode (index.php only)
+--------------------------------------------------------------*/
+.compact-dashboard .pagetitle {
+  margin-bottom: 14px;
+}
+
+.compact-dashboard .pagetitle h1 {
+  font-size: 22px;
+  margin-bottom: 4px;
+}
+
+.compact-dashboard .section.dashboard > .row {
+  --bs-gutter-y: 0.75rem;
+}
+
+.compact-dashboard .card {
+  margin-bottom: 12px;
+  border-radius: 6px;
+}
+
+.compact-dashboard .card-title {
+  padding: 12px 14px 8px 14px;
+  font-size: 14px;
+  line-height: 1.2;
+}
+
+.compact-dashboard .card-title span {
+  font-size: 11px;
+}
+
+.compact-dashboard .card-body {
+  padding: 0 14px 12px 14px;
+}
+
+.compact-dashboard .dashboard .info-card h6 {
+  font-size: 22px;
+  line-height: 1.1;
+}
+
+.compact-dashboard .dashboard .card-icon {
+  width: 36px;
+  height: 36px;
+  font-size: 18px;
+}
+
+.compact-dashboard .dashboard .info-card .ps-3 {
+  padding-left: 0.6rem !important;
+}
+
+.compact-dashboard .btn {
+  padding: 6px 12px;
+  font-size: 12px;
+  border-radius: 4px;
+}
+
+.compact-dashboard .table thead th {
+  padding: 8px 10px;
+  font-size: 11px;
+}
+
+.compact-dashboard .table tbody td,
+.compact-dashboard .table tbody th {
+  padding: 8px 10px;
+  font-size: 12px;
+}
+
+.compact-dashboard .table .badge {
+  padding: 3px 8px;
+  font-size: 11px;
+}
+
+.compact-dashboard .recent-sales img[alt="Screenshot"] {
+  width: 56px !important;
+  height: 56px !important;
+}
+
+.compact-dashboard .series-image-container-small {
+  width: 40px;
+  height: 40px;
+  min-width: 40px;
+  min-height: 40px;
+}

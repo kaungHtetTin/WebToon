@@ -1,8 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('owl_carousels');
 
 if(isset($_POST['add_owl_carousels'])){
 

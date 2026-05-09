@@ -1,15 +1,10 @@
 <?php
     // Simple API endpoint to get payment methods and point prices
     // No authentication required - public data
-    
-    // Database connection using PDO
-    $db_name = "mysql:host=localhost;dbname=webtoon2";
-    $username = "root";
-    $password = "";
+    include_once(__DIR__ . '/../../classes/connect.php');
     
     try {
-        $conn = new PDO($db_name, $username, $password);
-        $conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+        $conn = Database::getPdoConnection();
     } catch (PDOException $e) {
         $response = [
             'status' => 'error',

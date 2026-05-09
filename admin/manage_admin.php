@@ -2,13 +2,17 @@
 
 include('config.php');
 require_once('includes/image_helper.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-
+requirePermission('admin');
 
 $message = [];
 $is_edit_mode = isset($_GET['update']) && !empty($_GET['update']);
+
+$all_permissions  = getAllAdminPermissions();
+$selected_permissions = [];
 
 // Handle form submission for both add and update
 if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
@@ -24,17 +28,53 @@ if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
    $phone = $_POST['phone'];
    $phone = filter_var($phone, FILTER_SANITIZE_STRING);
 
-   // Handle password - if updating and password is empty, keep old password
-   $password = '';
-   if($is_edit_mode && $pid && empty($_POST['password'])){
-       // Get current password from database
-       $select_current = $conn->prepare("SELECT password FROM `admin` WHERE id = ?");
-       $select_current->execute([$pid]);
-       $current_data = $select_current->fetch(PDO::FETCH_ASSOC);
-       $password = $current_data['password'] ?? '';
+   // Capture posted permission ids early so the form can repopulate on validation failure.
+   $posted_permissions = isset($_POST['permissions']) && is_array($_POST['permissions']) ? $_POST['permissions'] : [];
+   $selected_permissions = array_map('intval', $posted_permissions);
+
+   // Safety: editing self -> cannot remove 'admin' permission if you'd become the last admin manager.
+   if ($is_edit_mode && $pid && (int)$pid === (int)$_SESSION['admin_id']) {
+       $admin_perm_id_stmt = $conn->prepare("SELECT id FROM admin_permissions WHERE permission_key = 'admin' LIMIT 1");
+       $admin_perm_id_stmt->execute();
+       $admin_perm_id = (int)$admin_perm_id_stmt->fetchColumn();
+
+       if ($admin_perm_id && !in_array($admin_perm_id, $selected_permissions, true)) {
+           $count_stmt = $conn->prepare("
+              SELECT COUNT(DISTINCT m.admin_id) AS c
+              FROM admin_permission_map m
+              INNER JOIN admin a ON a.id = m.admin_id
+              WHERE m.permission_id = ? AND a.is_active = 1
+           ");
+           $count_stmt->execute([$admin_perm_id]);
+           $admin_managers = (int)$count_stmt->fetchColumn();
+
+           if ($admin_managers <= 1) {
+               $message[] = 'You cannot remove the "Admin Accounts" permission from your own account: you are the last admin manager.';
+               $selected_permissions[] = $admin_perm_id;
+           }
+       }
+   }
+
+   // Handle password:
+   // - new admin: required, hashed with password_hash (bcrypt)
+   // - update + blank password: keep existing password_hash unchanged
+   // - update + new password: rehash with password_hash and clear legacy md5
+   $password_hash_value = null;
+   $password_md5_value  = null;
+   $update_password     = false;
+
+   if ($is_edit_mode && $pid && empty($_POST['password'])) {
+       // Keep current password unchanged.
+       $update_password = false;
    } else {
-       $password = md5($_POST['password']);
-       $password = filter_var($password, FILTER_SANITIZE_STRING);
+       $raw_password = isset($_POST['password']) ? $_POST['password'] : '';
+       if (strlen($raw_password) < 6) {
+           $message[] = 'Password must be at least 6 characters long.';
+       } else {
+           $password_hash_value = password_hash($raw_password, PASSWORD_DEFAULT);
+           $password_md5_value  = '';
+           $update_password     = true;
+       }
    }
    
    // Handle checkbox - if checked, value is 1, otherwise 0
@@ -82,32 +122,48 @@ if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
        }
    }
 
-   // Only proceed with database operation if upload was successful or no file was uploaded
-   if($upload_success){
-       if($is_edit_mode && $pid){
-           // Update existing admin
-           $update_product = $conn->prepare("UPDATE `admin` SET username = ?,  email = ?, phone = ?, password = ?,  is_active = ?,  image_url = ? WHERE id = ?");
-           $update_product->execute([$username, $email, $phone, $password, $is_active, $final_image_url, $pid]);
+   // Only proceed with database operation if upload was successful, no validation errors, and (for create) password is set
+   $has_blocking_errors = !empty($message);
+   if ($upload_success && !$has_blocking_errors) {
+       if ($is_edit_mode && $pid) {
+           if ($update_password) {
+               $update_product = $conn->prepare("UPDATE `admin` SET username = ?, email = ?, phone = ?, password = ?, password_hash = ?, is_active = ?, image_url = ? WHERE id = ?");
+               $update_product->execute([$username, $email, $phone, $password_md5_value, $password_hash_value, $is_active, $final_image_url, $pid]);
+           } else {
+               $update_product = $conn->prepare("UPDATE `admin` SET username = ?, email = ?, phone = ?, is_active = ?, image_url = ? WHERE id = ?");
+               $update_product->execute([$username, $email, $phone, $is_active, $final_image_url, $pid]);
+           }
 
-           if($update_product){
+           if ($update_product) {
+               saveAdminPermissions($pid, $selected_permissions);
                $message[] = 'updated successfully!';
                header('location:admin.php');
                exit;
            }
        } else {
-           // Add new admin
-           $add_admin = $conn->prepare("INSERT INTO `admin` (username, email, phone, password, is_active, image_url) VALUES (?, ?, ?, ?, ?, ?)");
-           $add_admin->execute([$username, $email, $phone, $password, $is_active, $final_image_url]);
+           if (!$update_password) {
+               $message[] = 'Password is required for new admin.';
+           } else {
+               $add_admin = $conn->prepare("INSERT INTO `admin` (username, email, phone, password, password_hash, is_active, image_url) VALUES (?, ?, ?, ?, ?, ?, ?)");
+               $add_admin->execute([$username, $email, $phone, $password_md5_value, $password_hash_value, $is_active, $final_image_url]);
 
-           if($add_admin){
-               $message[] = 'Admin added successfully!';
-               header('location:admin.php');
-               exit;
+               if ($add_admin) {
+                   $new_admin_id = (int)$conn->lastInsertId();
+                   saveAdminPermissions($new_admin_id, $selected_permissions);
+                   $message[] = 'Admin added successfully!';
+                   header('location:admin.php');
+                   exit;
+               }
            }
        }
    }
-   
 
+
+}
+
+// Pre-load existing permissions for edit mode (when not posting).
+if ($is_edit_mode && empty($selected_permissions)) {
+    $selected_permissions = getAdminPermissionIds($_GET['update']);
 }
 
 ?>
@@ -269,6 +325,38 @@ if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
                       </div>
                     </div>
 
+                    <hr>
+                    <div class="row mb-3">
+                      <label class="col-sm-2 col-form-label">Page Permissions</label>
+                      <div class="col-sm-10">
+                        <div class="d-flex justify-content-between align-items-center mb-2">
+                          <small class="text-muted">Select which admin pages this account can access.</small>
+                          <div>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="permsSelectAll">Select all</button>
+                            <button type="button" class="btn btn-sm btn-outline-secondary" id="permsClearAll">Clear</button>
+                          </div>
+                        </div>
+                        <div class="row">
+                          <?php foreach ($all_permissions as $perm): ?>
+                            <div class="col-md-6 col-lg-4 mb-2">
+                              <div class="form-check">
+                                <input class="form-check-input perm-checkbox"
+                                       type="checkbox"
+                                       name="permissions[]"
+                                       id="perm_<?= (int)$perm['id']; ?>"
+                                       value="<?= (int)$perm['id']; ?>"
+                                       <?= in_array((int)$perm['id'], $selected_permissions, true) ? 'checked' : ''; ?>>
+                                <label class="form-check-label" for="perm_<?= (int)$perm['id']; ?>">
+                                  <?= htmlspecialchars($perm['label']); ?>
+                                  <small class="text-muted d-block"><?= htmlspecialchars($perm['permission_key']); ?></small>
+                                </label>
+                              </div>
+                            </div>
+                          <?php endforeach; ?>
+                        </div>
+                      </div>
+                    </div>
+
                     <div class="row mb-3">
                       <label class="col-sm-2 col-form-label"></label>
                       <div class="col-sm-10">
@@ -314,6 +402,16 @@ if(isset($_POST['update_users']) || isset($_POST['add_admin'])){
 
   <!-- Template Main JS File -->
   <script src="assets/js/main.js"></script>
+
+  <script>
+    (function() {
+      const all = document.querySelectorAll('.perm-checkbox');
+      const sel = document.getElementById('permsSelectAll');
+      const clr = document.getElementById('permsClearAll');
+      if (sel) sel.addEventListener('click', () => all.forEach(c => c.checked = true));
+      if (clr) clr.addEventListener('click', () => all.forEach(c => c.checked = false));
+    })();
+  </script>
 
 </body>
 

@@ -1,10 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-
+requirePermission('categories');
 
 // Category deletion is disabled for data integrity
 // if(isset($_GET['delete'])){

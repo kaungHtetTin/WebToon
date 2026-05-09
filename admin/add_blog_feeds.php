@@ -1,8 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('blog_feeds');
 
 // Optional preselected blog id from query
 $preselected_blog_id = null;

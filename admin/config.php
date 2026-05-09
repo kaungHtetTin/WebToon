@@ -1,10 +1,7 @@
 <?php
 
-$db_name = "mysql:host=localhost;dbname=webtoon2";
-$username = "root";
-$password = "";
-
-$conn = new PDO($db_name, $username, $password);
+include_once(__DIR__ . '/../classes/connect.php');
+$conn = Database::getPdoConnection();
 
 ?>
 

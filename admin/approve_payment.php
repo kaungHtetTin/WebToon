@@ -2,14 +2,11 @@
 
   include('config.php');
   require_once('includes/image_helper.php');
+  require_once('includes/admin_auth.php');
 
   session_start();
 
-  // Ensure admin is logged in
-  if (!isset($_SESSION['admin_id'])) {
-    header('location:login.php');
-    exit;
-  }
+  requirePermission('payments');
 
 ?>
 

@@ -2,13 +2,15 @@
 
   include('config.php');
   include('connect.php');
-
+  require_once('includes/admin_auth.php');
 
   session_start();
 
-  $DB=new Database();
+  requirePermission('payments');
+
+  $DB = new Database();
   $query = "SELECT * FROM payment_histories WHERE ";
-  
+
 
 ?>
 

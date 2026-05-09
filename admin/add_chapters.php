@@ -1,10 +1,12 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-// Initialize message array
+requirePermission('chapters');
+
 $message = [];
 
 // Validate and sanitize series_id from URL
@@ -217,7 +219,7 @@ if(isset($_POST['add_chapter'])){
                     <div class="row mb-3">
                       <label for="title" class="col-sm-2 col-form-label">Title <span class="text-danger">*</span></label>
                       <div class="col-sm-10">
-                        <input type="text" name="title" id="title" class="form-control" required minlength="2" value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : ''; ?>">
+                        <input type="text" name="title" id="title" class="form-control" required minlength="2" value="<?= isset($_POST['title']) ? htmlspecialchars($_POST['title']) : 'Chapter_'; ?>">
                         <small class="form-text text-muted">Chapter title (required, minimum 2 characters)</small>
                         <div class="invalid-feedback">Please provide a valid chapter title (at least 2 characters).</div>
                       </div>

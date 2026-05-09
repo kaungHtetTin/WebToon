@@ -45,5 +45,4 @@ Desktop.ini
 # Configuration files with sensitive data
 config.local.php
 connect.local.php
-classes/connect.php
 

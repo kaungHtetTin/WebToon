@@ -3,11 +3,7 @@
     include_once('../classes/payment.php');
     include_once('../classes/jwt.php');
 
-    // Database connection using PDO (same as admin)
-    $db_name = "mysql:host=localhost;dbname=webtoon2";
-    $username = "root";
-    $password = "";
-    $conn = new PDO($db_name, $username, $password);
+    $conn = Database::getPdoConnection();
 
     // Get base URL for icon generation
     $protocol = (!empty($_SERVER['HTTPS']) && $_SERVER['HTTPS'] !== 'off') || (isset($_SERVER['SERVER_PORT']) && $_SERVER['SERVER_PORT'] == 443) ? 'https://' : 'http://';

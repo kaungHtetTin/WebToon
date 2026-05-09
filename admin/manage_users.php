@@ -2,10 +2,12 @@
 
 include('config.php');
 require_once('includes/image_helper.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-// Handle optional password update
+requirePermission('users');
+
 if (isset($_POST['update_users'])) {
 
   $pid = $_POST['pid'] ?? null;

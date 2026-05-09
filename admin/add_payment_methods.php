@@ -1,14 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-// Auth guard
-if (!isset($_SESSION['admin_id'])) {
-  header('location:login.php');
-  exit;
-}
+requirePermission('payment_methods');
 
 $message = [];
 

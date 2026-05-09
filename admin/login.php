@@ -1,36 +1,74 @@
 <?php
 session_start();
 include('config.php');
+require_once('includes/admin_auth.php');
 
+$message = [];
 
-if(isset($_POST['submit'])){
+// Friendly notice for admins forced out of inactive sessions.
+if (isset($_GET['inactive'])) {
+    $message[] = 'Your account is inactive. Please contact a Super Admin.';
+}
 
-   $email = $_POST['email'];
-   $email = filter_var($email, FILTER_SANITIZE_STRING);
+if (isset($_POST['submit'])) {
 
-   $password = md5($_POST['password']);
-   $password = filter_var($password, FILTER_SANITIZE_STRING);
+    $email = isset($_POST['email']) ? trim($_POST['email']) : '';
+    $email = filter_var($email, FILTER_SANITIZE_EMAIL);
 
-   $sql = "SELECT * FROM `admin` WHERE email = ? AND password = ?";
+    $raw_password = isset($_POST['password']) ? $_POST['password'] : '';
 
- 
+    if ($email === '' || $raw_password === '') {
+        $message[] = 'Please enter your email and password.';
+    } else {
+        $sql  = "SELECT * FROM `admin` WHERE email = ? LIMIT 1";
+        $stmt = $conn->prepare($sql);
+        $stmt->execute([$email]);
+        $row  = $stmt->fetch(PDO::FETCH_ASSOC);
 
+        if (!$row) {
+            $message[] = 'Incorrect email or password!';
+        } elseif ((int)$row['is_active'] !== 1) {
+            $message[] = 'Your account is inactive. Please contact a Super Admin.';
+        } else {
+            $authenticated = false;
 
-   $stmt = $conn->prepare($sql);
-   $stmt->execute([$email, $password]);
-   $rowCount = $stmt->rowCount();  
-   print_r($rowCount);
+            // Preferred: bcrypt verify via password_hash column.
+            if (!empty($row['password_hash']) && password_verify($raw_password, $row['password_hash'])) {
+                $authenticated = true;
 
-   $row = $stmt->fetch(PDO::FETCH_ASSOC);
+                // Auto-rehash if algorithm/cost changed.
+                if (password_needs_rehash($row['password_hash'], PASSWORD_DEFAULT)) {
+                    $new_hash = password_hash($raw_password, PASSWORD_DEFAULT);
+                    $up = $conn->prepare("UPDATE `admin` SET password_hash = ? WHERE id = ?");
+                    $up->execute([$new_hash, $row['id']]);
+                }
+            }
 
-   if($rowCount > 0){
-      $_SESSION['admin_id'] = $row['id'];
-      header('location:index.php');
+            // Legacy fallback: pre-existing MD5 in `password` column.
+            if (!$authenticated && !empty($row['password']) && hash_equals($row['password'], md5($raw_password))) {
+                $authenticated = true;
 
-   }else{
-      $message[] = 'incorrect email or password!';
-   }
+                // Upgrade-on-login: store bcrypt hash, clear legacy md5.
+                $new_hash = password_hash($raw_password, PASSWORD_DEFAULT);
+                $up = $conn->prepare("UPDATE `admin` SET password_hash = ?, password = '' WHERE id = ?");
+                $up->execute([$new_hash, $row['id']]);
+            }
 
+            if ($authenticated) {
+                $_SESSION['admin_id'] = $row['id'];
+                clearAdminPermissionCache();
+                loadAdminPermissions(true);
+
+                $touch = $conn->prepare("UPDATE `admin` SET last_login_at = NOW() WHERE id = ?");
+                $touch->execute([$row['id']]);
+
+                header('location:index.php');
+                exit;
+            } else {
+                $message[] = 'Incorrect email or password!';
+            }
+        }
+    }
 }
 
 
@@ -101,6 +139,14 @@ if(isset($_POST['submit'])){
                     <p class="text-center small">Enter your email & password to login</p>
                   </div>
 
+                  <?php if (!empty($message)): ?>
+                    <div class="alert alert-danger">
+                      <?php foreach ($message as $msg): ?>
+                        <div><?= htmlspecialchars($msg); ?></div>
+                      <?php endforeach; ?>
+                    </div>
+                  <?php endif; ?>
+
                   <form class="row g-3 needs-validation" novalidate action="" method="POST">
 
                     <div class="col-12">
@@ -126,9 +172,6 @@ if(isset($_POST['submit'])){
                     </div>
                     <div class="col-12">
                       <button class="btn btn-primary w-100"  name="submit" value="login now" type="submit">Login</button>
-                    </div>
-                    <div class="col-12">
-                      <p class="small mb-0">Don't have account? <a href="register.php">Create an account</a></p>
                     </div>
                   </form>
 

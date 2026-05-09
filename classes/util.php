@@ -49,7 +49,7 @@ Class Util{
         $image_url = '/' . ltrim($image_url, '/');
         
         // Construct the full URL: protocol + host + path
-        $full_url = $protocol . $host."/webtoon" . $image_url;
+        $full_url = $protocol . $host."/" . $image_url;
         
         return $full_url;
     }

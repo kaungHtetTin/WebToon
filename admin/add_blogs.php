@@ -1,10 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
 
-
+requirePermission('blogs');
 
 if(isset($_POST['add_blogs'])){
 

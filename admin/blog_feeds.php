@@ -2,8 +2,11 @@
 
 include('config.php');
 require_once('includes/image_helper.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('blog_feeds');
 
 // Optional filter by blog
 $filter_blog_id = null;

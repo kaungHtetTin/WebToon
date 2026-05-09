@@ -8,8 +8,11 @@ ini_set('display_errors', 0);
 ini_set('log_errors', 1);
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('contents');
 
 $chapter_id = isset($_GET['chapter_id']) ? filter_var($_GET['chapter_id'], FILTER_SANITIZE_NUMBER_INT) : null;
 $series_id = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;

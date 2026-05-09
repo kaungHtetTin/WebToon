@@ -1,8 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('contents');
 
 $update_id = isset($_GET['update']) ? filter_var($_GET['update'], FILTER_SANITIZE_NUMBER_INT) : null;
 $series_id = isset($_GET['series_id']) ? filter_var($_GET['series_id'], FILTER_SANITIZE_NUMBER_INT) : null;

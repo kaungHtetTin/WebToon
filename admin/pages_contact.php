@@ -1,8 +1,11 @@
 <?php
 
 include('config.php');
+require_once('includes/admin_auth.php');
 
 session_start();
+
+requirePermission('contact_messages');
 
 
 
